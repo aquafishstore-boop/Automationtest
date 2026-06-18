@@ -833,18 +833,38 @@ docker run --rm \
 
 ## 12. Future Roadmap
 
-### Phase 3 (Current) — Agentic Automation
-- ✅ Agentic Brain with PLAN → THINK → ACT loop
-- ✅ 6 specialized pathology test agents
-- ✅ Multi-node central memory
-- ✅ Self-healing selectors via AI
+### Phase 3 (Complete — v2.1.0) — Agentic Automation
+- ✅ **Agentic Brain** — Autonomous PLAN → THINK → ACT → CAPTURE → VERIFY loop (`lib/agentic-brain.js`, 341 lines)
+- ✅ **6 Specialized Pathology Agents** — ADT ICE, Winpath, Surrey ICE, BloodTrack (stub), Cellavision (stub), Custom Script
+- ✅ **Multi-Node Central Memory** — Shared AI mapping store with confidence scoring + decay (`lib/central-memory.js`, 195 lines)
+- ✅ **Self-Healing Selectors** — AI DOM filtering → LLM mapping → fallback chain → failure feedback loop
+- ✅ **Screenshot Evidence** — Labelled format: `{System}_{Test}_{Step}_{Desc}_{Timestamp}.png`
+- ✅ **11 API Endpoints** — All responding HTTP 200
+- ✅ **CI/CD Pipeline** — Self-hosted runner on HP Z440, `deploy-safe.sh` preserves data
+- ✅ **2 AI Backends** — Primary: LM Studio (gpt-oss-20b, 9070 XT), Fallback: Ollama (pathology-eqa:latest, 4060 Ti)
+- ✅ **25 Test Scripts** — 6 sample + 19 PractiTest-imported ADT/ICE scripts
 
-### Phase 4 — Advanced Agents
-- 🔲 BloodTrack Kiosk Agent (barcode scanning simulation)
-- 🔲 Cellavision Result Verification Agent
-- 🔲 Immulink Crossmatch Agent
-- 🔲 WES EQA Agent (scheme creation → processing → reporting)
-- 🔲 Cyres Screening Stats Agent
+### Phase 4 (Planned — v2.2.0) — Advanced Agents & Observability
+
+**Priority 1 — Missing Agent Implementations:**
+- 🔲 **BloodTrack Kiosk Agent** — Barcode scanning simulation, move-in/out workflows, emergency release
+- 🔲 **Cellavision Result Verification Agent** — Differential result capture, RBC morphology match
+- 🔲 **Immulink Crossmatch Agent** — Group & Screen, Antibody ID, Panel imports
+- 🔲 **WES EQA Agent** — Scheme creation → processing → reporting pipeline
+- 🔲 **Cyres Screening Stats Agent** — Primary screener stats, import validation
+
+**Priority 2 — Observability & Reporting:**
+- 🔲 **Grafana Dashboard** — Run metrics, pass rates, AI learning trends
+- 🔲 **Prometheus Metrics Endpoint** — `/api/metrics` for Prometheus scraping
+- 🔲 **Automated Test Scheduling** — Cron-based nightly test runs
+- 🔲 **Slack/Teams Notifications** — Test completion alerts with summary
+
+**Priority 3 — Enterprise:**
+- 🔲 **Multi-Trust Support** — Separate configurations for different NHS trusts
+- 🔲 **LDAP/SAML Authentication** — Single sign-on for NHS users
+- 🔲 **Audit Logging** — External SIEM integration (Syslog)
+- 🔲 **FHIR Test Data Generation** — Synthetic patient data via FHIR APIs
+- 🔲 **Load Testing** — concurrent test execution at scale
 
 ### Phase 5 — Scale & Observability
 - 🔲 Grafana dashboard for run metrics
