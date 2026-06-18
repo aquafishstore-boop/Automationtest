@@ -16,7 +16,7 @@ services:
     environment:
       - NODE_ENV=production
       - PORT=3001
-      - BROWSER=${UAT_BROWSER:-msedge}
+      - BROWSER=${UAT_BROWSER:-chromium}
       - HEADLESS=${UAT_HEADLESS:-true}
       - SCREENSHOTS_DIR=/app/data/screenshots
       - REPORTS_DIR=/app/data/reports
@@ -27,9 +27,10 @@ services:
       - LM_API_TOKEN=${LM_API_TOKEN:-}
       - LM_FALLBACK_HOST=${LM_FALLBACK_HOST:-http://192.168.1.8:11434}
       - AI_FALLBACK_MODEL=${AI_FALLBACK_MODEL:-pathology-eqa:latest}
+      - TRAINING_DATA_DIR=/app/data/runs/training
+      - PERF_DATA_FILE=/app/data/runs/perf-baseline.json
     security_opt:
       - no-new-privileges:true
-      - seccomp=seccomp-profile.json
     cap_drop:
       - ALL
     cap_add:
@@ -37,6 +38,8 @@ services:
     read_only: true
     tmpfs:
       - /tmp
+      - /var/tmp
+      - /home/pwuser/.cache
     logging:
       driver: "json-file"
       options:
