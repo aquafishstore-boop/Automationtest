@@ -27,7 +27,7 @@ import { startRecording, stopRecording, recordStep, getRecorderStatus, getRecord
 import { loadMemory, clearMemory } from "./lib/step-memory.js";
 import { getMemoryStats, exportMemory, importMemory, registerNode, NODE_ID } from "./lib/central-memory.js";
 import { runTestCaseWithAgent, runWinpathWorkflow, runSurreyICEWorkflow } from "./lib/pathology-workflow.js";
-import { getAgentRegistry, runADTICETest } from "./lib/agents/index.js";
+import { getAgentRegistry, runADTICETest, runWinpathAgent, runICEAgency, runCustomScriptAgent } from "./lib/agents/index.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const SCRIPTS_DIR = process.env.SCRIPTS_DIR || path.join(__dirname, "scripts");
@@ -504,6 +504,27 @@ app.get("/api/agents", (req, res) => res.json(getAgentRegistry()));
 app.post("/api/agents/adt-ice/run", async (req, res) => {
   try {
     const result = await runADTICETest(req.body);
+    res.json({ status: result.passed === result.total ? "passed" : "completed", total: result.total, passed: result.passed, failed: result.failed, screenshots: result.screenshots });
+  } catch (err) { handleError(err, res); }
+});
+
+app.post("/api/agents/winpath/run", async (req, res) => {
+  try {
+    const result = await runWinpathAgent(req.body);
+    res.json({ status: result.passed === result.total ? "passed" : "completed", total: result.total, passed: result.passed, failed: result.failed, screenshots: result.screenshots });
+  } catch (err) { handleError(err, res); }
+});
+
+app.post("/api/agents/ice/run", async (req, res) => {
+  try {
+    const result = await runICEAgency(req.body);
+    res.json({ status: result.passed === result.total ? "passed" : "completed", total: result.total, passed: result.passed, failed: result.failed, screenshots: result.screenshots });
+  } catch (err) { handleError(err, res); }
+});
+
+app.post("/api/agents/custom/run", async (req, res) => {
+  try {
+    const result = await runCustomScriptAgent(req.body);
     res.json({ status: result.passed === result.total ? "passed" : "completed", total: result.total, passed: result.passed, failed: result.failed, screenshots: result.screenshots });
   } catch (err) { handleError(err, res); }
 });
