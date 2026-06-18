@@ -122,3 +122,8 @@ docker run --rm -v uat-tester_uat-scripts:/vol alpine ls /vol/
 docker compose build --no-cache uat-tester
 docker compose up -d uat-tester
 ```
+
+## CI/CD Verified
+- SSH key configured ✅
+- Workflow ready at .github/workflows/deploy.yml
+- Last verified: 2026-06-18 16:45
