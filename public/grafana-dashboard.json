@@ -1,0 +1,168 @@
+{
+  "__inputs": [],
+  "__requires": [],
+  "title": "Pathology UAT Tester — v3.0.0",
+  "uid": "uat-tester",
+  "version": 1,
+  "schemaVersion": 39,
+  "tags": ["uat", "pathology", "testing"],
+  "timezone": "browser",
+  "editable": true,
+  "refresh": "30s",
+  "time": { "from": "now-24h", "to": "now" },
+  "templating": {
+    "list": [
+      {
+        "name": "DataSource",
+        "type": "datasource",
+        "query": "prometheus",
+        "current": { "text": "Prometheus", "value": "prometheus" }
+      }
+    ]
+  },
+  "panels": [
+    {
+      "title": "Run Status Overview",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 4, "x": 0, "y": 0 },
+      "targets": [{ "expr": "uat_runs_started_total", "legendFormat": "Total Runs" }],
+      "description": "Total number of test runs executed"
+    },
+    {
+      "title": "Pass Rate",
+      "type": "gauge",
+      "gridPos": { "h": 4, "w": 4, "x": 4, "y": 0 },
+      "targets": [{ "expr": "uat_pass_rate", "legendFormat": "Pass Rate" }],
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"] },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "minVizHeight": 75,
+        "minVizWidth": 75
+      },
+      "thresholds": {
+        "mode": "absolute",
+        "steps": [
+          { "color": "red", "value": null },
+          { "color": "orange", "value": 70 },
+          { "color": "yellow", "value": 85 },
+          { "color": "green", "value": 95 }
+        ]
+      }
+    },
+    {
+      "title": "Uptime",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 4, "x": 8, "y": 0 },
+      "targets": [{ "expr": "time() - uat_up_since_seconds", "legendFormat": "Uptime" }],
+      "description": "Server uptime in seconds"
+    },
+    {
+      "title": "Steps Passed vs Failed",
+      "type": "bargauge",
+      "gridPos": { "h": 4, "w": 4, "x": 12, "y": 0 },
+      "targets": [
+        { "expr": "uat_steps_passed_total", "legendFormat": "Passed" },
+        { "expr": "uat_steps_failed_total", "legendFormat": "Failed" }
+      ]
+    },
+    {
+      "title": "Active Agents",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 4, "x": 16, "y": 0 },
+      "targets": [{ "expr": "uat_agent_count", "legendFormat": "Agents" }]
+    },
+    {
+      "title": "Run History (24h)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 4 },
+      "targets": [
+        { "expr": "increase(uat_runs_started_total[1h])", "legendFormat": "Runs Started" },
+        { "expr": "increase(uat_runs_completed_total[1h])", "legendFormat": "Runs Completed" },
+        { "expr": "increase(uat_runs_failed_total[1h])", "legendFormat": "Runs Failed" }
+      ],
+      "fieldConfig": {
+        "defaults": { "unit": "short", "min": 0 },
+        "overrides": []
+      },
+      "description": "Number of test runs per hour over the last 24 hours"
+    },
+    {
+      "title": "Steps per Hour",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 4 },
+      "targets": [
+        { "expr": "increase(uat_steps_passed_total[1h])", "legendFormat": "Passed" },
+        { "expr": "increase(uat_steps_failed_total[1h])", "legendFormat": "Failed" }
+      ],
+      "fieldConfig": {
+        "defaults": { "unit": "short", "min": 0 },
+        "overrides": []
+      },
+      "description": "Step pass/fail counts per hour"
+    },
+    {
+      "title": "Memory Usage",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 12 },
+      "targets": [
+        { "expr": "uat_memory_rss_bytes", "legendFormat": "RSS" },
+        { "expr": "uat_memory_heap_used_bytes", "legendFormat": "Heap Used" },
+        { "expr": "uat_memory_heap_total_bytes", "legendFormat": "Heap Total" }
+      ],
+      "fieldConfig": {
+        "defaults": { "unit": "bytes", "min": 0 },
+        "overrides": []
+      },
+      "description": "Node.js memory usage over time"
+    },
+    {
+      "title": "Pass Rate Trend",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 12 },
+      "targets": [{ "expr": "uat_pass_rate", "legendFormat": "Pass Rate %" }],
+      "fieldConfig": {
+        "defaults": { "unit": "percent", "min": 0, "max": 100 },
+        "overrides": []
+      },
+      "description": "Overall pass rate trend"
+    },
+    {
+      "title": "Screenshots Captured",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 12 },
+      "targets": [{ "expr": "increase(uat_screenshots_total[1h])", "legendFormat": "Screenshots" }],
+      "fieldConfig": {
+        "defaults": { "unit": "short", "min": 0 },
+        "overrides": []
+      },
+      "description": "Screenshots captured per hour"
+    },
+    {
+      "title": "Recent Runs",
+      "type": "table",
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 20 },
+      "targets": [{ "expr": "uat_runs_total", "legendFormat": "Runs" }],
+      "transformations": [
+        { "id": "labelsToFields" },
+        { "id": "sortBy", "options": { "sort": [{ "field": "Value", "desc": true }] } }
+      ],
+      "description": "Recent test run summary. Note: Configure your Prometheus to scrape /api/metrics for full metadata."
+    }
+  ],
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": { "type": "prometheus", "uid": "prometheus" },
+        "enable": true,
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "links": [
+    { "title": "UAT Tester Dashboard", "type": "link", "url": "https://UATAPPv1.aetheriscloudgroup.uk", "targetBlank": true },
+    { "title": "API Metrics", "type": "link", "url": "https://UATAPPv1.aetheriscloudgroup.uk/api/metrics", "targetBlank": true }
+  ]
+}

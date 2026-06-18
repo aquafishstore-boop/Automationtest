@@ -31,6 +31,11 @@ import {
   getAgentRegistry, runADTICETest, runWinpathAgent, runICEAgency, runCustomScriptAgent,
   runBloodTrackAgent, runCellavisionAgent, runImmulinkAgent, runWESAgent, runCyresAgent
 } from "./lib/agents/index.js";
+import { getTrusts, getTrust, setTrust, deleteTrust, getTrustsSummary, resolveTrust, getPatientsForTrust, clearTrustCache } from "./lib/trust-manager.js";
+import { authenticate, createSession, getSession, destroySession, getSessions, getUsers, setUser, deleteUser, authMiddleware, roleMiddleware, getSAMLAuthURL, SAMLConfig } from "./lib/auth.js";
+import { generatePatient, generateObservation, generateDiagnosticReport, generateSpecimen, generateServiceRequest, generateBundle, generateFullPatientBundle } from "./lib/fhir-generator.js";
+import { audit, getAuditLog, getAuditSummary, createAuditMiddleware } from "./lib/audit-logger.js";
+import { startScheduler, stopScheduler, getJobs, addJob, removeJob, updateJob, getJobHistory, getRunningJobs, triggerJob } from "./lib/scheduler.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const SCRIPTS_DIR = process.env.SCRIPTS_DIR || path.join(__dirname, "scripts");
@@ -85,6 +90,15 @@ app.use(express.urlencoded({ extended: false }));
 
 // Disable x-powered-by
 app.disable("x-powered-by");
+
+// Trust resolution middleware
+app.use((req, res, next) => {
+  req.trust = resolveTrust(req);
+  next();
+});
+
+// Audit logging middleware (API routes only)
+app.use("/api", createAuditMiddleware());
 
 // --- Input Validation Helpers ---
 
@@ -169,6 +183,90 @@ app.get("/api/config", (req, res) => {
       enabled: !!(process.env.LM_HOST)
     }
   });
+});
+
+// --- Authentication ---
+
+app.post("/api/auth/login", (req, res) => {
+  const { username, password } = req.body;
+  const result = authenticate(username, password);
+  if (result.error) return res.status(401).json({ error: result.error });
+  const sid = createSession(result);
+  audit({ action: "login", resource: "/api/auth/login", user: result.username, ip: req.ip, trust: req.trust?.id, severity: "info", detail: `User ${result.username} logged in via ${result.source}` });
+  res.json({ session: sid, user: { username: result.username, displayName: result.displayName, role: result.role, trusts: result.trusts } });
+});
+
+app.post("/api/auth/logout", (req, res) => {
+  const sid = req.headers["authorization"]?.replace("Bearer ", "") || req.body?.session;
+  if (sid) {
+    const session = getSession(sid);
+    if (session) audit({ action: "logout", resource: "/api/auth/logout", user: session.user?.username, ip: req.ip, trust: req.trust?.id, severity: "info" });
+    destroySession(sid);
+  }
+  res.json({ status: "logged out" });
+});
+
+app.get("/api/auth/session", (req, res) => {
+  const sid = req.headers["authorization"]?.replace("Bearer ", "") || req.query?.session;
+  const session = sid ? getSession(sid) : null;
+  if (!session) return res.json({ authenticated: false });
+  res.json({ authenticated: true, user: session.user, createdAt: session.createdAt, expiresAt: session.expiresAt });
+});
+
+app.get("/api/auth/sessions", authMiddleware, roleMiddleware("admin"), (req, res) => res.json(getSessions()));
+
+app.get("/api/auth/users", authMiddleware, roleMiddleware("admin"), (req, res) => res.json(getUsers()));
+
+app.post("/api/auth/users", authMiddleware, roleMiddleware("admin"), (req, res) => {
+  const { username, password, role, displayName, trusts } = req.body;
+  if (!username) return res.status(400).json({ error: "Username required" });
+  setUser(username, { password: password || "changeme", role: role || "tester", displayName, trusts });
+  res.json({ status: "created", username });
+});
+
+app.delete("/api/auth/users/:username", authMiddleware, roleMiddleware("admin"), (req, res) => {
+  deleteUser(req.params.username);
+  res.json({ status: "deleted" });
+});
+
+app.get("/api/auth/saml", (req, res) => {
+  const url = getSAMLAuthURL();
+  if (!url) return res.json({ enabled: false, message: "SAML not configured" });
+  res.json({ enabled: true, url });
+});
+
+app.get("/api/auth/config", (req, res) => res.json({ saml: SAMLConfig(), ldap: !!process.env.LDAP_URL, local: true }));
+
+// --- Trust Manager ---
+
+app.get("/api/trusts", (req, res) => res.json(getTrustsSummary()));
+
+app.get("/api/trusts/:id", (req, res) => {
+  const trust = getTrust(req.params.id);
+  if (!trust) return res.status(404).json({ error: "Trust not found" });
+  res.json(trust);
+});
+
+app.put("/api/trusts/:id", (req, res) => {
+  try {
+    const trust = setTrust(req.params.id, req.body);
+    clearTrustCache();
+    res.json(trust);
+  } catch (err) { handleError(err, res); }
+});
+
+app.delete("/api/trusts/:id", (req, res) => {
+  try {
+    deleteTrust(req.params.id);
+    res.json({ status: "deleted" });
+  } catch (err) { handleError(err, res); }
+});
+
+app.post("/api/trusts/:id/resolve", (req, res) => {
+  const trust = getTrust(req.params.id);
+  if (!trust) return res.status(404).json({ error: "Trust not found" });
+  const patients = getPatientsForTrust(req.params.id, (() => { try { return JSON.parse(fs.readFileSync(PATIENTS_FILE, "utf-8")); } catch { return []; } })());
+  res.json({ trust, patients: patients.length });
 });
 
 // Scripts
@@ -567,6 +665,66 @@ app.post("/api/agents/cyres/run", async (req, res) => {
   } catch (err) { handleError(err, res); }
 });
 
+// --- FHIR Test Data Generator ---
+
+app.post("/api/fhir/patient", (req, res) => res.json(generatePatient(req.body)));
+
+app.post("/api/fhir/observation", (req, res) => {
+  const { patientId, ...overrides } = req.body;
+  if (!patientId) return res.status(400).json({ error: "patientId required" });
+  res.json(generateObservation(patientId, overrides));
+});
+
+app.post("/api/fhir/bundle", (req, res) => {
+  const { count, ...overrides } = req.body;
+  const n = Math.min(count || 1, 50);
+  const bundles = Array.from({ length: n }, () => generateFullPatientBundle(overrides));
+  res.json({ generated: n, bundles, bundle: n === 1 ? bundles[0] : undefined });
+});
+
+app.get("/api/fhir/patients", (req, res) => {
+  const n = Math.min(parseInt(req.query.count) || 10, 100);
+  const patients = Array.from({ length: n }, () => generatePatient(req.query));
+  res.json({ generated: n, patients });
+});
+
+app.get("/api/fhir/codes", (req, res) => {
+  res.json({
+    observations: [
+      { code: "718-7", display: "Haemoglobin", unit: "g/L" },
+      { code: "787-2", display: "MCV", unit: "fL" },
+      { code: "6690-2", display: "White blood cell count", unit: "x10^9/L" },
+      { code: "777-3", display: "Platelet count", unit: "x10^9/L" },
+      { code: "6299-2", display: "Urea", unit: "mmol/L" },
+      { code: "38483-4", display: "Creatinine", unit: "umol/L" },
+      { code: "33762-6", display: "Sodium", unit: "mmol/L" },
+      { code: "6298-4", display: "Potassium", unit: "mmol/L" },
+      { code: "1963-8", display: "Bilirubin", unit: "umol/L" },
+      { code: "1742-6", display: "ALT", unit: "U/L" }
+    ]
+  });
+});
+
+// --- Audit Log ---
+
+app.get("/api/audit", (req, res) => {
+  const { date, limit, offset, severity, action, user } = req.query;
+  res.json(getAuditLog({ date, limit: parseInt(limit) || 100, offset: parseInt(offset) || 0, severity, action, user }));
+});
+
+app.get("/api/audit/summary", (req, res) => {
+  const days = parseInt(req.query.days) || 7;
+  res.json(getAuditSummary(days));
+});
+
+// --- Grafana Dashboard ---
+
+app.get("/api/grafana/dashboard", (req, res) => {
+  const fp = path.join(PUBLIC_DIR, "grafana-dashboard.json");
+  if (!fs.existsSync(fp)) return res.status(404).json({ error: "Dashboard definition not found" });
+  res.sendFile(fp);
+});
+
 // --- Observability & Analytics ---
 
 app.get("/api/insights", (req, res) => {
@@ -615,7 +773,7 @@ app.get("/api/metrics", (req, res) => {
   METRICS.screenshotsCaptured = METRICS.stepsPassed + METRICS.stepsFailed;
 
   res.json({
-    version: "2.2.0",
+    version: "3.0.0",
     upSince: new Date(METRICS.upSince).toISOString(),
     uptimeSeconds: Math.round((Date.now() - METRICS.upSince) / 1000),
     ...METRICS,
@@ -628,28 +786,48 @@ app.get("/api/metrics", (req, res) => {
   });
 });
 
-// --- Scheduled Test Runner ---
+// --- Automated Scheduler ---
 
-const SCHEDULED_JOBS = [];
+app.get("/api/schedule", (req, res) => res.json(getJobs()));
 
 app.post("/api/schedule", (req, res) => {
-  const { cron, script, agentId, enabled } = req.body;
-  if (!cron && !enabled) return res.status(400).json({ error: "cron expression required" });
+  const { cron, script, agentId, trustId, enabled, notify } = req.body;
+  if (!cron && !script) return res.status(400).json({ error: "cron expression and script required" });
   try {
-    const jobId = `sched_${Date.now().toString(36)}`;
-    const job = { id: jobId, cron: cron || "0 2 * * *", script, agentId, enabled: enabled !== false, createdAt: new Date().toISOString(), lastRun: null };
-    SCHEDULED_JOBS.push(job);
+    const job = addJob({ cron, script, agentId, trustId, enabled, notify });
     res.json({ status: "scheduled", job });
   } catch (err) { handleError(err, res); }
 });
 
-app.get("/api/schedule", (req, res) => res.json(SCHEDULED_JOBS));
+app.put("/api/schedule/:jobId", (req, res) => {
+  const job = updateJob(req.params.jobId, req.body);
+  if (!job) return res.status(404).json({ error: "Job not found" });
+  res.json(job);
+});
 
 app.delete("/api/schedule/:jobId", (req, res) => {
-  const idx = SCHEDULED_JOBS.findIndex(j => j.id === req.params.jobId);
-  if (idx === -1) return res.status(404).json({ error: "Job not found" });
-  SCHEDULED_JOBS.splice(idx, 1);
+  removeJob(req.params.jobId);
   res.json({ status: "deleted" });
+});
+
+app.post("/api/schedule/:jobId/trigger", async (req, res) => {
+  const jobs = getJobs();
+  const job = jobs.find(j => j.id === req.params.jobId);
+  if (!job) return res.status(404).json({ error: "Job not found" });
+  const result = await triggerJob(job, async ({ agentId, script, trustId, callbacks }) => {
+    const agents = { "adt-ice": runADTICETest, "winpath": runWinpathAgent, "ice": runICEAgency, "bloodtrack": runBloodTrackAgent, "cellavision": runCellavisionAgent, "immulink": runImmulinkAgent, "wes": runWESAgent, "cyres": runCyresAgent, "custom-script": runCustomScriptAgent };
+    const runner = agents[agentId || "custom-script"];
+    if (!runner) throw new Error(`Unknown agent: ${agentId}`);
+    return await runner({ script, trustId, callbacks });
+  });
+  res.json({ triggered: true, result });
+});
+
+app.get("/api/schedule/running", (req, res) => res.json(getRunningJobs()));
+
+app.get("/api/schedule/:jobId/history", (req, res) => {
+  const limit = parseInt(req.query.limit) || 50;
+  res.json(getJobHistory(req.params.jobId, limit));
 });
 
 // --- Notifications ---
@@ -689,10 +867,22 @@ app.use((err, req, res, next) => {
 
 app.listen(PORT, () => {
   registerNode(NODE_ID);
-  console.log(`UAT Tester v2.2.0 running on port ${PORT}`);
+  registerNode(NODE_ID);
+
+  // Start the cron scheduler
+  const schedInterval = startScheduler(async ({ agentId, script, trustId, callbacks }) => {
+    const agents = { "adt-ice": runADTICETest, "winpath": runWinpathAgent, "ice": runICEAgency, "bloodtrack": runBloodTrackAgent, "cellavision": runCellavisionAgent, "immulink": runImmulinkAgent, "wes": runWESAgent, "cyres": runCyresAgent, "custom-script": runCustomScriptAgent };
+    const runner = agents[agentId || "custom-script"];
+    if (!runner) throw new Error(`Unknown agent: ${agentId}`);
+    return await runner({ script, trustId, callbacks });
+  });
+
+  console.log(`UAT Tester v3.0.0 running on port ${PORT}`);
   console.log(`Security: Helmet+RateLimit+CORS enabled | Production mode: ${IS_PROD}`);
   console.log(`Browser: ${process.env.BROWSER || "chromium"} | Headless: ${process.env.HEADLESS !== "false"}`);
   console.log(`AI: ${process.env.LM_HOST ? "enabled" : "disabled"}`);
+  console.log(`Auth: ${process.env.LDAP_URL ? "LDAP" : "local"}${process.env.SAML_ENTRYPOINT ? "+SAML" : ""} | Trusts: ${Object.keys(getTrusts()).length}`);
   console.log(`Node: ${NODE_ID} | Memory: ${getMemoryStats().totalMappings} mappings`);
+  console.log(`Scheduler: ${schedInterval ? "running" : "off"} | Audit: ${process.env.AUDIT_CONSOLE ? "console" : "file"}${process.env.SYSLOG_HOST ? "+syslog" : ""}`);
   console.log(`Practitest: ${ptConfigured() ? "configured" : "not configured"}`);
 });
