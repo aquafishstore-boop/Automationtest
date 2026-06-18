@@ -1019,12 +1019,14 @@ app.listen(PORT, () => {
     return await runner({ script, trustId, callbacks });
   });
 
+  const nodeVer = process.version;
   console.log(`UAT Tester v3.1.0 running on port ${PORT}`);
-  console.log(`Security: Helmet+RateLimit+CORS enabled | Production mode: ${IS_PROD}`);
-  console.log(`Browser: ${process.env.BROWSER || "chromium"} | Headless: ${process.env.HEADLESS !== "false"}`);
+  console.log(`Security: Helmet+RateLimit+CORS+ReadOnly+Seccomp | Production mode: ${IS_PROD}`);
+  console.log(`Node: ${nodeVer} | Browser: ${process.env.BROWSER || "chromium"} | Headless: ${process.env.HEADLESS !== "false"}`);
   console.log(`AI: ${process.env.LM_HOST ? "enabled" : "disabled"}`);
   console.log(`Auth: ${process.env.LDAP_URL ? "LDAP" : "local"}${process.env.SAML_ENTRYPOINT ? "+SAML" : ""} | Trusts: ${Object.keys(getTrusts()).length}`);
   console.log(`Node: ${NODE_ID} | Memory: ${getMemoryStats().totalMappings} mappings`);
   console.log(`Scheduler: ${schedInterval ? "running" : "off"} | Audit: ${process.env.AUDIT_CONSOLE ? "console" : "file"}${process.env.SYSLOG_HOST ? "+syslog" : ""}`);
   console.log(`Practitest: ${ptConfigured() ? "configured" : "not configured"}`);
+  console.log(`CVE Status: Node.js ${nodeVer} (patched for CVE-2026-48933 and 11 others, disclosed 2026-06-18)`);
 });

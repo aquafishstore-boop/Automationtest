@@ -29,11 +29,14 @@ services:
       - AI_FALLBACK_MODEL=${AI_FALLBACK_MODEL:-pathology-eqa:latest}
     security_opt:
       - no-new-privileges:true
+      - seccomp=seccomp-profile.json
     cap_drop:
       - ALL
     cap_add:
       - NET_BIND_SERVICE
-    read_only: false
+    read_only: true
+    tmpfs:
+      - /tmp
     logging:
       driver: "json-file"
       options:

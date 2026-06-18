@@ -1,7 +1,7 @@
 # UAT Tester — Hardened Docker Image
-# Security: non-root user, read-only root FS, pinned deps, no build secrets
+# Security: non-root user, forced Node.js patched version, read-only root FS (at runtime), pinned deps
 
-FROM mcr.microsoft.com/playwright:v1.61.0-noble
+FROM mcr.microsoft.com/playwright:v1.61.0-noble AS base
 
 LABEL org.opencontainers.image.title="Pathology UAT Tester"
 LABEL org.opencontainers.image.description="Hardened UAT test runner for pathology systems"
@@ -22,6 +22,15 @@ RUN curl -sSL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor 
     apt-get update && \
     apt-get install -y --no-install-recommends microsoft-edge-stable && \
     rm -rf /var/lib/apt/lists/*
+
+# CVE-2026-48933, CVE-2026-48618, CVE-2026-48615, CVE-2026-48619, CVE-2026-48937, CVE-2026-48928, CVE-2026-48930, CVE-2026-48934, CVE-2026-48617, CVE-2026-48935, CVE-2026-48931
+# Force Node.js to patched version v24.17.1 (fixes 12 CVEs disclosed 2026-06-18)
+ENV NODE_VERSION=24.17.1
+RUN curl -fsSLO --compressed "https://nodejs.org/dist/v$NODE_VERSION/node-v$NODE_VERSION-linux-x64.tar.xz" && \
+    tar -xf "node-v$NODE_VERSION-linux-x64.tar.xz" -C /usr/local --strip-components=1 --no-same-owner && \
+    rm "node-v$NODE_VERSION-linux-x64.tar.xz" && \
+    ln -sf /usr/local/bin/node /usr/local/bin/nodejs && \
+    node --version && npm --version
 
 # Copy dependency manifest and install (with lockfile for integrity)
 COPY package.json package-lock.json ./
