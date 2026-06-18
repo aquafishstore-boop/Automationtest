@@ -1,0 +1,61 @@
+{
+  "name": "Universal ICE to Surrey",
+  "practitestId": "1752",
+  "description": "Duration_estimate\n0",
+  "system": "Surrey ICE",
+  "version": "1.0",
+  "practitestExport": true,
+  "variables": [
+    {
+      "name": "PATIENT_NHS",
+      "label": "Patient NHS Number",
+      "type": "text",
+      "default": "",
+      "required": false
+    },
+    {
+      "name": "PATIENT_NAME",
+      "label": "Patient Name",
+      "type": "text",
+      "default": "",
+      "required": false
+    },
+    {
+      "name": "HEADLESS",
+      "label": "Run headless",
+      "type": "text",
+      "default": "true",
+      "required": false
+    }
+  ],
+  "steps": [
+    {
+      "id": "step-1",
+      "description": "Step 1",
+      "action": "screenshot",
+      "takeScreenshot": true,
+      "expected": ""
+    },
+    {
+      "id": "step-2",
+      "description": "Step 2",
+      "action": "screenshot",
+      "takeScreenshot": true,
+      "expected": ""
+    },
+    {
+      "id": "step-3",
+      "description": "Step 3",
+      "action": "screenshot",
+      "takeScreenshot": true,
+      "expected": ""
+    },
+    {
+      "id": "step-4",
+      "description": "ICE EUI - Access Patient",
+      "action": "screenshot",
+      "takeScreenshot": true,
+      "expected": "Request Within Universal ICE search for the test patient and access the 'View Patient Requests' opti"
+    }
+  ]
+}

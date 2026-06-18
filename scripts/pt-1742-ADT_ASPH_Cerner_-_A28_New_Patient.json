@@ -1,0 +1,117 @@
+{
+  "name": "ADT ASPH Cerner - A28 New Patient",
+  "practitestId": "1742",
+  "description": "Duration_estimate\n0",
+  "system": "Surrey ICE",
+  "version": "1.0",
+  "practitestExport": true,
+  "variables": [
+    {
+      "name": "PATIENT_NHS",
+      "label": "Patient NHS Number",
+      "type": "text",
+      "default": "",
+      "required": false
+    },
+    {
+      "name": "PATIENT_NAME",
+      "label": "Patient Name",
+      "type": "text",
+      "default": "",
+      "required": false
+    },
+    {
+      "name": "HEADLESS",
+      "label": "Run headless",
+      "type": "text",
+      "default": "true",
+      "required": false
+    }
+  ],
+  "steps": [
+    {
+      "id": "step-1",
+      "description": "Step 1",
+      "action": "screenshot",
+      "takeScreenshot": true,
+      "expected": ""
+    },
+    {
+      "id": "step-2",
+      "description": "Step 2",
+      "action": "screenshot",
+      "takeScreenshot": true,
+      "expected": ""
+    },
+    {
+      "id": "step-3",
+      "description": "Step 3",
+      "action": "screenshot",
+      "takeScreenshot": true,
+      "expected": ""
+    },
+    {
+      "id": "step-4",
+      "description": "Step 4",
+      "action": "screenshot",
+      "takeScreenshot": true,
+      "expected": ""
+    },
+    {
+      "id": "step-5",
+      "description": "Step 5",
+      "action": "screenshot",
+      "takeScreenshot": true,
+      "expected": ""
+    },
+    {
+      "id": "step-6",
+      "description": "Step 6",
+      "action": "screenshot",
+      "takeScreenshot": true,
+      "expected": ""
+    },
+    {
+      "id": "step-7",
+      "description": "Step 7",
+      "action": "screenshot",
+      "takeScreenshot": true,
+      "expected": ""
+    },
+    {
+      "id": "step-8",
+      "description": "Step 8",
+      "action": "screenshot",
+      "takeScreenshot": true,
+      "expected": ""
+    },
+    {
+      "id": "step-9",
+      "description": "Step 9",
+      "action": "screenshot",
+      "takeScreenshot": true,
+      "expected": ""
+    },
+    {
+      "id": "step-10",
+      "description": "Step 10",
+      "action": "screenshot",
+      "takeScreenshot": true,
+      "expected": ""
+    },
+    {
+      "id": "step-11",
+      "description": "Step 11",
+      "action": "screenshot",
+      "takeScreenshot": true,
+      "expected": ""
+    },
+    {
+      "id": "step-12",
+      "description": "EPR - Create Patient",
+      "action": "screenshot",
+      "takeScreenshot": true,
+      "expected": "The patient record in the EPR is registered without issue Within the EPR, register a new patient via"
+    }
+  ]
+}

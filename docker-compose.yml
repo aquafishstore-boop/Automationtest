@@ -1,0 +1,70 @@
+services:
+  uat-tester:
+    build: .
+    container_name: uat-tester
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:3002:3001"
+    volumes:
+      - uat-screenshots:/app/data/screenshots
+      - uat-reports:/app/data/reports
+      - uat-runs:/app/data/runs
+      - uat-scripts:/app/data/scripts
+      - ./custom-scripts:/app/data/scripts/custom:ro
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - BROWSER=${UAT_BROWSER:-msedge}
+      - HEADLESS=${UAT_HEADLESS:-true}
+      - SCREENSHOTS_DIR=/app/data/screenshots
+      - REPORTS_DIR=/app/data/reports
+      - RUNS_DIR=/app/data/runs
+      - SCRIPTS_DIR=/app/data/scripts
+      - LM_HOST=${LM_HOST:-}
+      - AI_MODEL=${AI_MODEL:-}
+      - LM_API_TOKEN=${LM_API_TOKEN:-}
+      - LM_FALLBACK_HOST=${LM_FALLBACK_HOST:-http://192.168.1.8:11434}
+      - AI_FALLBACK_MODEL=${AI_FALLBACK_MODEL:-pathology-eqa:latest}
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    cap_add:
+      - NET_BIND_SERVICE
+    read_only: false
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:3001/api/scripts').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+
+  cloudflare-tunnel:
+    image: cloudflare/cloudflared:latest
+    container_name: uat-cloudflared
+    restart: unless-stopped
+    command: tunnel --config /etc/cloudflared/config.yml run
+    volumes:
+      - ./cloudflared:/etc/cloudflared:ro
+    depends_on:
+      - uat-tester
+    cap_drop:
+      - ALL
+    cap_add:
+      - NET_BIND_SERVICE
+      - NET_ADMIN
+
+volumes:
+  uat-screenshots:
+    driver: local
+  uat-reports:
+    driver: local
+  uat-runs:
+    driver: local
+  uat-scripts:
+    driver: local

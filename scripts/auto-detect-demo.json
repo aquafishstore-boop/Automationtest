@@ -1,0 +1,88 @@
+{
+  "name": "AI Auto-Detect Demo",
+  "description": "Demonstrates AI auto-detection — no URLs or selectors required. The AI engine finds elements from the DOM automatically.",
+  "system": "AI Auto-Detect",
+  "version": "1.0",
+  "autoDetect": true,
+  "variables": [
+    { "name": "PATIENT_NHS", "label": "Patient NHS Number", "type": "text", "default": "", "required": false },
+    { "name": "PATIENT_NAME", "label": "Patient Name", "type": "text", "default": "", "required": false },
+    { "name": "HEADLESS", "label": "Run headless", "type": "text", "default": "true", "required": false }
+  ],
+  "steps": [
+    {
+      "id": "navigate-to-system",
+      "description": "Navigate to the target system and wait for it to load",
+      "action": "navigate",
+      "url": "",
+      "takeScreenshot": true
+    },
+    {
+      "id": "login",
+      "description": "Enter username into the username field",
+      "action": "type",
+      "selector": "",
+      "value": "{{USERNAME}}",
+      "takeScreenshot": false
+    },
+    {
+      "id": "enter-password",
+      "description": "Enter password into the password field",
+      "action": "type",
+      "selector": "",
+      "value": "{{PASSWORD}}",
+      "takeScreenshot": false
+    },
+    {
+      "id": "click-login",
+      "description": "Click the login or sign in button to authenticate",
+      "action": "click",
+      "selector": "",
+      "takeScreenshot": true
+    },
+    {
+      "id": "wait-for-dashboard",
+      "description": "Wait for the main dashboard or menu to load after login",
+      "action": "wait",
+      "selector": "",
+      "timeout": 15000,
+      "takeScreenshot": true
+    },
+    {
+      "id": "navigate-to-section",
+      "description": "Click on the main menu section for the test (e.g. Orders, Results, Patients)",
+      "action": "click",
+      "selector": "",
+      "takeScreenshot": true
+    },
+    {
+      "id": "search-for-record",
+      "description": "Type the patient NHS number into the search field",
+      "action": "type",
+      "selector": "",
+      "value": "{{PATIENT_NHS}}",
+      "takeScreenshot": false
+    },
+    {
+      "id": "execute-search",
+      "description": "Click the search button to find the patient record",
+      "action": "click",
+      "selector": "",
+      "takeScreenshot": true
+    },
+    {
+      "id": "verify-patient",
+      "description": "Verify the patient name is visible on screen",
+      "action": "assertText",
+      "selector": "body",
+      "assertText": "{{PATIENT_NAME}}",
+      "takeScreenshot": true
+    },
+    {
+      "id": "capture-evidence",
+      "description": "Capture final evidence screenshot of the patient record",
+      "action": "screenshot",
+      "takeScreenshot": true
+    }
+  ]
+}

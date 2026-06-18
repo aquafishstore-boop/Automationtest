@@ -1,0 +1,107 @@
+{
+  "name": "Surrey ICE - Order Verification",
+  "description": "Verify a pathology order is correctly received and displayed in Surrey ICE. Navigates to ICE web interface, searches for the order by ID, and confirms patient details and requested tests.",
+  "system": "Surrey ICE",
+  "version": "1.0",
+  "variables": [
+    { "name": "BASE_URL", "label": "Surrey ICE URL", "type": "text", "default": "", "required": false },
+    { "name": "USERNAME", "label": "Username", "type": "text", "default": "", "required": false },
+    { "name": "PASSWORD", "label": "Password", "type": "password", "default": "", "required": false },
+    { "name": "ORDER_ID", "label": "Order Reference", "type": "text", "default": "", "required": false },
+    { "name": "PATIENT_NHS", "label": "Patient NHS Number", "type": "text", "default": "", "required": false },
+    { "name": "PATIENT_NAME", "label": "Patient Name", "type": "text", "default": "", "required": false },
+    { "name": "HEADLESS", "label": "Run headless", "type": "text", "default": "true", "required": false }
+  ],
+  "steps": [
+    {
+      "id": "navigate-to-ice",
+      "description": "Navigate to Surrey ICE login page",
+      "action": "navigate",
+      "url": "{{BASE_URL}}",
+      "takeScreenshot": true
+    },
+    {
+      "id": "login",
+      "description": "Enter ICE username",
+      "action": "type",
+      "selector": "input[name='username'], #username, input[placeholder*='username']",
+      "value": "{{USERNAME}}",
+      "takeScreenshot": false
+    },
+    {
+      "id": "enter-password",
+      "description": "Enter ICE password",
+      "action": "type",
+      "selector": "input[name='password'], #password, input[type='password']",
+      "value": "{{PASSWORD}}",
+      "takeScreenshot": false
+    },
+    {
+      "id": "submit-login",
+      "description": "Click login button",
+      "action": "click",
+      "selector": "button[type='submit'], input[type='submit'], button:has-text('Login'), button:has-text('Sign In')",
+      "takeScreenshot": true
+    },
+    {
+      "id": "wait-for-dashboard",
+      "description": "Wait for ICE dashboard to load",
+      "action": "wait",
+      "selector": "nav, .dashboard, [role='navigation'], #main-menu",
+      "timeout": 20000,
+      "takeScreenshot": true
+    },
+    {
+      "id": "navigate-to-orders",
+      "description": "Navigate to the Orders or Patient Search section",
+      "action": "click",
+      "selector": "a:has-text('Orders'), a:has-text('Search'), a:has-text('Patient'), [href*='order'], [href*='search']",
+      "takeScreenshot": true
+    },
+    {
+      "id": "search-order",
+      "description": "Search for the order using Order ID",
+      "action": "type",
+      "selector": "input[placeholder*='order'], input[placeholder*='search'], input[name='orderId'], #orderSearch",
+      "value": "{{ORDER_ID}}",
+      "takeScreenshot": false
+    },
+    {
+      "id": "execute-search",
+      "description": "Click search button",
+      "action": "click",
+      "selector": "button:has-text('Search'), input[type='submit'], button[type='submit'], [aria-label='Search']",
+      "takeScreenshot": true
+    },
+    {
+      "id": "verify-order-display",
+      "description": "Verify the order is displayed and matches patient details",
+      "action": "wait",
+      "selector": "table, .results, .order-details, [class*='order']",
+      "timeout": 15000,
+      "takeScreenshot": true
+    },
+    {
+      "id": "assert-patient-name",
+      "description": "Confirm patient name appears on screen",
+      "action": "assertText",
+      "selector": "body",
+      "assertText": "{{PATIENT_NAME}}",
+      "takeScreenshot": true
+    },
+    {
+      "id": "assert-nhs-number",
+      "description": "Confirm NHS number is visible",
+      "action": "assertText",
+      "selector": "body",
+      "assertText": "{{PATIENT_NHS}}",
+      "takeScreenshot": false
+    },
+    {
+      "id": "capture-final-order-view",
+      "description": "Capture final order verification screenshot",
+      "action": "screenshot",
+      "takeScreenshot": true
+    }
+  ]
+}

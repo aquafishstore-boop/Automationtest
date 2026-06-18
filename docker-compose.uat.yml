@@ -1,0 +1,19 @@
+services:
+  uat-tester:
+    build:
+      context: ./uat-tester
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./uat-tester/screenshots:/app/screenshots
+      - ./uat-tester/reports:/app/reports
+      - ./uat-tester/scripts:/app/scripts
+    environment:
+      - PORT=3001
+      - HEADLESS=${HEADLESS:-true}
+      - PRACTITEST_TOKEN=${PRACTITEST_TOKEN:-}
+      - PRACTITEST_PROJECT_ID=${PRACTITEST_PROJECT_ID:-}
+      - SCREENSHOTS_DIR=/app/screenshots
+      - REPORTS_DIR=/app/reports
+    restart: unless-stopped

@@ -1,0 +1,35 @@
+﻿# Security: never commit secrets
+.env
+.env.*
+!env.example
+*.key
+*.pem
+*.crt
+credentials.json
+
+# Dependencies
+node_modules/
+
+# Data (screenshots, reports, runs, ai memory)
+screenshots/
+reports/
+runs/
+ai-memory/
+stepMemory.json
+backups/
+*.log
+
+# Editor
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build
+dist/
+*.tsbuildinfo

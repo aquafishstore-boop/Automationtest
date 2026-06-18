@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pathology UAT Test Runner</title>
+  <link rel="stylesheet" href="/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <header class="app-header">
+    <div class="header-inner">
+      <div class="logo">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+        <span>UAT Test Runner</span>
+      </div>
+      <div class="header-status">
+        <span class="status-dot" id="connectionStatus"></span>
+        <span id="connectionLabel">Connecting...</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="main-layout">
+    <!-- Setup Panel -->
+    <section class="panel setup-panel" id="setupPanel">
+      <div class="panel-header">
+        <h2>Test Configuration</h2>
+      </div>
+
+      <div class="form-group">
+        <label for="scriptSelect">Test Script</label>
+        <select id="scriptSelect" onchange="onScriptChange()">
+          <option value="">-- Select a test script --</option>
+        </select>
+      </div>
+
+      <div id="scriptMeta" class="script-meta hidden">
+        <div class="meta-row"><span class="meta-label">System:</span><span id="metaSystem"></span></div>
+        <div class="meta-row"><span class="meta-label">Description:</span><span id="metaDescription"></span></div>
+        <div class="meta-row"><span class="meta-label">Steps:</span><span id="metaSteps"></span></div>
+      </div>
+
+      <div id="variablesPanel" class="hidden">
+        <h3 class="variables-title" style="color:var(--primary)">🧪 Test Patient</h3>
+        <div class="form-group" style="background:var(--primary-light);border-radius:var(--radius);padding:0.5rem;margin-bottom:0.75rem;">
+          <label for="patientSelect" style="font-weight:600;color:var(--primary);">Select a test patient to auto-fill</label>
+          <select id="patientSelect" onchange="onPatientSelect()">
+            <option value="">-- No patient selected --</option>
+          </select>
+          <div id="patientDetails" class="script-meta hidden" style="margin-top:0.5rem;font-size:0.78rem;"></div>
+          <div style="font-size:0.7rem;color:var(--text-secondary);margin-top:0.3rem;">
+            Test patients are NHS Digital test data (fake PHI). Selecting a patient auto-fills NHS number and name into variables below.
+          </div>
+        </div>
+        <h3 class="variables-title">Variables</h3>
+        <div id="variablesForm" class="variables-form"></div>
+      </div>
+
+      <div class="button-row">
+        <button class="btn btn-primary" id="runBtn" onclick="startRun()" disabled>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          Run Test
+        </button>
+        <button class="btn btn-danger hidden" id="cancelBtn" onclick="cancelRun()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          Cancel
+        </button>
+      </div>
+    </section>
+
+    <!-- Progress Panel -->
+    <section class="panel progress-panel" id="progressPanel">
+      <div class="panel-header">
+        <h2>Execution Progress</h2>
+        <div class="run-meta hidden" id="runMeta">
+          <span>Run: <strong id="runIdLabel">-</strong></span>
+          <span>Started: <strong id="startedLabel">-</strong></span>
+        </div>
+      </div>
+
+      <!-- Summary Cards -->
+      <div class="summary-cards hidden" id="summaryCards">
+        <div class="card total"><div class="card-value" id="cardTotal">0</div><div class="card-label">Total</div></div>
+        <div class="card pass"><div class="card-value" id="cardPassed">0</div><div class="card-label">Passed</div></div>
+        <div class="card fail"><div class="card-value" id="cardFailed">0</div><div class="card-label">Failed</div></div>
+        <div class="card rate"><div class="card-value" id="cardRate">0%</div><div class="card-label">Pass Rate</div></div>
+      </div>
+
+      <!-- Progress Bar -->
+      <div class="progress-bar-container hidden" id="progressBarContainer">
+        <div class="progress-bar" id="progressBar"></div>
+      </div>
+
+      <!-- Step List -->
+      <div class="step-list" id="stepList">
+        <div class="empty-state">Select a script and run the test to see step-by-step progress here.</div>
+      </div>
+    </section>
+
+    <!-- Evidence Panel -->
+    <section class="panel evidence-panel" id="evidencePanel">
+      <div class="panel-header">
+        <h2>Screenshots & Evidence</h2>
+        <div class="evidence-actions">
+          <button class="btn btn-secondary btn-sm" id="reportBtn" onclick="openReport()" disabled>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            Report
+          </button>
+          <button class="btn btn-secondary btn-sm" id="practitestBtn" onclick="uploadToPractitest()" disabled>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            Practitest
+          </button>
+        </div>
+      </div>
+      <div class="screenshot-grid" id="screenshotGrid">
+        <div class="empty-state">Screenshots will appear here as each step completes.</div>
+      </div>
+    </section>
+
+    <!-- Log Panel -->
+    <section class="panel log-panel" id="logPanel">
+      <div class="panel-header">
+        <h2>Event Log</h2>
+        <button class="btn btn-text btn-sm" onclick="clearLog()">Clear</button>
+      </div>
+      <div class="log-container" id="logContainer">
+        <div class="empty-state">Waiting for test run...</div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Screenshot Modal -->
+  <div class="modal hidden" id="screenshotModal" onclick="closeModal()">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <button class="modal-close" onclick="closeModal()">&times;</button>
+      <img id="modalImage" src="" alt="Screenshot">
+      <div class="modal-caption" id="modalCaption"></div>
+    </div>
+  </div>
+
+  <script src="/app.js"></script>
+</body>
+</html>

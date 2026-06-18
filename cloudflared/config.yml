@@ -1,0 +1,22 @@
+# Cloudflare Tunnel Configuration for UATAPPv1.aetheriscloudgroup.uk
+# 
+# Setup:
+#   1. Authenticate: docker compose run --rm cloudflare-tunnel tunnel login
+#   2. Create tunnel: docker compose run --rm cloudflare-tunnel tunnel create uat-tester
+#   3. Route DNS:   docker compose run --rm cloudflare-tunnel route dns uat-tester UATAPPv1.aetheriscloudgroup.uk
+#   4. Copy the tunnel credentials file to ./cloudflared/
+#   5. Start: docker compose up -d
+
+tunnel: uat-tester
+credentials-file: /etc/cloudflared/credentials.json
+
+ingress:
+  # Main UAT Tester web UI
+  - hostname: UATAPPv1.aetheriscloudgroup.uk
+    service: http://uat-tester:3001
+    originRequest:
+      connectTimeout: 30s
+      noTLSVerify: true
+
+  # Fallback - reject all other traffic
+  - service: http_status:404

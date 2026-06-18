@@ -1,0 +1,115 @@
+{
+  "name": "Winpath Enterprise - Results Verification",
+  "description": "Verify that pathology results are correctly reflected in Winpath Enterprise. Logs into Winpath, searches for a patient by hospital number, and confirms the reported results match expected values.",
+  "system": "Winpath Enterprise",
+  "version": "1.0",
+  "variables": [
+    { "name": "BASE_URL", "label": "Winpath URL", "type": "text", "default": "", "required": false },
+    { "name": "USERNAME", "label": "Winpath Username", "type": "text", "required": false },
+    { "name": "PASSWORD", "label": "Winpath Password", "type": "password", "required": false },
+    { "name": "HOSPITAL_NUMBER", "label": "Patient Hospital Number", "type": "text", "required": false },
+    { "name": "PATIENT_NAME", "label": "Expected Patient Name", "type": "text", "required": false },
+    { "name": "EXPECTED_TEST", "label": "Expected Test Name", "type": "text", "default": "Full Blood Count", "required": false },
+    { "name": "EXPECTED_RESULT", "label": "Expected Result Value", "type": "text", "required": false },
+    { "name": "HEADLESS", "label": "Run headless", "type": "text", "default": "true", "required": false }
+  ],
+  "steps": [
+    {
+      "id": "navigate-to-winpath",
+      "description": "Navigate to Winpath Enterprise login",
+      "action": "navigate",
+      "url": "{{BASE_URL}}",
+      "takeScreenshot": true
+    },
+    {
+      "id": "enter-username",
+      "description": "Enter Winpath username",
+      "action": "type",
+      "selector": "input[name='username'], #username, input[placeholder*='user']",
+      "value": "{{USERNAME}}",
+      "takeScreenshot": false
+    },
+    {
+      "id": "enter-password",
+      "description": "Enter Winpath password",
+      "action": "type",
+      "selector": "input[name='password'], #password, input[type='password']",
+      "value": "{{PASSWORD}}",
+      "takeScreenshot": false
+    },
+    {
+      "id": "login-submit",
+      "description": "Submit login form",
+      "action": "click",
+      "selector": "button[type='submit'], input[type='submit'], button:has-text('Login'), button:has-text('Log In')",
+      "takeScreenshot": true
+    },
+    {
+      "id": "wait-for-main-screen",
+      "description": "Wait for main Winpath screen to load",
+      "action": "wait",
+      "selector": "nav, .main-menu, #menu, [class*='toolbar'], [class*='menu']",
+      "timeout": 20000,
+      "takeScreenshot": true
+    },
+    {
+      "id": "navigate-to-results",
+      "description": "Open Results or Patient Search module",
+      "action": "click",
+      "selector": "a:has-text('Results'), a:has-text('Patient'), button:has-text('Results'), [href*='result'], [href*='patient']",
+      "takeScreenshot": true
+    },
+    {
+      "id": "enter-hospital-number",
+      "description": "Enter patient hospital number",
+      "action": "type",
+      "selector": "input[placeholder*='hospital'], input[placeholder*='number'], input[name='hospitalNo'], input[name='patientId'], #hospitalNumber",
+      "value": "{{HOSPITAL_NUMBER}}",
+      "takeScreenshot": false
+    },
+    {
+      "id": "click-search",
+      "description": "Execute patient search",
+      "action": "click",
+      "selector": "button:has-text('Search'), input[type='submit'], button[type='submit'], [aria-label='Search']",
+      "takeScreenshot": true
+    },
+    {
+      "id": "verify-patient-loaded",
+      "description": "Verify patient details are displayed",
+      "action": "wait",
+      "selector": "table, .patient-details, .results-grid, [class*='patient']",
+      "timeout": 15000,
+      "takeScreenshot": true
+    },
+    {
+      "id": "assert-patient-name",
+      "description": "Confirm patient name is correct",
+      "action": "assertText",
+      "selector": "body",
+      "assertText": "{{PATIENT_NAME}}",
+      "takeScreenshot": false
+    },
+    {
+      "id": "open-results",
+      "description": "Open or select the result for the expected test",
+      "action": "click",
+      "selector": "a:has-text('{{EXPECTED_TEST}}'), td:has-text('{{EXPECTED_TEST}}'), tr:has-text('{{EXPECTED_TEST}}')",
+      "takeScreenshot": true
+    },
+    {
+      "id": "verify-result-value",
+      "description": "Verify result value matches expected (if provided)",
+      "action": "assertText",
+      "selector": "body",
+      "assertText": "{{EXPECTED_RESULT}}",
+      "takeScreenshot": true
+    },
+    {
+      "id": "capture-final-results",
+      "description": "Capture final results verification screenshot",
+      "action": "screenshot",
+      "takeScreenshot": true
+    }
+  ]
+}

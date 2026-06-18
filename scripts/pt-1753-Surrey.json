@@ -1,0 +1,47 @@
+{
+  "name": "Surrey",
+  "practitestId": "1753",
+  "description": "Duration_estimate\n0",
+  "system": "Surrey ICE",
+  "version": "1.0",
+  "practitestExport": true,
+  "variables": [
+    {
+      "name": "PATIENT_NHS",
+      "label": "Patient NHS Number",
+      "type": "text",
+      "default": "",
+      "required": false
+    },
+    {
+      "name": "PATIENT_NAME",
+      "label": "Patient Name",
+      "type": "text",
+      "default": "",
+      "required": false
+    },
+    {
+      "name": "HEADLESS",
+      "label": "Run headless",
+      "type": "text",
+      "default": "true",
+      "required": false
+    }
+  ],
+  "steps": [
+    {
+      "id": "step-1",
+      "description": "Step 1",
+      "action": "screenshot",
+      "takeScreenshot": true,
+      "expected": ""
+    },
+    {
+      "id": "step-2",
+      "description": "There are no issues associated",
+      "action": "screenshot",
+      "takeScreenshot": true,
+      "expected": "There are no requirements associated 1 History: User Murthy Kanuri Time 12-Jun-2026 13:45 Actions Te"
+    }
+  ]
+}

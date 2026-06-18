@@ -1,0 +1,126 @@
+{
+  "name": "Order Feed API - End-to-End Verification",
+  "description": "Verifies that an HL7/API order feed is processed correctly. Submits a test order via the API (or through the middleware UI), then confirms the order arrives in the target system with correct patient and test data.",
+  "system": "Order Feed API",
+  "version": "1.0",
+  "variables": [
+    { "name": "ORDER_API_URL", "label": "Order API Endpoint", "type": "text", "default": "", "required": false },
+    { "name": "API_KEY", "label": "API Key / Auth Token", "type": "password", "required": false },
+    { "name": "VERIFICATION_URL", "label": "Target System Verification URL", "type": "text", "default": "", "required": false },
+    { "name": "VERIFICATION_USER", "label": "Target System Username", "type": "text", "required": false },
+    { "name": "VERIFICATION_PASS", "label": "Target System Password", "type": "password", "required": false },
+    { "name": "PATIENT_NHS", "label": "Patient NHS Number", "type": "text", "required": false },
+    { "name": "PATIENT_NAME", "label": "Patient Name", "type": "text", "required": false },
+    { "name": "ORDER_ID", "label": "Order ID (auto-generated if blank)", "type": "text", "required": false },
+    { "name": "TEST_CODE", "label": "Test Code (e.g. FBC, U&E)", "type": "text", "default": "", "required": false },
+    { "name": "HEADLESS", "label": "Run headless", "type": "text", "default": "true", "required": false }
+  ],
+  "steps": [
+    {
+      "id": "open-order-form",
+      "description": "Open the order submission page",
+      "action": "navigate",
+      "url": "{{ORDER_API_URL}}",
+      "takeScreenshot": true
+    },
+    {
+      "id": "authenticate-api",
+      "description": "Enter API key or authenticate",
+      "action": "type",
+      "selector": "input[name='apiKey'], input[name='token'], #apiKey, input[placeholder*='api'], input[placeholder*='token']",
+      "value": "{{API_KEY}}",
+      "takeScreenshot": false
+    },
+    {
+      "id": "enter-patient-details",
+      "description": "Enter patient NHS number",
+      "action": "type",
+      "selector": "input[name='nhsNumber'], input[name='patientNhs'], #nhsNumber, input[placeholder*='NHS']",
+      "value": "{{PATIENT_NHS}}",
+      "takeScreenshot": false
+    },
+    {
+      "id": "enter-patient-name",
+      "description": "Enter patient name",
+      "action": "type",
+      "selector": "input[name='patientName'], input[name='name'], #patientName",
+      "value": "{{PATIENT_NAME}}",
+      "takeScreenshot": false
+    },
+    {
+      "id": "enter-test-code",
+      "description": "Enter test code",
+      "action": "type",
+      "selector": "input[name='testCode'], input[name='test'], #testCode, select[name='testCode']",
+      "value": "{{TEST_CODE}}",
+      "takeScreenshot": false
+    },
+    {
+      "id": "submit-order",
+      "description": "Submit the order via the form",
+      "action": "click",
+      "selector": "button[type='submit'], input[type='submit'], button:has-text('Submit'), button:has-text('Send Order')",
+      "takeScreenshot": true
+    },
+    {
+      "id": "capture-api-response",
+      "description": "Capture the API response / confirmation",
+      "action": "wait",
+      "selector": ".success, .confirmation, [class*='success'], pre, code, .response",
+      "timeout": 15000,
+      "takeScreenshot": true
+    },
+    {
+      "id": "navigate-to-verify",
+      "description": "Navigate to target system to verify order receipt",
+      "action": "navigate",
+      "url": "{{VERIFICATION_URL}}",
+      "takeScreenshot": true
+    },
+    {
+      "id": "verify-login",
+      "description": "Log in to target verification system",
+      "action": "type",
+      "selector": "input[name='username'], #username",
+      "value": "{{VERIFICATION_USER}}",
+      "takeScreenshot": false
+    },
+    {
+      "id": "verify-password",
+      "description": "Enter verification system password",
+      "action": "type",
+      "selector": "input[name='password'], #password, input[type='password']",
+      "value": "{{VERIFICATION_PASS}}",
+      "takeScreenshot": false
+    },
+    {
+      "id": "verify-login-submit",
+      "description": "Submit verification system login",
+      "action": "click",
+      "selector": "button[type='submit'], input[type='submit']",
+      "takeScreenshot": true
+    },
+    {
+      "id": "search-verification",
+      "description": "Search for the order in the target system",
+      "action": "type",
+      "selector": "input[placeholder*='search'], input[placeholder*='order'], input[name='orderId'], #orderSearch",
+      "value": "{{ORDER_ID}}",
+      "takeScreenshot": false
+    },
+    {
+      "id": "verify-order-received",
+      "description": "Verify the order appears in the target system",
+      "action": "assertText",
+      "selector": "body",
+      "assertText": "{{ORDER_ID}}",
+      "takeScreenshot": true
+    },
+    {
+      "id": "capture-evidence",
+      "description": "Capture final evidence screenshot showing order received",
+      "action": "screenshot",
+      "takeScreenshot": true
+    }
+  ]
+}

@@ -1,0 +1,201 @@
+{
+  "name": "ADT ASPH- A31 Deceased & Reverse Deceased",
+  "practitestId": "1812",
+  "description": "Duration_estimate\n0",
+  "system": "Surrey ICE",
+  "version": "1.0",
+  "practitestExport": true,
+  "variables": [
+    {
+      "name": "PATIENT_NHS",
+      "label": "Patient NHS Number",
+      "type": "text",
+      "default": "",
+      "required": false
+    },
+    {
+      "name": "PATIENT_NAME",
+      "label": "Patient Name",
+      "type": "text",
+      "default": "",
+      "required": false
+    },
+    {
+      "name": "HEADLESS",
+      "label": "Run headless",
+      "type": "text",
+      "default": "true",
+      "required": false
+    }
+  ],
+  "steps": [
+    {
+      "id": "step-1",
+      "description": "Step 1",
+      "action": "screenshot",
+      "takeScreenshot": true,
+      "expected": ""
+    },
+    {
+      "id": "step-2",
+      "description": "Step 2",
+      "action": "screenshot",
+      "takeScreenshot": true,
+      "expected": ""
+    },
+    {
+      "id": "step-3",
+      "description": "Step 3",
+      "action": "screenshot",
+      "takeScreenshot": true,
+      "expected": ""
+    },
+    {
+      "id": "step-4",
+      "description": "Step 4",
+      "action": "screenshot",
+      "takeScreenshot": true,
+      "expected": ""
+    },
+    {
+      "id": "step-5",
+      "description": "Step 5",
+      "action": "screenshot",
+      "takeScreenshot": true,
+      "expected": ""
+    },
+    {
+      "id": "step-6",
+      "description": "Step 6",
+      "action": "screenshot",
+      "takeScreenshot": true,
+      "expected": ""
+    },
+    {
+      "id": "step-7",
+      "description": "Step 7",
+      "action": "screenshot",
+      "takeScreenshot": true,
+      "expected": ""
+    },
+    {
+      "id": "step-8",
+      "description": "Step 8",
+      "action": "screenshot",
+      "takeScreenshot": true,
+      "expected": ""
+    },
+    {
+      "id": "step-9",
+      "description": "Step 9",
+      "action": "screenshot",
+      "takeScreenshot": true,
+      "expected": ""
+    },
+    {
+      "id": "step-10",
+      "description": "Step 10",
+      "action": "screenshot",
+      "takeScreenshot": true,
+      "expected": ""
+    },
+    {
+      "id": "step-11",
+      "description": "Step 11",
+      "action": "screenshot",
+      "takeScreenshot": true,
+      "expected": ""
+    },
+    {
+      "id": "step-12",
+      "description": "Step 12",
+      "action": "screenshot",
+      "takeScreenshot": true,
+      "expected": ""
+    },
+    {
+      "id": "step-13",
+      "description": "EPR - Set Patient to",
+      "action": "screenshot",
+      "takeScreenshot": true,
+      "expected": "Deceased Within the {{Migration Trusts}} EPR, set the updated patient to deceased. The patient recor"
+    },
+    {
+      "id": "step-14",
+      "description": "Step 14",
+      "action": "screenshot",
+      "takeScreenshot": true,
+      "expected": ""
+    },
+    {
+      "id": "step-15",
+      "description": "Step 15",
+      "action": "screenshot",
+      "takeScreenshot": true,
+      "expected": ""
+    },
+    {
+      "id": "step-16",
+      "description": "Step 16",
+      "action": "screenshot",
+      "takeScreenshot": true,
+      "expected": ""
+    },
+    {
+      "id": "step-17",
+      "description": "Step 17",
+      "action": "screenshot",
+      "takeScreenshot": true,
+      "expected": ""
+    },
+    {
+      "id": "step-18",
+      "description": "Step 18",
+      "action": "screenshot",
+      "takeScreenshot": true,
+      "expected": ""
+    },
+    {
+      "id": "step-19",
+      "description": "Step 19",
+      "action": "screenshot",
+      "takeScreenshot": true,
+      "expected": ""
+    },
+    {
+      "id": "step-20",
+      "description": "Step 20",
+      "action": "screenshot",
+      "takeScreenshot": true,
+      "expected": ""
+    },
+    {
+      "id": "step-21",
+      "description": "Step 21",
+      "action": "screenshot",
+      "takeScreenshot": true,
+      "expected": ""
+    },
+    {
+      "id": "step-22",
+      "description": "Step 22",
+      "action": "screenshot",
+      "takeScreenshot": true,
+      "expected": ""
+    },
+    {
+      "id": "step-23",
+      "description": "Step 23",
+      "action": "screenshot",
+      "takeScreenshot": true,
+      "expected": ""
+    },
+    {
+      "id": "step-24",
+      "description": "Screenshot - EPR",
+      "action": "screenshot",
+      "takeScreenshot": true,
+      "expected": "Patient Record Save a screenshot of the updated patient record from the EPR system GM Logs - Inbound"
+    }
+  ]
+}

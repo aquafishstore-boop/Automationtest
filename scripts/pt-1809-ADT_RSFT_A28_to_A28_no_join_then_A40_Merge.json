@@ -1,0 +1,278 @@
+{
+  "name": "ADT RSFT: A28 to A28 no join then A40 Merge",
+  "practitestId": "1809",
+  "description": "Duration_estimate\n0",
+  "system": "Surrey ICE",
+  "version": "1.0",
+  "practitestExport": true,
+  "variables": [
+    {
+      "name": "PATIENT_NHS",
+      "label": "Patient NHS Number",
+      "type": "text",
+      "default": "",
+      "required": false
+    },
+    {
+      "name": "PATIENT_NAME",
+      "label": "Patient Name",
+      "type": "text",
+      "default": "",
+      "required": false
+    },
+    {
+      "name": "HEADLESS",
+      "label": "Run headless",
+      "type": "text",
+      "default": "true",
+      "required": false
+    }
+  ],
+  "steps": [
+    {
+      "id": "step-10",
+      "description": "Screenshot - New Patient in",
+      "action": "screenshot",
+      "takeScreenshot": true,
+      "expected": "UICE ICE EUI - Check Patient details in UICE The patient demographics match the EPR. Take a screensh"
+    },
+    {
+      "id": "step-1",
+      "description": "Step 1",
+      "action": "screenshot",
+      "takeScreenshot": true,
+      "expected": ""
+    },
+    {
+      "id": "step-2",
+      "description": "Step 2",
+      "action": "screenshot",
+      "takeScreenshot": true,
+      "expected": ""
+    },
+    {
+      "id": "step-3",
+      "description": "Step 3",
+      "action": "screenshot",
+      "takeScreenshot": true,
+      "expected": ""
+    },
+    {
+      "id": "step-4",
+      "description": "Step 4",
+      "action": "screenshot",
+      "takeScreenshot": true,
+      "expected": ""
+    },
+    {
+      "id": "step-5",
+      "description": "Step 5",
+      "action": "screenshot",
+      "takeScreenshot": true,
+      "expected": ""
+    },
+    {
+      "id": "step-6",
+      "description": "Step 6",
+      "action": "screenshot",
+      "takeScreenshot": true,
+      "expected": ""
+    },
+    {
+      "id": "step-7",
+      "description": "Step 7",
+      "action": "screenshot",
+      "takeScreenshot": true,
+      "expected": ""
+    },
+    {
+      "id": "step-8",
+      "description": "Step 8",
+      "action": "screenshot",
+      "takeScreenshot": true,
+      "expected": ""
+    },
+    {
+      "id": "step-9",
+      "description": "Step 9",
+      "action": "screenshot",
+      "takeScreenshot": true,
+      "expected": ""
+    },
+    {
+      "id": "step-11",
+      "description": "Step 11",
+      "action": "screenshot",
+      "takeScreenshot": true,
+      "expected": ""
+    },
+    {
+      "id": "step-12",
+      "description": "Step 12",
+      "action": "screenshot",
+      "takeScreenshot": true,
+      "expected": ""
+    },
+    {
+      "id": "step-13",
+      "description": "Step 13",
+      "action": "screenshot",
+      "takeScreenshot": true,
+      "expected": ""
+    },
+    {
+      "id": "step-14",
+      "description": "Step 14",
+      "action": "screenshot",
+      "takeScreenshot": true,
+      "expected": ""
+    },
+    {
+      "id": "step-15",
+      "description": "Step 15",
+      "action": "screenshot",
+      "takeScreenshot": true,
+      "expected": ""
+    },
+    {
+      "id": "step-16",
+      "description": "Step 16",
+      "action": "screenshot",
+      "takeScreenshot": true,
+      "expected": ""
+    },
+    {
+      "id": "step-17",
+      "description": "https://eu1-prod.practitest.app/p/16508/tests/print?ids=3514880,3514881,3517057,3514882,3517058,3514",
+      "action": "screenshot",
+      "takeScreenshot": true,
+      "expected": "6/18/26, 2:03 PM PractiTest Print Generated on 18-Jun-2026 14:03 PID PD1 Paste the outbound HL7 Mess"
+    },
+    {
+      "id": "step-18",
+      "description": "Step 18",
+      "action": "screenshot",
+      "takeScreenshot": true,
+      "expected": ""
+    },
+    {
+      "id": "step-19",
+      "description": "Step 19",
+      "action": "screenshot",
+      "takeScreenshot": true,
+      "expected": ""
+    },
+    {
+      "id": "step-20",
+      "description": "Step 20",
+      "action": "screenshot",
+      "takeScreenshot": true,
+      "expected": ""
+    },
+    {
+      "id": "step-21",
+      "description": "Step 21",
+      "action": "screenshot",
+      "takeScreenshot": true,
+      "expected": ""
+    },
+    {
+      "id": "step-22",
+      "description": "Step 22",
+      "action": "screenshot",
+      "takeScreenshot": true,
+      "expected": ""
+    },
+    {
+      "id": "step-23",
+      "description": "Step 23",
+      "action": "screenshot",
+      "takeScreenshot": true,
+      "expected": ""
+    },
+    {
+      "id": "step-24",
+      "description": "Step 24",
+      "action": "screenshot",
+      "takeScreenshot": true,
+      "expected": ""
+    },
+    {
+      "id": "step-25",
+      "description": "Step 25",
+      "action": "screenshot",
+      "takeScreenshot": true,
+      "expected": ""
+    },
+    {
+      "id": "step-26",
+      "description": "Step 26",
+      "action": "screenshot",
+      "takeScreenshot": true,
+      "expected": ""
+    },
+    {
+      "id": "step-27",
+      "description": "Step 27",
+      "action": "screenshot",
+      "takeScreenshot": true,
+      "expected": ""
+    },
+    {
+      "id": "step-28",
+      "description": "Step 28",
+      "action": "screenshot",
+      "takeScreenshot": true,
+      "expected": ""
+    },
+    {
+      "id": "step-29",
+      "description": "Step 29",
+      "action": "screenshot",
+      "takeScreenshot": true,
+      "expected": ""
+    },
+    {
+      "id": "step-30",
+      "description": "Step 30",
+      "action": "screenshot",
+      "takeScreenshot": true,
+      "expected": ""
+    },
+    {
+      "id": "step-31",
+      "description": "https://eu1-prod.practitest.app/p/16508/tests/print?ids=3514880,3514881,3517057,3514882,3517058,3514",
+      "action": "screenshot",
+      "takeScreenshot": true,
+      "expected": "6/18/26, 2:03 PM PractiTest Print Generated on 18-Jun-2026 14:03"
+    },
+    {
+      "id": "step-32",
+      "description": "Step 32",
+      "action": "screenshot",
+      "takeScreenshot": true,
+      "expected": ""
+    },
+    {
+      "id": "step-33",
+      "description": "Step 33",
+      "action": "screenshot",
+      "takeScreenshot": true,
+      "expected": ""
+    },
+    {
+      "id": "step-34",
+      "description": "Step 34",
+      "action": "screenshot",
+      "takeScreenshot": true,
+      "expected": ""
+    },
+    {
+      "id": "step-35",
+      "description": "ICE EUI - Check NHS Status Click on the NHS Number and check that the NHS Status is",
+      "action": "screenshot",
+      "takeScreenshot": true,
+      "expected": "present and matches the value from the EPR NHS Status is present and matches the value from the EPR "
+    }
+  ]
+}

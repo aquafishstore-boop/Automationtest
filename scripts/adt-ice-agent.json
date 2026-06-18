@@ -1,0 +1,41 @@
+{
+  "name": "ADT ICE Patient Feed Agent",
+  "description": "Agentic test for ADT (Admit-Discharge-Transfer) patient demographic feeds from EPR (EPIC/Cerner) into ICE. Creates a patient in the EPR, verifies they appear in ICE with correct demographics, then updates and verifies again.",
+  "system": "ADT-ICE-Agent",
+  "version": "2.0",
+  "agentic": true,
+  "workflow": "adt",
+  "variables": [
+    { "name": "PATIENT_NHS", "label": "Patient NHS Number", "type": "text", "default": "", "required": false },
+    { "name": "PATIENT_NAME", "label": "Patient Name", "type": "text", "default": "", "required": false },
+    { "name": "EPR_URL", "label": "EPR System URL", "type": "text", "default": "", "required": false },
+    { "name": "ICE_URL", "label": "ICE URL", "type": "text", "default": "", "required": false },
+    { "name": "HEADLESS", "label": "Run headless", "type": "text", "default": "true", "required": false }
+  ],
+  "steps": [
+    { "id": "step-1", "description": "Launch the EPR system and log in with test credentials", "action": "navigate", "url": "{{EPR_URL}}", "takeScreenshot": true },
+    { "id": "step-2", "description": "Register a new patient in the EPR with surname ZZZTEST and a unique identifier", "action": "click", "takeScreenshot": true },
+    { "id": "step-3", "description": "Enter patient demographics: First name, surname ZZZTEST, DOB, gender, address, NHS number", "action": "type", "takeScreenshot": false },
+    { "id": "step-4", "description": "Save the new patient record in the EPR", "action": "click", "takeScreenshot": true },
+    { "id": "step-5", "description": "Screenshot the patient demographics from the EPR for evidence", "action": "screenshot", "takeScreenshot": true },
+    { "id": "step-6", "description": "Navigate to ICE and search for the patient by NHS number or MRN", "action": "navigate", "url": "{{ICE_URL}}", "takeScreenshot": true },
+    { "id": "step-7", "description": "Log into ICE with test credentials", "action": "click", "takeScreenshot": false },
+    { "id": "step-8", "description": "Search for the patient using their NHS number", "action": "type", "takeScreenshot": false },
+    { "id": "step-9", "description": "Verify the patient appears in ICE with correct demographics matching the EPR", "action": "click", "takeScreenshot": true },
+    { "id": "step-10", "description": "Screenshot the patient record in ICE showing matched demographics", "action": "screenshot", "takeScreenshot": true },
+    { "id": "step-11", "description": "Return to the EPR and update the patient's address and phone number", "action": "navigate", "url": "{{EPR_URL}}", "takeScreenshot": true },
+    { "id": "step-12", "description": "Modify the patient's address details and save the changes", "action": "type", "takeScreenshot": false },
+    { "id": "step-13", "description": "Screenshot the updated demographics in the EPR", "action": "screenshot", "takeScreenshot": true },
+    { "id": "step-14", "description": "Navigate back to ICE and search for the same patient again", "action": "navigate", "url": "{{ICE_URL}}", "takeScreenshot": true },
+    { "id": "step-15", "description": "Verify the updated demographics are reflected in ICE", "action": "wait", "timeout": 5000, "takeScreenshot": true },
+    { "id": "step-16", "description": "Screenshot the updated patient record in ICE as final evidence", "action": "screenshot", "takeScreenshot": true },
+    { "id": "step-17", "description": "If testing merge/unmerge, create a duplicate patient and run the merge workflow", "action": "click", "takeScreenshot": true },
+    { "id": "step-18", "description": "Verify the merged patient record shows both identifiers", "action": "wait", "timeout": 3000, "takeScreenshot": true },
+    { "id": "step-19", "description": "Screenshot the merged patient record with both MRNs visible", "action": "screenshot", "takeScreenshot": true },
+    { "id": "step-20", "description": "If testing deceased/reverse, mark the patient as deceased then reverse", "action": "click", "takeScreenshot": true },
+    { "id": "step-21", "description": "Screenshot the deceased patient record", "action": "screenshot", "takeScreenshot": true },
+    { "id": "step-22", "description": "Reverse the deceased status and verify", "action": "click", "takeScreenshot": true },
+    { "id": "step-23", "description": "Screenshot the final patient record with deceased status removed", "action": "screenshot", "takeScreenshot": true },
+    { "id": "step-24", "description": "Log all evidence paths and complete the test cycle", "action": "screenshot", "takeScreenshot": true }
+  ]
+}
