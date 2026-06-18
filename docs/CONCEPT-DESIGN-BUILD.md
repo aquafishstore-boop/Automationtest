@@ -831,7 +831,7 @@ docker run --rm \
 
 ---
 
-## 12. Future Roadmap
+## 12. Roadmap
 
 ### Phase 3 (Complete — v2.1.0) — Agentic Automation
 - ✅ **Agentic Brain** — Autonomous PLAN → THINK → ACT → CAPTURE → VERIFY loop (`lib/agentic-brain.js`, 341 lines)
@@ -859,28 +859,31 @@ docker run --rm \
 - ✅ **Test Scheduling API** — `POST/GET/DELETE /api/schedule` for managing cron job configs
 - ✅ **Slack/Teams Notifications** — `POST /api/notify/test` with webhook support, `GET /api/notify/status`
 
-**Priority 3 — Enterprise (Planned — v3.0.0):**
-- 🔲 **Multi-Trust Support** — Separate configurations for different NHS trusts
-- 🔲 **LDAP/SAML Authentication** — Single sign-on for NHS users
-- 🔲 **Audit Logging** — External SIEM integration (Syslog)
-- 🔲 **FHIR Test Data Generation** — Synthetic patient data via FHIR APIs
-- 🔲 **Load Testing** — Concurrent test execution at scale
-- 🔲 **Grafana Dashboard** — Pre-built dashboards for metrics endpoint
-- 🔲 **Automated Cron Runner** — Real cron execution of scheduled jobs (requires node-schedule)
+### Phase 5 (Complete — v3.0.0) — Enterprise Infrastructure
+- ✅ **Multi-Trust Support** — Per-trust configs in `config/trusts/`, resolved via `x-trust-id` header (`lib/trust-manager.js`, 110 lines)
+- ✅ **LDAP/SAML Authentication** — LDAP bind, SAML SSO, local fallback, session-based RBAC (`lib/auth.js`, 205 lines, 7 API endpoints)
+- ✅ **Audit Logging** — Structured JSON logs to file + Syslog forward, API queryable (`lib/audit-logger.js`, 130 lines)
+- ✅ **FHIR Test Data Generation** — FHIR R4 Patient, Observation, DiagnosticReport, Specimen, ServiceRequest bundles (`lib/fhir-generator.js`, 280 lines, 5 API endpoints)
+- ✅ **Grafana Dashboard** — 10-panel importable dashboard JSON (`public/grafana-dashboard.json`)
+- ✅ **Automated Cron Runner** — 30s tick scheduler with persistent job storage, trigger/history APIs (`lib/scheduler.js`, 150 lines, 6 API endpoints)
+- ✅ **9 Docker Data Volumes** — screenshots, reports, runs, scripts, logs, config — all preserved on redeploy
+- ✅ **Default Trust Auto-Seeded** — First deploy creates `config/trusts/default.json`
 
-### Phase 5 — Scale & Observability
-- 🔲 Grafana dashboard for run metrics
-- 🔲 Prometheus metrics endpoint
-- 🔲 Automated test scheduling (cron-based test runs)
-- 🔲 Slack/Teams notification on test completion
-- 🔲 AI model fine-tuning on pathology-specific data
+### Phase 6 (Planned — v3.1.0) — Intelligence & Automation
+- 🔲 **AI Fine-Tuning Pipeline** — Fine-tune pathology-eqa model on real UAT scripts with success/failure feedback
+- 🔲 **Concurrent Test Execution** — Run multiple agents in parallel with resource-aware scheduling
+- 🔲 **Natural Language Test Authoring** — "Order a FBC for TKFC and verify in Winpath" → auto-generated script
+- 🔲 **Auto-Remediation** — When a step fails, AI diagnoses the issue and retries with alternative approach
+- 🔲 **Performance Regression Tracking** — Per-test timing benchmarks, flagging slow runs
+- 🔲 **GitHub Status Checks** — PR comments with test results, blocking merge on failure
 
-### Phase 6 — Enterprise
-- 🔲 Multi-tenant support (separate trusts)
-- 🔲 LDAP/SAML authentication
-- 🔲 Audit logging to external SIEM
-- 🔲 FHIR integration for test data generation
-- 🔲 Load testing capabilities
+### Phase 7 (Planned — v4.0.0) — Scale & Integration
+- 🔲 **Mobile Pathology Testing** — Extend Playwright to mobile Safari/Chrome for clinician apps
+- 🔲 **Synthetic Patient FHIR Server** — Standalone FHIR server seeded with realistic pathology data
+- 🔲 **Load Testing Suite** — Artillery/k6-based concurrent user simulation for LIS systems
+- 🔲 **Multi-Region Active-Passive** — Secondary deployment in another Azure region with data sync
+- 🔲 **API-First Agent Mode** — REST API for each agent so external systems can trigger tests programmatically
+- 🔲 **OAuth 2.0 Machine-to-Machine** — Service account auth for CI/CD pipeline integration
 
 ---
 
@@ -935,4 +938,4 @@ curl http://localhost:3002/api/insights       # Run statistics
 
 ---
 
-*Document generated 2026-06-18 | UAT Tester v2.0.0 | © Aetheris Pathology Cloud*
+*Document generated 2026-06-18 | UAT Tester v3.0.0 | © Aetheris Pathology Cloud*
