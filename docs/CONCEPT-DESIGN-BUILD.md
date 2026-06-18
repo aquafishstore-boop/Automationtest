@@ -869,21 +869,21 @@ docker run --rm \
 - ✅ **9 Docker Data Volumes** — screenshots, reports, runs, scripts, logs, config — all preserved on redeploy
 - ✅ **Default Trust Auto-Seeded** — First deploy creates `config/trusts/default.json`
 
-### Phase 6 (Planned — v3.1.0) — Intelligence & Automation
-- 🔲 **AI Fine-Tuning Pipeline** — Fine-tune pathology-eqa model on real UAT scripts with success/failure feedback
-- 🔲 **Concurrent Test Execution** — Run multiple agents in parallel with resource-aware scheduling
-- 🔲 **Natural Language Test Authoring** — "Order a FBC for TKFC and verify in Winpath" → auto-generated script
-- 🔲 **Auto-Remediation** — When a step fails, AI diagnoses the issue and retries with alternative approach
-- 🔲 **Performance Regression Tracking** — Per-test timing benchmarks, flagging slow runs
-- 🔲 **GitHub Status Checks** — PR comments with test results, blocking merge on failure
+### Phase 6 (Complete — v3.1.0) — Intelligence & Automation
+- ✅ **AI Fine-Tuning Pipeline** — Collect run data, prepare training examples, submit for fine-tuning (`lib/fine-tuner.js`, 5 API endpoints)
+- ✅ **Concurrent Test Execution** — Resource-aware pool manager for parallel agent execution (`lib/concurrent-runner.js`, 5 API endpoints)
+- ✅ **Natural Language Test Authoring** — "Order a FBC for TKFC and verify in Winpath" → auto-generated structured script (`lib/nl-author.js`, 4 API endpoints)
+- ✅ **Auto-Remediation** — Failed step diagnosis with AI, alternative approach generation, and retry (`lib/auto-remediation.js`, 2 API endpoints)
+- ✅ **Performance Regression Tracking** — Per-step timing baselines with regression alerts (`lib/perf-tracker.js`, 5 API endpoints)
+- ✅ **GitHub Status Checks** — Post commit statuses and PR comments with test results (`lib/github-checks.js`, 3 API endpoints)
 
-### Phase 7 (Planned — v4.0.0) — Scale & Integration
-- 🔲 **Mobile Pathology Testing** — Extend Playwright to mobile Safari/Chrome for clinician apps
-- 🔲 **Synthetic Patient FHIR Server** — Standalone FHIR server seeded with realistic pathology data
-- 🔲 **Load Testing Suite** — Artillery/k6-based concurrent user simulation for LIS systems
-- 🔲 **Multi-Region Active-Passive** — Secondary deployment in another Azure region with data sync
-- 🔲 **API-First Agent Mode** — REST API for each agent so external systems can trigger tests programmatically
-- 🔲 **OAuth 2.0 Machine-to-Machine** — Service account auth for CI/CD pipeline integration
+### Phase 7 (Complete — v3.1.0) — Scale & Integration
+- ✅ **Mobile Pathology Testing** — 5 mobile device profiles (iPhone 14, Galaxy S24, iPad Air, Galaxy Tab, Desktop) (`lib/mobile-profiles.js`, 2 API endpoints)
+- ✅ **Synthetic Patient FHIR Server** — Full FHIR R4 sub-app with Patient, Observation, DiagnosticReport, Specimen, ServiceRequest, CapabilityStatement (`lib/fhir-server.js`, mounted at `/api/fhir/r4/`)
+- ✅ **Load Testing Suite** — Generate k6 and Artillery scripts from any UAT test case (`lib/load-test-gen.js`, 3 API endpoints)
+- ✅ **Multi-Region Active-Passive Terraform** — UK South primary + UK West passive with Azure Traffic Manager (`deploy/terraform-multi-region/`, 5 files)
+- ✅ **API-First Agent Mode** — REST API specs for all 9 agents with structured request/response (`lib/agent-api.js`, 1 API endpoint)
+- ✅ **OAuth 2.0 Machine-to-Machine** — Client credentials grant with token introspection, scope-based middleware (`lib/oauth-m2m.js`, 3 API endpoints)
 
 ---
 
@@ -903,12 +903,29 @@ docker compose build --no-cache uat-tester     # Full rebuild
 docker logs uat-tester --tail 20              # View logs
 docker ps --filter name=uat                   # Container status
 
-# Test
+# Test Runner
 curl http://localhost:3002/api/scripts        # List scripts
+curl -X POST http://localhost:3002/api/run    # Run a test
 
-# AI
+# AI Agents
+curl http://localhost:3002/api/agents         # List all agents
+curl -X POST http://localhost:3002/api/agents/adt-ice/run -H 'Content-Type: application/json' -d '{"patientNhs":"999 057 5924"}'
+
+# AI Tools
 curl http://localhost:3002/api/ai/status      # AI engine status
+curl http://localhost:3002/api/nl/suggest -X POST -H 'Content-Type: application/json' -d '{"system":"Winpath"}'
+
+# FHIR
+curl http://localhost:3002/api/fhir/r4/metadata   # FHIR server metadata
+curl "http://localhost:3002/api/fhir/patients?count=3"  # Generate patients
+
+# Infrastructure
+curl http://localhost:3002/api/metrics        # Prometheus-style metrics
 curl http://localhost:3002/api/insights       # Run statistics
+curl http://localhost:3002/api/schedule       # Scheduled jobs
+curl http://localhost:3002/api/audit/summary  # Audit log summary
+curl http://localhost:3002/api/pool/status    # Concurrent pool status
+curl http://localhost:3002/api/oauth/status   # OAuth M2M status
 ```
 
 ### A.2 Environment Variables
@@ -916,12 +933,22 @@ curl http://localhost:3002/api/insights       # Run statistics
 | Variable | Required | Default | Description |
 |----------|----------|---------|-------------|
 | `PORT` | No | `3001` | Internal container port |
-| `BROWSER` | No | `msedge` | Playwright browser |
+| `BROWSER` | No | `chromium` | Playwright browser |
 | `HEADLESS` | No | `true` | Headless mode |
 | `LM_HOST` | No | — | LM Studio API URL |
 | `LM_API_TOKEN` | No | — | LM Studio API token |
 | `AI_MODEL` | No | — | LLM model name |
 | `NODE_ENV` | No | `production` | Error verbosity |
+| `LDAP_URL` | No | — | LDAP server URL for auth |
+| `SAML_ENTRYPOINT` | No | — | SAML SSO endpoint |
+| `SYSLOG_HOST` | No | — | Syslog server for audit forwarding |
+| `GITHUB_TOKEN` | No | — | GitHub PAT for status checks |
+| `GITHUB_REPO` | No | — | GitHub repo (owner/repo) for status checks |
+| `M2M_CLIENT_ID` | No | — | OAuth M2M client ID |
+| `M2M_CLIENT_SECRET` | No | — | OAuth M2M client secret |
+| `SLACK_WEBHOOK_URL` | No | — | Slack webhook for notifications |
+| `TEAMS_WEBHOOK_URL` | No | — | Teams webhook for notifications |
+| `MAX_CONCURRENT` | No | `2` | Max parallel agent executions |
 
 ### A.3 File Locations
 
@@ -931,11 +958,17 @@ curl http://localhost:3002/api/insights       # Run statistics
 | Screenshots | Docker volume `uat-screenshots` | `/app/data/screenshots/` |
 | Reports | Docker volume `uat-reports` | `/app/data/reports/` |
 | Run History | Docker volume `uat-runs` | `/app/data/runs/` |
+| Audit Logs | Docker volume `uat-logs` | `/app/data/logs/` |
+| Trust Configs | Docker volume `uat-config` | `/app/data/config/trusts/` |
+| Auth Users | Docker volume `uat-config` | `/app/data/config/auth-users.json` |
+| Schedule Jobs | Docker volume `uat-config` | `/app/data/config/scheduled-jobs.json` |
 | AI Memory | `/opt/uat-tester/ai-memory/` | — |
+| Training Data | Docker volume `uat-runs` | `/app/data/runs/training/` |
+| Performance Data | Docker volume `uat-runs` | `/app/data/runs/perf-baseline.json` |
 | Backups | `/opt/uat-tester/backups/` | — |
-| Config | `/opt/uat-tester/.env` | — |
+| Environment | `/opt/uat-tester/.env` | — |
 | Tunnel Config | `/opt/uat-tester/cloudflared/` | `/etc/cloudflared/` |
 
 ---
 
-*Document generated 2026-06-18 | UAT Tester v3.0.0 | © Aetheris Pathology Cloud*
+*Document generated 2026-06-18 | UAT Tester v3.1.0 | © Aetheris Pathology Cloud*
