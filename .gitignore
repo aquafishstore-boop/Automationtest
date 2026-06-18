@@ -33,3 +33,6 @@ Thumbs.db
 # Build
 dist/
 *.tsbuildinfo
+
+# Wiki (content lives on GitHub wiki)
+wiki/
