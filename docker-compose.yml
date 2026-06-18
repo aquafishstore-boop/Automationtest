@@ -10,6 +10,8 @@ services:
       - uat-reports:/app/data/reports
       - uat-runs:/app/data/runs
       - uat-scripts:/app/data/scripts
+      - uat-logs:/app/data/logs
+      - uat-config:/app/data/config
       - ./custom-scripts:/app/data/scripts/custom:ro
     environment:
       - NODE_ENV=production
@@ -67,4 +69,8 @@ volumes:
   uat-runs:
     driver: local
   uat-scripts:
+    driver: local
+  uat-logs:
+    driver: local
+  uat-config:
     driver: local

@@ -32,7 +32,7 @@ RUN npm ci --ignore-scripts --omit=dev && \
 RUN npx playwright install --with-deps chromium
 
 # Create app directories with secure permissions
-RUN mkdir -p /app/data/screenshots /app/data/reports /app/data/runs /app/data/scripts && \
+RUN mkdir -p /app/data/screenshots /app/data/reports /app/data/runs /app/data/scripts /app/data/logs /app/data/config/trusts && \
     chown -R pwuser:pwuser /app/data && \
     chmod -R 750 /app/data
 
@@ -57,6 +57,11 @@ ENV SCREENSHOTS_DIR=/app/data/screenshots
 ENV REPORTS_DIR=/app/data/reports
 ENV RUNS_DIR=/app/data/runs
 ENV SCRIPTS_DIR=/app/data/scripts
+ENV AUDIT_LOG_DIR=/app/data/logs
+ENV AUTH_USERS_FILE=/app/data/config/auth-users.json
+ENV TRUSTS_DIR=/app/data/config/trusts
+ENV SCHEDULE_FILE=/app/data/config/scheduled-jobs.json
+ENV SCHEDULE_HISTORY_FILE=/app/data/config/schedule-history.json
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
