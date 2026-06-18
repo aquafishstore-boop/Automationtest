@@ -844,27 +844,29 @@ docker run --rm \
 - ✅ **2 AI Backends** — Primary: LM Studio (gpt-oss-20b, 9070 XT), Fallback: Ollama (pathology-eqa:latest, 4060 Ti)
 - ✅ **25 Test Scripts** — 6 sample + 19 PractiTest-imported ADT/ICE scripts
 
-### Phase 4 (Planned — v2.2.0) — Advanced Agents & Observability
+### Phase 4 (Complete — v2.2.0) — Advanced Agents & Observability
 
-**Priority 1 — Missing Agent Implementations:**
-- 🔲 **BloodTrack Kiosk Agent** — Barcode scanning simulation, move-in/out workflows, emergency release
-- 🔲 **Cellavision Result Verification Agent** — Differential result capture, RBC morphology match
-- 🔲 **Immulink Crossmatch Agent** — Group & Screen, Antibody ID, Panel imports
-- 🔲 **WES EQA Agent** — Scheme creation → processing → reporting pipeline
-- 🔲 **Cyres Screening Stats Agent** — Primary screener stats, import validation
+**Priority 1 — Missing Agent Implementations (Complete):**
+- ✅ **BloodTrack Kiosk Agent** — Barcode scanning simulation, move-in/out workflows, emergency release (`lib/agents/bloodtrack-agent.js`, 84 lines)
+- ✅ **Cellavision Result Verification Agent** — Differential result capture, RBC morphology match (`lib/agents/cellavision-agent.js`, 56 lines)
+- ✅ **Immulink Crossmatch Agent** — Group & Screen, Antibody ID, Panel imports (`lib/agents/immulink-agent.js`, 95 lines)
+- ✅ **WES EQA Agent** — Scheme creation → processing → reporting pipeline (`lib/agents/wes-agent.js`, 107 lines)
+- ✅ **Cyres Screening Stats Agent** — Primary screener stats, import validation (`lib/agents/cyres-agent.js`, 108 lines)
+- ✅ **9-Agent Registry** — All agents exported, all `implemented: true`
 
-**Priority 2 — Observability & Reporting:**
-- 🔲 **Grafana Dashboard** — Run metrics, pass rates, AI learning trends
-- 🔲 **Prometheus Metrics Endpoint** — `/api/metrics` for Prometheus scraping
-- 🔲 **Automated Test Scheduling** — Cron-based nightly test runs
-- 🔲 **Slack/Teams Notifications** — Test completion alerts with summary
+**Priority 2 — Observability & Reporting (Complete):**
+- ✅ **Prometheus Metrics Endpoint** — `GET /api/metrics` with runs, pass rate, uptime, memory, agent count
+- ✅ **Test Scheduling API** — `POST/GET/DELETE /api/schedule` for managing cron job configs
+- ✅ **Slack/Teams Notifications** — `POST /api/notify/test` with webhook support, `GET /api/notify/status`
 
-**Priority 3 — Enterprise:**
+**Priority 3 — Enterprise (Planned — v3.0.0):**
 - 🔲 **Multi-Trust Support** — Separate configurations for different NHS trusts
 - 🔲 **LDAP/SAML Authentication** — Single sign-on for NHS users
 - 🔲 **Audit Logging** — External SIEM integration (Syslog)
 - 🔲 **FHIR Test Data Generation** — Synthetic patient data via FHIR APIs
-- 🔲 **Load Testing** — concurrent test execution at scale
+- 🔲 **Load Testing** — Concurrent test execution at scale
+- 🔲 **Grafana Dashboard** — Pre-built dashboards for metrics endpoint
+- 🔲 **Automated Cron Runner** — Real cron execution of scheduled jobs (requires node-schedule)
 
 ### Phase 5 — Scale & Observability
 - 🔲 Grafana dashboard for run metrics

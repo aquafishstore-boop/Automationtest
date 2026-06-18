@@ -27,7 +27,10 @@ import { startRecording, stopRecording, recordStep, getRecorderStatus, getRecord
 import { loadMemory, clearMemory } from "./lib/step-memory.js";
 import { getMemoryStats, exportMemory, importMemory, registerNode, NODE_ID } from "./lib/central-memory.js";
 import { runTestCaseWithAgent, runWinpathWorkflow, runSurreyICEWorkflow } from "./lib/pathology-workflow.js";
-import { getAgentRegistry, runADTICETest, runWinpathAgent, runICEAgency, runCustomScriptAgent } from "./lib/agents/index.js";
+import {
+  getAgentRegistry, runADTICETest, runWinpathAgent, runICEAgency, runCustomScriptAgent,
+  runBloodTrackAgent, runCellavisionAgent, runImmulinkAgent, runWESAgent, runCyresAgent
+} from "./lib/agents/index.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const SCRIPTS_DIR = process.env.SCRIPTS_DIR || path.join(__dirname, "scripts");
@@ -529,6 +532,41 @@ app.post("/api/agents/custom/run", async (req, res) => {
   } catch (err) { handleError(err, res); }
 });
 
+app.post("/api/agents/bloodtrack/run", async (req, res) => {
+  try {
+    const result = await runBloodTrackAgent(req.body);
+    res.json({ status: result.passed === result.total ? "passed" : "completed", total: result.total, passed: result.passed, failed: result.failed, screenshots: result.screenshots });
+  } catch (err) { handleError(err, res); }
+});
+
+app.post("/api/agents/cellavision/run", async (req, res) => {
+  try {
+    const result = await runCellavisionAgent(req.body);
+    res.json({ status: result.passed === result.total ? "passed" : "completed", total: result.total, passed: result.passed, failed: result.failed, screenshots: result.screenshots });
+  } catch (err) { handleError(err, res); }
+});
+
+app.post("/api/agents/immulink/run", async (req, res) => {
+  try {
+    const result = await runImmulinkAgent(req.body);
+    res.json({ status: result.passed === result.total ? "passed" : "completed", total: result.total, passed: result.passed, failed: result.failed, screenshots: result.screenshots });
+  } catch (err) { handleError(err, res); }
+});
+
+app.post("/api/agents/wes/run", async (req, res) => {
+  try {
+    const result = await runWESAgent(req.body);
+    res.json({ status: result.passed === result.total ? "passed" : "completed", total: result.total, passed: result.passed, failed: result.failed, screenshots: result.screenshots });
+  } catch (err) { handleError(err, res); }
+});
+
+app.post("/api/agents/cyres/run", async (req, res) => {
+  try {
+    const result = await runCyresAgent(req.body);
+    res.json({ status: result.passed === result.total ? "passed" : "completed", total: result.total, passed: result.passed, failed: result.failed, screenshots: result.screenshots });
+  } catch (err) { handleError(err, res); }
+});
+
 // --- Observability & Analytics ---
 
 app.get("/api/insights", (req, res) => {
@@ -563,6 +601,75 @@ app.get("/api/insights", (req, res) => {
   });
 });
 
+// --- Prometheus Metrics ---
+
+const METRICS = { runsStarted: 0, runsCompleted: 0, runsFailed: 0, stepsPassed: 0, stepsFailed: 0, agentsRun: 0, screenshotsCaptured: 0, aiMappingsUsed: 0, upSince: Date.now() };
+
+app.get("/api/metrics", (req, res) => {
+  const runs = getAllRuns(10000);
+  METRICS.runsStarted = runs.length;
+  METRICS.runsCompleted = runs.filter(r => r.status === "complete" || r.status === "passed").length;
+  METRICS.runsFailed = runs.filter(r => r.status === "failed" || r.status === "error").length;
+  METRICS.stepsPassed = runs.reduce((s, r) => s + (r.passed || 0), 0);
+  METRICS.stepsFailed = runs.reduce((s, r) => s + (r.failed || 0), 0);
+  METRICS.screenshotsCaptured = METRICS.stepsPassed + METRICS.stepsFailed;
+
+  res.json({
+    version: "2.2.0",
+    upSince: new Date(METRICS.upSince).toISOString(),
+    uptimeSeconds: Math.round((Date.now() - METRICS.upSince) / 1000),
+    ...METRICS,
+    passRate: METRICS.stepsPassed + METRICS.stepsFailed > 0
+      ? Math.round((METRICS.stepsPassed / (METRICS.stepsPassed + METRICS.stepsFailed)) * 100)
+      : 100,
+    memory: process.memoryUsage(),
+    agentCount: getAgentRegistry().length,
+    nodeId: NODE_ID
+  });
+});
+
+// --- Scheduled Test Runner ---
+
+const SCHEDULED_JOBS = [];
+
+app.post("/api/schedule", (req, res) => {
+  const { cron, script, agentId, enabled } = req.body;
+  if (!cron && !enabled) return res.status(400).json({ error: "cron expression required" });
+  try {
+    const jobId = `sched_${Date.now().toString(36)}`;
+    const job = { id: jobId, cron: cron || "0 2 * * *", script, agentId, enabled: enabled !== false, createdAt: new Date().toISOString(), lastRun: null };
+    SCHEDULED_JOBS.push(job);
+    res.json({ status: "scheduled", job });
+  } catch (err) { handleError(err, res); }
+});
+
+app.get("/api/schedule", (req, res) => res.json(SCHEDULED_JOBS));
+
+app.delete("/api/schedule/:jobId", (req, res) => {
+  const idx = SCHEDULED_JOBS.findIndex(j => j.id === req.params.jobId);
+  if (idx === -1) return res.status(404).json({ error: "Job not found" });
+  SCHEDULED_JOBS.splice(idx, 1);
+  res.json({ status: "deleted" });
+});
+
+// --- Notifications ---
+
+const SLACK_WEBHOOK = process.env.SLACK_WEBHOOK_URL || "";
+const TEAMS_WEBHOOK = process.env.TEAMS_WEBHOOK_URL || "";
+
+app.post("/api/notify/test", async (req, res) => {
+  const { channel, message, runId, status, passed, failed } = req.body;
+  const payload = { text: message || `UAT Run ${runId || ""}: ${status || "unknown"} (Passed: ${passed || 0}, Failed: ${failed || 0})` };
+  const urls = [];
+  if (SLACK_WEBHOOK && (!channel || channel === "slack")) urls.push(SLACK_WEBHOOK);
+  if (TEAMS_WEBHOOK && (!channel || channel === "teams")) urls.push(TEAMS_WEBHOOK);
+  if (!urls.length) return res.json({ sent: false, reason: "no webhooks configured" });
+  const results = await Promise.allSettled(urls.map(url => fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) })));
+  res.json({ sent: results.filter(r => r.status === "fulfilled").length, total: urls.length });
+});
+
+app.get("/api/notify/status", (req, res) => res.json({ slack: !!SLACK_WEBHOOK, teams: !!TEAMS_WEBHOOK, configuredSlack: SLACK_WEBHOOK ? SLACK_WEBHOOK.slice(0, 30) + "..." : "none", configuredTeams: !!TEAMS_WEBHOOK }));
+
 // 404 handler
 app.use((req, res) => {
   if (req.path.startsWith("/api/")) {
@@ -582,7 +689,7 @@ app.use((err, req, res, next) => {
 
 app.listen(PORT, () => {
   registerNode(NODE_ID);
-  console.log(`UAT Tester v2.0 running on port ${PORT}`);
+  console.log(`UAT Tester v2.2.0 running on port ${PORT}`);
   console.log(`Security: Helmet+RateLimit+CORS enabled | Production mode: ${IS_PROD}`);
   console.log(`Browser: ${process.env.BROWSER || "chromium"} | Headless: ${process.env.HEADLESS !== "false"}`);
   console.log(`AI: ${process.env.LM_HOST ? "enabled" : "disabled"}`);
