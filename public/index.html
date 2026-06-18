@@ -14,123 +14,301 @@
         <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
         <span>UAT Test Runner</span>
       </div>
-      <div class="header-status">
+      <div class="header-status" id="headerStatus">
         <span class="status-dot" id="connectionStatus"></span>
         <span id="connectionLabel">Connecting...</span>
       </div>
     </div>
   </header>
 
+  <nav class="tab-bar" id="tabBar">
+    <button class="tab active" data-tab="runner" onclick="switchTab('runner')">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+      Test Runner
+    </button>
+    <button class="tab" data-tab="agents" onclick="switchTab('agents')">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a4 4 0 0 0-4 4v1H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-2V6a4 4 0 0 0-4-4z"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="8" y1="15" x2="16" y2="15"/></svg>
+      AI Agents
+    </button>
+    <button class="tab" data-tab="aitools" onclick="switchTab('aitools')">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+      AI Tools
+    </button>
+    <button class="tab" data-tab="fhir" onclick="switchTab('fhir')">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="12" y1="9" x2="12" y2="17"/></svg>
+      FHIR Data
+    </button>
+    <button class="tab" data-tab="infra" onclick="switchTab('infra')">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"/><rect x="2" y="14" width="20" height="8" rx="2" ry="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>
+      Infra
+    </button>
+  </nav>
+
   <main class="main-layout">
-    <!-- Setup Panel -->
-    <section class="panel setup-panel" id="setupPanel">
-      <div class="panel-header">
-        <h2>Test Configuration</h2>
-      </div>
-
-      <div class="form-group">
-        <label for="scriptSelect">Test Script</label>
-        <select id="scriptSelect" onchange="onScriptChange()">
-          <option value="">-- Select a test script --</option>
-        </select>
-      </div>
-
-      <div id="scriptMeta" class="script-meta hidden">
-        <div class="meta-row"><span class="meta-label">System:</span><span id="metaSystem"></span></div>
-        <div class="meta-row"><span class="meta-label">Description:</span><span id="metaDescription"></span></div>
-        <div class="meta-row"><span class="meta-label">Steps:</span><span id="metaSteps"></span></div>
-      </div>
-
-      <div id="variablesPanel" class="hidden">
-        <h3 class="variables-title" style="color:var(--primary)">🧪 Test Patient</h3>
-        <div class="form-group" style="background:var(--primary-light);border-radius:var(--radius);padding:0.5rem;margin-bottom:0.75rem;">
-          <label for="patientSelect" style="font-weight:600;color:var(--primary);">Select a test patient to auto-fill</label>
-          <select id="patientSelect" onchange="onPatientSelect()">
-            <option value="">-- No patient selected --</option>
-          </select>
-          <div id="patientDetails" class="script-meta hidden" style="margin-top:0.5rem;font-size:0.78rem;"></div>
-          <div style="font-size:0.7rem;color:var(--text-secondary);margin-top:0.3rem;">
-            Test patients are NHS Digital test data (fake PHI). Selecting a patient auto-fills NHS number and name into variables below.
+    <!-- ============ TAB: RUNNER ============ -->
+    <section class="tab-content active" id="tab-runner">
+      <div class="runner-grid">
+        <div class="panel">
+          <div class="panel-header"><h2>Test Configuration</h2></div>
+          <div class="form-group">
+            <label for="scriptSelect">Test Script</label>
+            <select id="scriptSelect" onchange="onScriptChange()">
+              <option value="">-- Select a test script --</option>
+            </select>
+          </div>
+          <div id="scriptMeta" class="script-meta hidden">
+            <div class="meta-row"><span class="meta-label">System:</span><span id="metaSystem"></span></div>
+            <div class="meta-row"><span class="meta-label">Description:</span><span id="metaDescription"></span></div>
+            <div class="meta-row"><span class="meta-label">Steps:</span><span id="metaSteps"></span></div>
+          </div>
+          <div id="variablesPanel" class="hidden">
+            <h3 class="variables-title">Test Patient</h3>
+            <div class="patient-card">
+              <label for="patientSelect">Select a test patient to auto-fill</label>
+              <select id="patientSelect" onchange="onPatientSelect()">
+                <option value="">-- No patient selected --</option>
+              </select>
+              <div id="patientDetails" class="script-meta hidden"></div>
+            </div>
+            <h3 class="variables-title">Variables</h3>
+            <div id="variablesForm" class="variables-form"></div>
+          </div>
+          <div class="button-row">
+            <button class="btn btn-primary" id="runBtn" onclick="startRun()" disabled>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              Run Test
+            </button>
+            <button class="btn btn-danger hidden" id="cancelBtn" onclick="cancelRun()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              Cancel
+            </button>
           </div>
         </div>
-        <h3 class="variables-title">Variables</h3>
-        <div id="variablesForm" class="variables-form"></div>
-      </div>
 
-      <div class="button-row">
-        <button class="btn btn-primary" id="runBtn" onclick="startRun()" disabled>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-          Run Test
-        </button>
-        <button class="btn btn-danger hidden" id="cancelBtn" onclick="cancelRun()">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-          Cancel
-        </button>
-      </div>
-    </section>
+        <div class="panel">
+          <div class="panel-header">
+            <h2>Execution Progress</h2>
+            <div class="run-meta hidden" id="runMeta">
+              <span>Run: <strong id="runIdLabel">-</strong></span>
+              <span>Started: <strong id="startedLabel">-</strong></span>
+            </div>
+          </div>
+          <div class="summary-cards hidden" id="summaryCards">
+            <div class="card total"><div class="card-value" id="cardTotal">0</div><div class="card-label">Total</div></div>
+            <div class="card pass"><div class="card-value" id="cardPassed">0</div><div class="card-label">Passed</div></div>
+            <div class="card fail"><div class="card-value" id="cardFailed">0</div><div class="card-label">Failed</div></div>
+            <div class="card rate"><div class="card-value" id="cardRate">0%</div><div class="card-label">Pass Rate</div></div>
+          </div>
+          <div class="progress-bar-container hidden" id="progressBarContainer">
+            <div class="progress-bar" id="progressBar"></div>
+          </div>
+          <div class="step-list" id="stepList">
+            <div class="empty-state">Select a script and run the test to see step-by-step progress here.</div>
+          </div>
+        </div>
 
-    <!-- Progress Panel -->
-    <section class="panel progress-panel" id="progressPanel">
-      <div class="panel-header">
-        <h2>Execution Progress</h2>
-        <div class="run-meta hidden" id="runMeta">
-          <span>Run: <strong id="runIdLabel">-</strong></span>
-          <span>Started: <strong id="startedLabel">-</strong></span>
+        <div class="panel">
+          <div class="panel-header">
+            <h2>Screenshots & Evidence</h2>
+            <div class="evidence-actions">
+              <button class="btn btn-secondary btn-sm" id="reportBtn" onclick="openReport()" disabled>Report</button>
+              <button class="btn btn-secondary btn-sm" id="practitestBtn" onclick="uploadToPractitest()" disabled>PractiTest</button>
+            </div>
+          </div>
+          <div class="screenshot-grid" id="screenshotGrid">
+            <div class="empty-state">Screenshots will appear here as each step completes.</div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header"><h2>Event Log</h2><button class="btn btn-text btn-sm" onclick="clearLog()">Clear</button></div>
+          <div class="log-container" id="logContainer">
+            <div class="empty-state">Waiting for test run...</div>
+          </div>
+        </div>
+
+        <div class="panel import-panel">
+          <div class="panel-header"><h2>Import from PractiTest CSV</h2></div>
+          <div class="form-group">
+            <input type="file" id="csvFileInput" accept=".csv">
+          </div>
+          <div id="csvPreview" class="hidden"></div>
+          <div class="button-row">
+            <button class="btn btn-secondary btn-sm" id="previewCsvBtn" onclick="previewCSV()" disabled>Preview</button>
+            <button class="btn btn-primary btn-sm" id="importCsvBtn" onclick="importCSV()" disabled>Import</button>
+          </div>
         </div>
       </div>
+    </section>
 
-      <!-- Summary Cards -->
-      <div class="summary-cards hidden" id="summaryCards">
-        <div class="card total"><div class="card-value" id="cardTotal">0</div><div class="card-label">Total</div></div>
-        <div class="card pass"><div class="card-value" id="cardPassed">0</div><div class="card-label">Passed</div></div>
-        <div class="card fail"><div class="card-value" id="cardFailed">0</div><div class="card-label">Failed</div></div>
-        <div class="card rate"><div class="card-value" id="cardRate">0%</div><div class="card-label">Pass Rate</div></div>
+    <!-- ============ TAB: AGENTS ============ -->
+    <section class="tab-content" id="tab-agents">
+      <div class="panel">
+        <div class="panel-header"><h2>AI Pathology Agents</h2></div>
+        <div class="agent-grid" id="agentGrid"></div>
       </div>
-
-      <!-- Progress Bar -->
-      <div class="progress-bar-container hidden" id="progressBarContainer">
-        <div class="progress-bar" id="progressBar"></div>
-      </div>
-
-      <!-- Step List -->
-      <div class="step-list" id="stepList">
-        <div class="empty-state">Select a script and run the test to see step-by-step progress here.</div>
+      <div class="panel hidden" id="agentRunPanel">
+        <div class="panel-header">
+          <h2 id="agentRunTitle">Run Agent</h2>
+          <button class="btn btn-text btn-sm" onclick="closeAgentRun()">Back</button>
+        </div>
+        <div id="agentRunForm"></div>
+        <div class="button-row">
+          <button class="btn btn-primary" id="agentRunBtn" onclick="executeAgent()">Run Agent</button>
+        </div>
+        <div id="agentResult" class="hidden"></div>
       </div>
     </section>
 
-    <!-- Evidence Panel -->
-    <section class="panel evidence-panel" id="evidencePanel">
-      <div class="panel-header">
-        <h2>Screenshots & Evidence</h2>
-        <div class="evidence-actions">
-          <button class="btn btn-secondary btn-sm" id="reportBtn" onclick="openReport()" disabled>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-            Report
-          </button>
-          <button class="btn btn-secondary btn-sm" id="practitestBtn" onclick="uploadToPractitest()" disabled>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-            Practitest
-          </button>
+    <!-- ============ TAB: AI TOOLS ============ -->
+    <section class="tab-content" id="tab-aitools">
+      <div class="tools-grid">
+        <div class="panel">
+          <div class="panel-header"><h2>Natural Language Authoring</h2></div>
+          <p class="help-text">Describe a test in plain English — AI generates the script.</p>
+          <div class="form-group">
+            <label for="nlInput">Test Description</label>
+            <textarea id="nlInput" rows="3" placeholder="e.g. Order a FBC for TKFC in Winpath, enter a normal result, authorise, and verify in ICE"></textarea>
+          </div>
+          <div class="form-group">
+            <label for="nlSystems">Target Systems</label>
+            <input id="nlSystems" value="Winpath Enterprise, Surrey ICE" placeholder="Comma-separated system names">
+          </div>
+          <div class="button-row">
+            <button class="btn btn-primary" onclick="generateScriptNL()">Generate Script</button>
+            <button class="btn btn-secondary" onclick="suggestTests()">Suggest Tests</button>
+            <button class="btn btn-secondary" onclick="clearNL()">Clear</button>
+          </div>
+          <div id="nlResult" class="hidden result-box"></div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header"><h2>Auto-Remediation</h2></div>
+          <div id="remediationStats" class="mini-stats">
+            <div class="mini-stat"><span class="mini-value" id="remTotal">-</span><span class="mini-label">Total</span></div>
+            <div class="mini-stat"><span class="mini-value" id="remSuccess">-</span><span class="mini-label">Fixed</span></div>
+            <div class="mini-stat"><span class="mini-value" id="remRate">-</span><span class="mini-label">Rate</span></div>
+          </div>
+          <div class="log-container" id="remediationLog" style="max-height:200px;">
+            <div class="empty-state">No remediation events yet.</div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header"><h2>AI Fine-Tuning Pipeline</h2></div>
+          <div id="fineTuneStats" class="mini-stats">
+            <div class="mini-stat"><span class="mini-value" id="ftFiles">-</span><span class="mini-label">Files</span></div>
+            <div class="mini-stat"><span class="mini-value" id="ftExamples">-</span><span class="mini-label">Examples</span></div>
+          </div>
+          <div class="form-group">
+            <label>Training Data Files</label>
+            <div id="ftFileList" style="font-size:0.8rem;max-height:150px;overflow-y:auto;"></div>
+          </div>
+          <div class="button-row">
+            <button class="btn btn-secondary btn-sm" onclick="collectTraining()">Collect from last run</button>
+            <button class="btn btn-primary btn-sm" onclick="submitFineTune()">Submit for Fine-Tuning</button>
+          </div>
+          <div id="ftResult" class="hidden"></div>
         </div>
       </div>
-      <div class="screenshot-grid" id="screenshotGrid">
-        <div class="empty-state">Screenshots will appear here as each step completes.</div>
+    </section>
+
+    <!-- ============ TAB: FHIR ============ -->
+    <section class="tab-content" id="tab-fhir">
+      <div class="fhir-grid">
+        <div class="panel">
+          <div class="panel-header"><h2>Generate FHIR Patient</h2></div>
+          <div class="form-group">
+            <label for="fhirCount">Number of patients</label>
+            <input id="fhirCount" type="number" value="1" min="1" max="50">
+          </div>
+          <div class="form-group">
+            <label for="fhirGender">Gender</label>
+            <select id="fhirGender"><option value="">Random</option><option value="male">Male</option><option value="female">Female</option></select>
+          </div>
+          <button class="btn btn-primary" onclick="generateFHIR()">Generate</button>
+          <div id="fhirResult" class="hidden result-box"></div>
+        </div>
+        <div class="panel">
+          <div class="panel-header"><h2>Available Observation Codes</h2></div>
+          <div id="fhirCodes" style="font-size:0.82rem;"></div>
+        </div>
+        <div class="panel">
+          <div class="panel-header"><h2>FHIR Server</h2></div>
+          <p class="help-text">FHIR R4 server running at <code>/api/fhir/r4/</code></p>
+          <div class="mini-stats">
+            <div class="mini-stat"><span class="mini-value">Patient</span><span class="mini-label">GET/POST</span></div>
+            <div class="mini-stat"><span class="mini-value">Observation</span><span class="mini-label">GET/POST</span></div>
+            <div class="mini-stat"><span class="mini-value">DiagnosticReport</span><span class="mini-label">GET</span></div>
+          </div>
+          <div class="form-group">
+            <label>Test FHIR Server</label>
+            <button class="btn btn-secondary btn-sm" onclick="testFHIRServer()">GET /metadata</button>
+          </div>
+          <div id="fhirServerResult" class="hidden"></div>
+        </div>
       </div>
     </section>
 
-    <!-- Log Panel -->
-    <section class="panel log-panel" id="logPanel">
-      <div class="panel-header">
-        <h2>Event Log</h2>
-        <button class="btn btn-text btn-sm" onclick="clearLog()">Clear</button>
-      </div>
-      <div class="log-container" id="logContainer">
-        <div class="empty-state">Waiting for test run...</div>
+    <!-- ============ TAB: INFRA ============ -->
+    <section class="tab-content" id="tab-infra">
+      <div class="infra-grid">
+        <div class="panel">
+          <div class="panel-header"><h2>Metrics</h2><button class="btn btn-text btn-sm" onclick="refreshMetrics()">Refresh</button></div>
+          <div id="metricsDisplay" class="mini-stats"></div>
+          <div class="insight-section" id="insightsDisplay"></div>
+        </div>
+        <div class="panel">
+          <div class="panel-header"><h2>Scheduled Jobs</h2><button class="btn btn-secondary btn-sm" onclick="showAddSchedule()">+ Add</button></div>
+          <div id="scheduleList" style="max-height:250px;overflow-y:auto;">
+            <div class="empty-state">No scheduled jobs.</div>
+          </div>
+          <div id="scheduleForm" class="hidden" style="margin-top:0.75rem;">
+            <div class="form-group"><input id="schedCron" placeholder="Cron (e.g. 0 2 * * *)" value="0 2 * * *"></div>
+            <div class="form-group"><input id="schedScript" placeholder="Script filename or agent ID"></div>
+            <div class="button-row">
+              <button class="btn btn-primary btn-sm" onclick="addSchedule()">Save</button>
+              <button class="btn btn-text btn-sm" onclick="hideScheduleForm()">Cancel</button>
+            </div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-header"><h2>Audit Log</h2>
+            <div style="display:flex;gap:0.3rem;">
+              <input id="auditDate" type="date" style="width:140px;font-size:0.78rem;padding:0.3rem;">
+              <button class="btn btn-text btn-sm" onclick="loadAudit()">Load</button>
+            </div>
+          </div>
+          <div class="log-container" id="auditLog" style="max-height:300px;">
+            <div class="empty-state">Click Load to view audit entries.</div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-header"><h2>Load Test Generator</h2></div>
+          <div class="form-group">
+            <label>Select a script to convert</label>
+            <select id="loadScriptSelect">
+              <option value="">-- Select script --</option>
+            </select>
+          </div>
+          <div class="button-row">
+            <button class="btn btn-secondary btn-sm" onclick="generateK6()">Generate k6 Script</button>
+            <button class="btn btn-secondary btn-sm" onclick="generateArtillery()">Generate Artillery</button>
+          </div>
+          <pre id="loadResult" class="hidden code-block"></pre>
+        </div>
+        <div class="panel">
+          <div class="panel-header"><h2>Mobile Profiles</h2></div>
+          <div id="mobileProfiles" style="font-size:0.82rem;"></div>
+        </div>
+        <div class="panel">
+          <div class="panel-header"><h2>OAuth M2M Status</h2></div>
+          <div id="oauthStatus" style="font-size:0.82rem;"></div>
+        </div>
       </div>
     </section>
   </main>
 
-  <!-- Screenshot Modal -->
   <div class="modal hidden" id="screenshotModal" onclick="closeModal()">
     <div class="modal-content" onclick="event.stopPropagation()">
       <button class="modal-close" onclick="closeModal()">&times;</button>
