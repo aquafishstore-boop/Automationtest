@@ -5,7 +5,7 @@ FROM mcr.microsoft.com/playwright:v1.61.0-noble
 
 LABEL org.opencontainers.image.title="Pathology UAT Tester"
 LABEL org.opencontainers.image.description="Hardened UAT test runner for pathology systems"
-LABEL org.opencontainers.image.version="2.0.0"
+LABEL org.opencontainers.image.version="3.1.0"
 LABEL org.opencontainers.image.vendor="Aetheris Pathology Cloud"
 
 WORKDIR /app

@@ -36,6 +36,17 @@ import { authenticate, createSession, getSession, destroySession, getSessions, g
 import { generatePatient, generateObservation, generateDiagnosticReport, generateSpecimen, generateServiceRequest, generateBundle, generateFullPatientBundle } from "./lib/fhir-generator.js";
 import { audit, getAuditLog, getAuditSummary, createAuditMiddleware } from "./lib/audit-logger.js";
 import { startScheduler, stopScheduler, getJobs, addJob, removeJob, updateJob, getJobHistory, getRunningJobs, triggerJob } from "./lib/scheduler.js";
+import { collectTrainingData, saveTrainingBatch, getTrainingStats, getTrainingFiles, submitFineTuning, clearTrainingData } from "./lib/fine-tuner.js";
+import { getPoolStatus, getPoolResults, runInPool, cancelQueuedJob, clearPoolResults } from "./lib/concurrent-runner.js";
+import { generateScript, generateStep, explainScript, suggestTests } from "./lib/nl-author.js";
+import { remediate, getRemediationLog, getRemediationStats } from "./lib/auto-remediation.js";
+import { recordTimings, getBaseline, getRegressionReport, getPerfSummary, clearBaseline } from "./lib/perf-tracker.js";
+import { postCommitStatus, postPRComment, getGitHubConfig } from "./lib/github-checks.js";
+import { getProfiles as getMobileProfiles, getProfile, getProfileConfig } from "./lib/mobile-profiles.js";
+import { createFHIRRouter } from "./lib/fhir-server.js";
+import { generateK6Script, generateArtilleryScript, getLoadTestConfigs } from "./lib/load-test-gen.js";
+import { getAgentEndpoints, formatAgentResponse } from "./lib/agent-api.js";
+import { tokenEndpoint, introspectToken, m2mMiddleware, requireScopes, getM2MStatus, registerClient } from "./lib/oauth-m2m.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const SCRIPTS_DIR = process.env.SCRIPTS_DIR || path.join(__dirname, "scripts");
@@ -773,7 +784,7 @@ app.get("/api/metrics", (req, res) => {
   METRICS.screenshotsCaptured = METRICS.stepsPassed + METRICS.stepsFailed;
 
   res.json({
-    version: "3.0.0",
+    version: "3.1.0",
     upSince: new Date(METRICS.upSince).toISOString(),
     uptimeSeconds: Math.round((Date.now() - METRICS.upSince) / 1000),
     ...METRICS,
@@ -848,6 +859,137 @@ app.post("/api/notify/test", async (req, res) => {
 
 app.get("/api/notify/status", (req, res) => res.json({ slack: !!SLACK_WEBHOOK, teams: !!TEAMS_WEBHOOK, configuredSlack: SLACK_WEBHOOK ? SLACK_WEBHOOK.slice(0, 30) + "..." : "none", configuredTeams: !!TEAMS_WEBHOOK }));
 
+// --- Fine-Tuning Pipeline ---
+
+app.get("/api/fine-tune/stats", (req, res) => res.json(getTrainingStats()));
+app.get("/api/fine-tune/files", (req, res) => res.json(getTrainingFiles()));
+app.post("/api/fine-tune/collect", (req, res) => {
+  const { steps } = req.body;
+  if (!steps?.length) return res.status(400).json({ error: "steps array required" });
+  const examples = collectTrainingData(steps);
+  const result = saveTrainingBatch(examples, req.body.system || "general");
+  res.json(result);
+});
+app.post("/api/fine-tune/submit", async (req, res) => {
+  try { res.json(await submitFineTuning(req.body)); }
+  catch (err) { handleError(err, res); }
+});
+app.delete("/api/fine-tune/clear", (req, res) => res.json(clearTrainingData(req.query.system)));
+
+// --- Concurrent Execution Pool ---
+
+app.get("/api/pool/status", (req, res) => res.json(getPoolStatus()));
+app.get("/api/pool/results", (req, res) => res.json(getPoolResults(req.query.jobId, parseInt(req.query.limit) || 100)));
+app.post("/api/pool/run", async (req, res) => {
+  const { agentId, ...options } = req.body;
+  const agents = { "adt-ice": runADTICETest, "winpath": runWinpathAgent, "ice": runICEAgency, "bloodtrack": runBloodTrackAgent, "cellavision": runCellavisionAgent, "immulink": runImmulinkAgent, "wes": runWESAgent, "cyres": runCyresAgent, "custom-script": runCustomScriptAgent };
+  const runner = agents[agentId || "custom-script"];
+  if (!runner) return res.status(400).json({ error: `Unknown agent: ${agentId}` });
+  try {
+    const startTime = Date.now();
+    const result = await runInPool(runner, options);
+    res.json(formatAgentResponse(result, startTime));
+  } catch (err) { handleError(err, res); }
+});
+app.delete("/api/pool/cancel/:jobId", (req, res) => res.json({ cancelled: cancelQueuedJob(req.params.jobId) }));
+app.delete("/api/pool/clear", (req, res) => { clearPoolResults(); res.json({ status: "cleared" }); });
+
+// --- Natural Language Authoring ---
+
+app.post("/api/nl/generate", async (req, res) => {
+  const { text, systems } = req.body;
+  if (!text) return res.status(400).json({ error: "text (natural language) required" });
+  try { res.json(await generateScript(text, { systems })); }
+  catch (err) { handleError(err, res); }
+});
+app.post("/api/nl/step", async (req, res) => {
+  const { description, dom } = req.body;
+  if (!description) return res.status(400).json({ error: "description required" });
+  try { res.json(await generateStep(description, dom)); }
+  catch (err) { handleError(err, res); }
+});
+app.post("/api/nl/explain", async (req, res) => {
+  const { script } = req.body;
+  if (!script) return res.status(400).json({ error: "script object required" });
+  try { res.json(await explainScript(script)); }
+  catch (err) { handleError(err, res); }
+});
+app.post("/api/nl/suggest", async (req, res) => {
+  const { system } = req.body;
+  try { res.json(await suggestTests(system)); }
+  catch (err) { handleError(err, res); }
+});
+
+// --- Auto-Remediation ---
+
+app.get("/api/remediate/log", (req, res) => res.json(getRemediationLog(parseInt(req.query.limit) || 50)));
+app.get("/api/remediate/stats", (req, res) => res.json(getRemediationStats()));
+
+// --- Performance Tracking ---
+
+app.get("/api/perf/baseline", (req, res) => res.json(getBaseline(req.query.step)));
+app.get("/api/perf/regressions", (req, res) => res.json(getRegressionReport(parseFloat(req.query.threshold) || 2.0)));
+app.get("/api/perf/summary", (req, res) => res.json(getPerfSummary()));
+app.post("/api/perf/record", (req, res) => {
+  const { runId, steps } = req.body;
+  if (!runId || !steps?.length) return res.status(400).json({ error: "runId and steps required" });
+  res.json(recordTimings(runId, steps));
+});
+app.delete("/api/perf/clear", (req, res) => { clearBaseline(); res.json({ status: "cleared" }); });
+
+// --- GitHub Checks ---
+
+app.get("/api/github/config", (req, res) => res.json(getGitHubConfig()));
+app.post("/api/github/status", async (req, res) => {
+  const { sha, ...result } = req.body;
+  if (!sha) return res.status(400).json({ error: "sha required" });
+  try { res.json(await postCommitStatus(sha, result)); }
+  catch (err) { handleError(err, res); }
+});
+app.post("/api/github/pr-comment", async (req, res) => {
+  const { prNumber, ...result } = req.body;
+  if (!prNumber) return res.status(400).json({ error: "prNumber required" });
+  try { res.json(await postPRComment(prNumber, result)); }
+  catch (err) { handleError(err, res); }
+});
+
+// --- Mobile Profiles ---
+
+app.get("/api/mobile/profiles", (req, res) => res.json(getMobileProfiles()));
+app.get("/api/mobile/profiles/:id", (req, res) => {
+  const profile = getProfileConfig(req.params.id);
+  if (!profile) return res.status(404).json({ error: "Profile not found" });
+  res.json(profile);
+});
+
+// --- FHIR Server ---
+
+app.use("/api/fhir/r4", createFHIRRouter());
+
+// --- Load Testing ---
+
+app.get("/api/load-test/config", (req, res) => res.json(getLoadTestConfigs()));
+app.post("/api/load-test/generate-k6", (req, res) => {
+  const { script, ...options } = req.body;
+  if (!script) return res.status(400).json({ error: "script required" });
+  res.type("text/javascript").send(generateK6Script(script, options));
+});
+app.post("/api/load-test/generate-artillery", (req, res) => {
+  const { script, ...options } = req.body;
+  if (!script) return res.status(400).json({ error: "script required" });
+  res.json(JSON.parse(generateArtilleryScript(script, options)));
+});
+
+// --- API-First Agent Mode ---
+
+app.get("/api/agent-api/endpoints", (req, res) => res.json(getAgentEndpoints()));
+
+// --- OAuth M2M ---
+
+app.post("/api/oauth/token", tokenEndpoint);
+app.post("/api/oauth/introspect", introspectToken);
+app.get("/api/oauth/status", (req, res) => res.json(getM2MStatus()));
+
 // 404 handler
 app.use((req, res) => {
   if (req.path.startsWith("/api/")) {
@@ -877,7 +1019,7 @@ app.listen(PORT, () => {
     return await runner({ script, trustId, callbacks });
   });
 
-  console.log(`UAT Tester v3.0.0 running on port ${PORT}`);
+  console.log(`UAT Tester v3.1.0 running on port ${PORT}`);
   console.log(`Security: Helmet+RateLimit+CORS enabled | Production mode: ${IS_PROD}`);
   console.log(`Browser: ${process.env.BROWSER || "chromium"} | Headless: ${process.env.HEADLESS !== "false"}`);
   console.log(`AI: ${process.env.LM_HOST ? "enabled" : "disabled"}`);
