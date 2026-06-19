@@ -1,212 +1,249 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Pathology UAT Test Runner</title>
-<link rel="stylesheet" href="/style.css">
-<link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Fira+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pathology UAT Tester | Aetheris</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config={theme:{extend:{fontFamily:{sans:['Inter','sans-serif'],mono:['ui-monospace','SFMono-Regular','Menlo','Monaco','Consolas','Liberation Mono','Courier New','monospace']},colors:{clinical:{50:'#f0fdfa',100:'#ccfbf1',500:'#14b8a6',600:'#0d9488',900:'#134e4a'},aetheris:{blue:'#2563eb',dark:'#0f172a'}}}}}
+  </script>
+  <link rel="stylesheet" href="/style.css">
 </head>
-<body>
-<header class="header">
-  <div class="header-inner">
-    <div class="header-left">
-      <button class="hamburger" onclick="toggleSidebar()" aria-label="Menu"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
-      <div class="logo" onclick="switchTab('dashboard')" style="cursor:pointer">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-        <span>UAT Tester</span>
+<body class="bg-slate-50 text-slate-800 h-screen overflow-hidden flex font-sans antialiased">
+  <aside class="w-96 bg-white border-r border-slate-200 flex flex-col h-full flex-shrink-0 shadow-sm z-10">
+    <div class="h-16 flex items-center px-6 border-b border-slate-100 bg-white">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center shadow-md"><i class="ph-bold ph-flask"></i></div>
+        <div><h1 class="font-semibold text-slate-900 leading-tight">UAT Tester</h1><p class="text-[10px] text-slate-500 font-medium uppercase tracking-wider">Aetheris Pathology</p></div>
       </div>
     </div>
-    <div class="breadcrumb" id="breadcrumb"><span>Dashboard</span></div>
-    <div class="header-right">
-      <button class="hbtn" onclick="startOnboarding()" title="Tour"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg><span>Tour</span></button>
-      <button class="hbtn" onclick="toggleKbdModal()" title="Shortcuts"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M6 8h.01M10 8h.01M14 8h.01M18 8h.01M8 12h.01M12 12h.01M16 12h.01M6 16h12"/></svg><span>Keys</span></button>
-      <button class="hbtn" onclick="toggleTheme()" title="Dark mode"><svg id="themeIcon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>
+    <div class="flex-1 overflow-y-auto p-6 space-y-6">
+      <div>
+        <h2 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-2"><i class="ph ph-sliders-horizontal"></i>Test Setup</h2>
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1">Target System & Script</label>
+            <div class="relative">
+              <select id="scriptSelect" class="w-full appearance-none bg-slate-50 border border-slate-300 text-slate-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block px-3 py-2.5 outline-none transition-colors" onchange="onScriptChange()">
+                <option value="">Select a test script...</option>
+              </select>
+              <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-500"><i class="ph-bold ph-caret-down"></i></div>
+            </div>
+          </div>
+          <div id="scriptMeta" class="hidden bg-slate-50 rounded-lg p-3 space-y-1 text-sm">
+            <div class="flex justify-between"><span class="text-slate-500">System</span><span class="font-medium" id="metaSystem"></span></div>
+            <div class="flex justify-between"><span class="text-slate-500">Steps</span><span class="font-medium" id="metaSteps"></span></div>
+            <div class="text-xs text-slate-400" id="metaDescription"></div>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1">Test Patient</label>
+            <div class="relative">
+              <select id="patientSelect" class="w-full appearance-none bg-slate-50 border border-slate-300 text-slate-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block px-3 py-2.5 outline-none transition-colors" onchange="onPatientSelect()">
+                <option value="">Select patient...</option>
+              </select>
+              <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-500"><i class="ph-bold ph-caret-down"></i></div>
+            </div>
+            <div id="patientDetails" class="hidden mt-2 bg-slate-50 rounded-lg p-3 text-xs text-slate-600"></div>
+          </div>
+        </div>
+      </div>
+      <div id="variablesPanel" class="hidden pt-4 border-t border-slate-100">
+        <div class="flex items-center justify-between mb-3">
+          <h2 class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Variables</h2>
+        </div>
+        <div class="space-y-3 bg-slate-50 p-3 rounded-lg border border-slate-200" id="variablesForm"></div>
+      </div>
     </div>
-  </div>
-</header>
-
-<div class="app">
-  <aside class="sidebar" id="sidebar">
-    <div class="sgroup"><div class="sgt">Activity</div>
-      <button class="stab active" data-tab="dashboard" onclick="switchTab('dashboard')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg><span>Dashboard</span></button>
-      <button class="stab" data-tab="runner" onclick="switchTab('runner')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg><span>Test Runner</span></button>
+    <div class="p-6 border-t border-slate-200 bg-slate-50 space-y-3">
+      <button id="runBtn" onclick="startRun()" disabled class="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-400 disabled:cursor-not-allowed text-white font-medium py-2.5 px-4 rounded-lg transition-all shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+        <i class="ph-bold ph-play"></i>Execute Test Script
+      </button>
+      <button id="cancelBtn" onclick="cancelRun()" class="w-full hidden items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white font-medium py-2.5 px-4 rounded-lg transition-all shadow-sm">
+        <i class="ph-bold ph-stop"></i>Cancel
+      </button>
+      <div class="flex gap-2">
+        <button class="flex-1 flex items-center justify-center gap-1 text-xs font-medium text-slate-600 bg-white border border-slate-300 hover:bg-slate-50 py-2 rounded-lg transition-colors" onclick="switchTab('aitools')">
+          <i class="ph ph-robot"></i>AI Tools
+        </button>
+        <button class="flex-1 flex items-center justify-center gap-1 text-xs font-medium text-slate-600 bg-white border border-slate-300 hover:bg-slate-50 py-2 rounded-lg transition-colors" onclick="switchTab('infra')">
+          <i class="ph ph-chart-bar"></i>Metrics
+        </button>
+      </div>
+      <div class="flex gap-2">
+        <button class="flex-1 flex items-center justify-center gap-1 text-xs font-medium text-slate-600 bg-white border border-slate-300 hover:bg-slate-50 py-2 rounded-lg transition-colors" onclick="switchTab('agents')">
+          <i class="ph ph-user-switch"></i>AI Agents
+        </button>
+        <button class="flex-1 flex items-center justify-center gap-1 text-xs font-medium text-slate-600 bg-white border border-slate-300 hover:bg-slate-50 py-2 rounded-lg transition-colors" onclick="switchTab('fhir')">
+          <i class="ph ph-first-aid-kit"></i>FHIR Data
+        </button>
+      </div>
     </div>
-    <div class="sgroup"><div class="sgt">Automation</div>
-      <button class="stab" data-tab="agents" onclick="switchTab('agents')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a4 4 0 0 0-4 4v1H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-2V6a4 4 0 0 0-4-4z"/></svg><span>AI Agents</span><span class="sbadge grn">9</span></button>
-      <button class="stab" data-tab="aitools" onclick="switchTab('aitools')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg><span>AI Tools</span></button>
-    </div>
-    <div class="sgroup"><div class="sgt">Data</div>
-      <button class="stab" data-tab="fhir" onclick="switchTab('fhir')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="12" y1="9" x2="12" y2="17"/></svg><span>FHIR Data</span></button>
-    </div>
-    <div class="sgroup"><div class="sgt">System</div>
-      <button class="stab" data-tab="infra" onclick="switchTab('infra')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"/><rect x="2" y="14" width="20" height="8" rx="2" ry="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg><span>Infrastructure</span></button>
-    </div>
-    <div class="sfooter"><span>v3.2.0</span><span class="sdot" id="sidebarStatus"></span></div>
   </aside>
 
-  <main class="main">
-    <!-- DASHBOARD -->
-    <section class="tabc active" id="tab-dashboard">
-      <div class="phead"><div><h1>Dashboard</h1><p class="sub">Overview of all UAT testing activity across pathology systems</p></div><button class="btn btn-p" onclick="switchTab('runner')"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>New Run</button></div>
-      <div class="kpis">
-        <div class="kpi"><div class="kpi-icon blu"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg></div><div><span class="kpiv" id="statRuns">-</span><span class="kpil">Total Runs</span></div></div>
-        <div class="kpi"><div class="kpi-icon grn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div><div><span class="kpiv" id="statPassRate">-</span><span class="kpil">Pass Rate</span></div></div>
-        <div class="kpi"><div class="kpi-icon pur"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a4 4 0 0 0-4 4v1H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-2V6a4 4 0 0 0-4-4z"/></svg></div><div><span class="kpiv" id="statAgents">-</span><span class="kpil">AI Agents</span></div></div>
-        <div class="kpi"><div class="kpi-icon amb"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></div><div><span class="kpiv" id="statScreenshots">-</span><span class="kpil">Screenshots</span></div></div>
+  <main class="flex-1 flex flex-col h-full bg-slate-50/50 relative overflow-hidden">
+    <header class="h-16 flex items-center justify-between px-8 bg-white border-b border-slate-200 shadow-sm z-10 flex-shrink-0">
+      <div class="flex items-center gap-6 text-sm font-medium text-slate-600" id="headerStatus">
+        <div class="flex items-center gap-2"><div class="w-2.5 h-2.5 rounded-full bg-green-500" id="connectionDot"></div><span id="connectionLabel">Engine Connected</span></div>
+        <div class="flex items-center gap-2"><div class="w-2.5 h-2.5 rounded-full bg-purple-500 pulse-dot" id="aiDot"></div><span id="aiLabel">Agentic AI Active</span></div>
       </div>
-      <div class="dgrid">
-        <div class="card gfull">
-          <div class="ch"><h2>Quick Actions</h2></div>
-          <div class="actions">
-            <button class="acard" onclick="switchTab('runner')"><span class="aci" style="background:#dbeafe;color:#1e40af"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg></span><span class="act">Run Test</span><span class="acd">Execute a script with step-by-step progress</span></button>
-            <button class="acard" onclick="switchTab('agents')"><span class="aci" style="background:#dcfce7;color:#166534"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a4 4 0 0 0-4 4v1H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-2V6a4 4 0 0 0-4-4z"/></svg></span><span class="act">AI Agents</span><span class="acd">9 specialized pathology agents</span></button>
-            <button class="acard" onclick="switchTab('aitools')"><span class="aci" style="background:#ede9fe;color:#6d28d9"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></span><span class="act">NL Authoring</span><span class="acd">Describe → AI generates script</span></button>
-            <button class="acard" onclick="switchTab('fhir')"><span class="aci" style="background:#fef3c7;color:#92400e"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="12" y1="9" x2="12" y2="17"/></svg></span><span class="act">FHIR Data</span><span class="acd">Synthetic patient records</span></button>
-            <button class="acard" onclick="switchTab('infra')"><span class="aci" style="background:#e0e7ff;color:#3730a3"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"/><rect x="2" y="14" width="20" height="8" rx="2" ry="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg></span><span class="act">Infrastructure</span><span class="acd">Metrics, logs, scheduling</span></button>
+      <div class="flex items-center gap-4">
+        <button class="text-slate-400 hover:text-slate-600 transition-colors" onclick="startOnboarding()" title="Tour"><i class="ph ph-question text-xl"></i></button>
+        <button class="text-slate-400 hover:text-slate-600 transition-colors" onclick="toggleTheme()" title="Dark mode"><i class="ph ph-moon text-xl" id="themeIcon"></i></button>
+      </div>
+    </header>
+
+    <div class="flex-1 overflow-y-auto p-8" id="mainContent">
+      <!-- ===== DASHBOARD TAB ===== -->
+      <section class="tabc active" id="tab-dashboard">
+        <div class="max-w-7xl mx-auto space-y-6">
+          <div class="grid grid-cols-4 gap-4">
+            <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm"><div class="text-slate-500 text-xs font-semibold uppercase tracking-wider mb-2 flex items-center gap-2"><i class="ph ph-list-numbers text-slate-400"></i>Total Runs</div><div class="text-3xl font-bold text-slate-800" id="statRuns">-</div></div>
+            <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm"><div class="text-slate-500 text-xs font-semibold uppercase tracking-wider mb-2 flex items-center gap-2"><i class="ph ph-check-circle text-green-500"></i>Pass Rate</div><div class="text-3xl font-bold text-green-600" id="statPassRate">-</div></div>
+            <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm"><div class="text-slate-500 text-xs font-semibold uppercase tracking-wider mb-2 flex items-center gap-2"><i class="ph ph-warning-circle text-red-500"></i>Total Failed</div><div class="text-3xl font-bold text-red-600" id="statFailed">-</div></div>
+            <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm relative overflow-hidden"><div class="absolute -right-4 -top-4 text-purple-50 opacity-50"><i class="ph-fill ph-sparkle text-8xl"></i></div><div class="relative z-10 text-purple-600 text-xs font-semibold uppercase tracking-wider mb-2 flex items-center gap-2"><i class="ph-fill ph-sparkle"></i>Screenshots</div><div class="relative z-10 text-3xl font-bold text-purple-700" id="statScreenshots">-</div></div>
+          </div>
+          <div class="flex gap-4">
+            <button onclick="switchTab('runner')" class="flex-1 flex items-center justify-center gap-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-4 px-6 rounded-xl transition-all shadow-md"><i class="ph-bold ph-play-circle text-xl"></i>New Test Run</button>
+            <button onclick="switchTab('agents')" class="flex-1 flex items-center justify-center gap-3 bg-purple-600 hover:bg-purple-700 text-white font-semibold py-4 px-6 rounded-xl transition-all shadow-md"><i class="ph-bold ph-robot text-xl"></i>AI Agents</button>
+            <button onclick="switchTab('aitools')" class="flex-1 flex items-center justify-center gap-3 bg-teal-600 hover:bg-teal-700 text-white font-semibold py-4 px-6 rounded-xl transition-all shadow-md"><i class="ph-bold ph-chat-circle-dots text-xl"></i>NL Authoring</button>
+            <button onclick="switchTab('fhir')" class="flex-1 flex items-center justify-center gap-3 bg-amber-600 hover:bg-amber-700 text-white font-semibold py-4 px-6 rounded-xl transition-all shadow-md"><i class="ph-bold ph-first-aid-kit text-xl"></i>FHIR Data</button>
+          </div>
+          <div class="grid grid-cols-3 gap-6">
+            <div class="col-span-2 bg-white rounded-xl border border-slate-200 shadow-sm p-5"><h3 class="text-sm font-semibold text-slate-800 mb-4 flex items-center gap-2"><i class="ph ph-clock-counter-clockwise"></i>Recent Runs</h3><div id="recentRuns" class="space-y-2"><div class="text-sm text-slate-400 text-center py-8">No runs yet.</div></div></div>
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-5"><h3 class="text-sm font-semibold text-slate-800 mb-4 flex items-center gap-2"><i class="ph ph-heartbeat"></i>System Health</h3><div id="healthList" class="space-y-2"></div></div>
           </div>
         </div>
-        <div class="card">
-          <div class="ch"><h2>Recent Runs</h2></div>
-          <div id="recentRuns" style="max-height:280px;overflow-y:auto"><div class="empty">No runs yet.</div></div>
-        </div>
-        <div class="card">
-          <div class="ch"><h2>System Health</h2></div>
-          <div id="healthList"></div>
-        </div>
-        <div class="card">
-          <div class="ch"><h2>Import Tests</h2></div>
-          <p class="help">Import test scripts from a PractiTest CSV export.</p>
-          <input type="file" id="dashCsvInput" accept=".csv" class="file-inp">
-          <div class="btn-row"><button class="btn btn-s" onclick="dashPreviewCSV()">Preview</button><button class="btn btn-p btn-sm" onclick="dashImportCSV()">Import</button></div>
-          <div id="dashCsvResult"></div>
-        </div>
-      </div>
-    </section>
+      </section>
 
-    <!-- RUNNER -->
-    <section class="tabc" id="tab-runner">
-      <div class="phead"><div><h1>Test Runner</h1><p class="sub">Execute UAT scripts with real-time progress and screenshots</p></div></div>
-      <div class="rgrid">
-        <div class="card">
-          <div class="ch"><h2>Configuration</h2></div>
-          <div class="field"><label>Test Script</label><select id="scriptSelect" onchange="onScriptChange()"><option value="">-- Select a test script --</option></select></div>
-          <div id="scriptMeta" class="meta hidden"><div class="mr"><span class="ml">System:</span><span id="metaSystem"></span></div><div class="mr"><span class="ml">Steps:</span><span id="metaSteps"></span></div></div>
-          <div id="variablesPanel" class="hidden">
-            <div class="sh">Test Patient</div>
-            <div class="pc"><label for="patientSelect">NHS Digital test patient</label><select id="patientSelect" onchange="onPatientSelect()"><option value="">-- Select --</option></select><div id="patientDetails" class="meta hidden"></div></div>
-            <div class="sh">Variables</div>
-            <div id="variablesForm"></div>
+      <!-- ===== RUNNER TAB ===== -->
+      <section class="tabc" id="tab-runner">
+        <div class="max-w-7xl mx-auto space-y-6">
+          <div class="grid grid-cols-4 gap-4">
+            <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm"><div class="text-slate-500 text-xs font-semibold uppercase tracking-wider mb-2 flex items-center gap-2"><i class="ph ph-list-numbers text-slate-400"></i>Total Steps</div><div class="text-3xl font-bold text-slate-800" id="cardTotal">0</div></div>
+            <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm"><div class="text-slate-500 text-xs font-semibold uppercase tracking-wider mb-2 flex items-center gap-2"><i class="ph ph-check-circle text-green-500"></i>Passed</div><div class="text-3xl font-bold text-green-600" id="cardPassed">0</div></div>
+            <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm"><div class="text-slate-500 text-xs font-semibold uppercase tracking-wider mb-2 flex items-center gap-2"><i class="ph ph-warning-circle text-red-500"></i>Failed</div><div class="text-3xl font-bold text-red-600" id="cardFailed">0</div></div>
+            <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm relative overflow-hidden"><div class="absolute -right-4 -top-4 text-purple-50 opacity-50"><i class="ph-fill ph-sparkle text-8xl"></i></div><div class="relative z-10 text-purple-600 text-xs font-semibold uppercase tracking-wider mb-2 flex items-center gap-2"><i class="ph-fill ph-sparkle"></i>AI Recoveries</div><div class="relative z-10 text-3xl font-bold text-purple-700" id="cardRate">0%</div></div>
           </div>
-          <div class="btn-row"><button class="btn btn-p" id="runBtn" onclick="startRun()" disabled><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>Run Test</button><button class="btn btn-s" id="cancelBtn" onclick="cancelRun()" style="display:none">Cancel</button></div>
-        </div>
-        <div class="card">
-          <div class="ch"><h2>Progress</h2><span class="rmeta hidden" id="runMeta">Run: <strong id="runIdLabel">-</strong> &middot; <strong id="startedLabel">-</strong></span></div>
-          <div class="stats hidden" id="summaryCards"><div class="st"><span class="stv" id="cardTotal">0</span><span class="stl">Total</span></div><div class="st"><span class="stv grn" id="cardPassed">0</span><span class="stl">Passed</span></div><div class="st"><span class="stv red" id="cardFailed">0</span><span class="stl">Failed</span></div><div class="st"><span class="stv blu" id="cardRate">0%</span><span class="stl">Rate</span></div></div>
-          <div class="pbar hidden" id="progressBarContainer"><div class="pfill" id="progressBar"></div></div>
-          <div class="timeline" id="stepList"><div class="empty">Select a script and run.</div></div>
-        </div>
-        <div class="card">
-          <div class="ch"><h2>Screenshots</h2><div><button class="btn btn-s btn-sm" id="reportBtn" onclick="openReport()" disabled>Report</button><button class="btn btn-s btn-sm" id="practitestBtn" onclick="uploadToPractitest()" disabled>Upload</button></div></div>
-          <div class="sg" id="screenshotGrid"><div class="empty">Screenshots appear here.</div></div>
-        </div>
-        <div class="card">
-          <div class="ch"><h2>Event Log</h2><button class="btn btn-text btn-sm" onclick="clearLog()">Clear</button></div>
-          <div class="log" id="logContainer"><div class="empty">Waiting for test...</div></div>
-        </div>
-      </div>
-    </section>
 
-    <!-- AGENTS -->
-    <section class="tabc" id="tab-agents">
-      <div class="phead"><div><h1>AI Agents</h1><p class="sub">9 pathology-specific agents — click to configure and run</p></div></div>
-      <div class="ag" id="agentGrid"></div>
-      <div class="card hidden" id="agentRunPanel">
-        <div class="ch"><h2 id="agentRunTitle">Agent</h2><button class="btn btn-text btn-sm" onclick="closeAgentRun()">&larr; Back</button></div>
-        <div id="agentRunForm"></div>
-        <div class="btn-row"><button class="btn btn-p" id="agentRunBtn" onclick="executeAgent()">Run Agent</button></div>
-        <div id="agentResult" class="hidden" style="margin-top:12px"></div>
-      </div>
-    </section>
+          <div class="bg-white rounded-xl border border-slate-200 p-6 shadow-sm hidden" id="progressContainer">
+            <div class="flex justify-between items-end mb-2">
+              <div><h3 class="text-sm font-semibold text-slate-800" id="currentScriptName">Running Test...</h3><p class="text-xs text-slate-500" id="currentStepDesc">Initializing</p></div>
+              <div class="text-sm font-bold text-blue-600" id="progressText">0%</div>
+            </div>
+            <div class="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden"><div class="bg-blue-600 h-2.5 rounded-full transition-all duration-500 ease-out" style="width:0%" id="progressBar"></div></div>
+          </div>
 
-    <!-- AI TOOLS -->
-    <section class="tabc" id="tab-aitools">
-      <div class="phead"><div><h1>AI Tools</h1><p class="sub">Natural language authoring, auto-remediation, and model fine-tuning</p></div></div>
-      <div class="tgrid">
-        <div class="card">
-          <div class="ch"><h2>NL Authoring</h2><span class="badge ai">AI</span></div>
-          <p class="help">Describe a test in plain English — AI generates a structured script.</p>
-          <div class="field"><label>What should the test do?</label><textarea id="nlInput" rows="3" placeholder="e.g. Order a FBC for TKFC in Winpath, enter results, authorise, and verify in ICE" class="tarea"></textarea></div>
-          <div class="field"><label>Target systems</label><input id="nlSystems" value="Winpath Enterprise, Surrey ICE"></div>
-          <div class="btn-row"><button class="btn btn-p" onclick="generateScriptNL()">Generate</button><button class="btn btn-s" onclick="suggestTests()">Suggest</button><button class="btn btn-text" onclick="clearNL()">Clear</button></div>
-          <div id="nlResult" class="hidden rbox"></div>
-        </div>
-        <div class="card">
-          <div class="ch"><h2>Auto-Remediation</h2><span class="badge ai">AI</span></div>
-          <p class="help">AI diagnoses failed steps and retries with alternative approaches.</p>
-          <div class="mkpis"><div class="mkpi"><span class="mkpiv" id="remTotal">-</span><span class="mkpil">Total</span></div><div class="mkpi"><span class="mkpiv" id="remSuccess">-</span><span class="mkpil">Fixed</span></div><div class="mkpi"><span class="mkpiv" id="remRate">-</span><span class="mkpil">Rate</span></div></div>
-          <div class="log" id="remediationLog" style="max-height:180px"><div class="empty">No events.</div></div>
-        </div>
-        <div class="card">
-          <div class="ch"><h2>Fine-Tuning</h2><span class="badge ai">AI</span></div>
-          <p class="help">Collect training data from runs and submit for model fine-tuning.</p>
-          <div class="mkpis"><div class="mkpi"><span class="mkpiv" id="ftFiles">-</span><span class="mkpil">Files</span></div><div class="mkpi"><span class="mkpiv" id="ftExamples">-</span><span class="mkpil">Examples</span></div></div>
-          <div id="ftFileList" class="flist"></div>
-          <div class="btn-row"><button class="btn btn-s btn-sm" onclick="collectTraining()">Collect</button><button class="btn btn-p btn-sm" onclick="submitFineTune()">Submit Tuning</button></div>
-        </div>
-      </div>
-    </section>
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6" id="executionArea">
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm flex flex-col h-[450px]">
+              <div class="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50 rounded-t-xl"><h3 class="text-sm font-semibold text-slate-800 flex items-center gap-2"><i class="ph ph-git-commit"></i>Execution Timeline</h3></div>
+              <div class="p-5 flex-1 overflow-y-auto" id="timelineContainer"><div class="h-full flex flex-col items-center justify-center text-slate-400 space-y-3"><i class="ph ph-clock text-4xl opacity-50"></i><p class="text-sm">Awaiting script execution...</p></div></div>
+            </div>
+            <div class="bg-[#0f172a] rounded-xl border border-slate-800 shadow-xl flex flex-col h-[450px]">
+              <div class="p-3 border-b border-slate-700 flex items-center justify-between bg-slate-900">
+                <div class="flex items-center gap-2"><i class="ph ph-terminal-window text-slate-400"></i><h3 class="text-xs font-mono text-slate-300">engine.log</h3></div>
+                <div class="flex gap-1.5"><div class="w-2.5 h-2.5 rounded-full bg-slate-700"></div><div class="w-2.5 h-2.5 rounded-full bg-slate-700"></div><div class="w-2.5 h-2.5 rounded-full bg-slate-700"></div></div>
+              </div>
+              <div class="p-4 flex-1 overflow-y-auto font-mono text-[11px] leading-relaxed text-slate-300" id="terminalContainer"><div class="text-slate-500 mb-2">Aetheris UAT Runtime v3.2.0 ready.</div></div>
+            </div>
+          </div>
 
-    <!-- FHIR -->
-    <section class="tabc" id="tab-fhir">
-      <div class="phead"><div><h1>FHIR Data</h1><p class="sub">Generate synthetic patient test data conforming to FHIR R4</p></div></div>
-      <div class="tgrid">
-        <div class="card">
-          <div class="ch"><h2>Generate Patients</h2></div>
-          <div class="row2"><div class="field"><label>Count</label><input id="fhirCount" type="number" value="1" min="1" max="50"></div><div class="field"><label>Gender</label><select id="fhirGender"><option value="">Random</option><option value="male">Male</option><option value="female">Female</option></select></div></div>
-          <button class="btn btn-p" onclick="generateFHIR()">Generate</button>
-          <div id="fhirResult" class="hidden rbox"></div>
+          <div class="bg-white rounded-xl border border-slate-200 shadow-sm hidden" id="evidenceContainer">
+            <div class="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50 rounded-t-xl"><h3 class="text-sm font-semibold text-slate-800 flex items-center gap-2"><i class="ph ph-image"></i>Captured Evidence</h3><button class="text-xs text-blue-600 hover:text-blue-700 font-medium flex items-center gap-1" id="reportBtn" onclick="openReport()" disabled><i class="ph ph-download-simple"></i>Report</button></div>
+            <div class="p-5 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4" id="evidenceGrid"></div>
+          </div>
         </div>
-        <div class="card">
-          <div class="ch"><h2>Observation Codes</h2></div>
-          <div id="fhirCodes" style="font-size:13px"></div>
-        </div>
-        <div class="card">
-          <div class="ch"><h2>FHIR Server</h2></div>
-          <p class="help">R4 API at <code>/api/fhir/r4/</code> — Patient, Observation, DiagnosticReport</p>
-          <div class="mkpis" style="grid-template-columns:repeat(3,1fr)"><div class="mkpi"><span class="mkpiv">Patient</span><span class="mkpil">GET/POST</span></div><div class="mkpi"><span class="mkpiv">Observation</span><span class="mkpil">GET/POST</span></div><div class="mkpi"><span class="mkpiv">Report</span><span class="mkpil">GET</span></div></div>
-          <button class="btn btn-s btn-sm" onclick="testFHIRServer()">Test Server</button>
-          <div id="fhirServerResult" class="hidden rbox"></div>
-        </div>
-      </div>
-    </section>
+      </section>
 
-    <!-- INFRA -->
-    <section class="tabc" id="tab-infra">
-      <div class="phead"><div><h1>Infrastructure</h1><p class="sub">Metrics, scheduling, audit logs, load testing, and integrations</p></div></div>
-      <div class="tgrid">
-        <div class="card"><div class="ch"><h2>Metrics</h2><button class="btn btn-text btn-sm" onclick="refreshMetrics()">Refresh</button></div><div id="metricsDisplay" class="mkpis"></div><div id="insightsDisplay"></div></div>
-        <div class="card"><div class="ch"><h2>Scheduled Jobs</h2><button class="btn btn-s btn-sm" onclick="showAddSchedule()">+ Add</button></div><div id="scheduleList" class="compact-scroll"><div class="empty">No jobs.</div></div><div id="scheduleForm" class="hidden" style="margin-top:8px"><div class="field"><input id="schedCron" placeholder="Cron (e.g. 0 2 * * *)" value="0 2 * * *"></div><div class="field"><input id="schedScript" placeholder="Agent ID or filename"></div><div class="btn-row"><button class="btn btn-p btn-sm" onclick="addSchedule()">Save</button><button class="btn btn-text btn-sm" onclick="hideScheduleForm()">Cancel</button></div></div></div>
-        <div class="card"><div class="ch"><h2>Audit Log</h2><div><input id="auditDate" type="date" class="date-inp"><button class="btn btn-text btn-sm" onclick="loadAudit()">Load</button></div></div><div class="log" id="auditLog" style="max-height:280px"><div class="empty">Select a date.</div></div></div>
-        <div class="card"><div class="ch"><h2>Load Tests</h2></div><div class="field"><label>Convert a script</label><select id="loadScriptSelect"><option value="">-- Select --</option></select></div><div class="btn-row"><button class="btn btn-s btn-sm" onclick="generateK6()">k6</button><button class="btn btn-s btn-sm" onclick="generateArtillery()">Artillery</button></div><pre id="loadResult" class="hidden codeb"></pre></div>
-        <div class="card"><div class="ch"><h2>Mobile Profiles</h2></div><div id="mobileProfiles"></div></div>
-        <div class="card"><div class="ch"><h2>OAuth M2M</h2></div><div id="oauthStatus"></div></div>
-      </div>
-    </section>
+      <!-- ===== AGENTS TAB ===== -->
+      <section class="tabc" id="tab-agents">
+        <div class="max-w-7xl mx-auto space-y-6">
+          <div class="flex items-center justify-between"><div><h2 class="text-xl font-bold text-slate-800">AI Agents</h2><p class="text-sm text-slate-500">9 pathology-specific agents</p></div></div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4" id="agentGrid"></div>
+          <div class="bg-white rounded-xl border border-slate-200 shadow-sm hidden p-6" id="agentRunPanel">
+            <div class="flex items-center justify-between mb-4"><h3 class="text-sm font-semibold" id="agentRunTitle">Configure Agent</h3><button class="text-xs text-blue-600 hover:text-blue-700" onclick="closeAgentRun()">← Back</button></div>
+            <div id="agentRunForm" class="space-y-3"></div>
+            <button class="mt-4 w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 px-4 rounded-lg" id="agentRunBtn" onclick="executeAgent()">Run Agent</button>
+            <div id="agentResult" class="hidden mt-4"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== AI TOOLS TAB ===== -->
+      <section class="tabc" id="tab-aitools">
+        <div class="max-w-7xl mx-auto space-y-6">
+          <div><h2 class="text-xl font-bold text-slate-800">AI Tools</h2><p class="text-sm text-slate-500">NL authoring, auto-remediation, fine-tuning</p></div>
+          <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+              <div class="flex items-center gap-2 mb-4"><i class="ph ph-chat-circle-dots text-purple-600 text-xl"></i><h3 class="font-semibold">NL Authoring</h3><span class="text-[10px] font-medium bg-purple-100 text-purple-800 px-2 py-0.5 rounded-full">AI</span></div>
+              <p class="text-xs text-slate-500 mb-4">Describe a test in plain English — AI generates the structured script.</p>
+              <div class="space-y-3">
+                <div><label class="block text-xs font-medium text-slate-600 mb-1">What should the test do?</label><textarea id="nlInput" rows="3" class="w-full bg-slate-50 border border-slate-300 text-sm rounded-lg px-3 py-2 outline-none focus:ring-blue-500 focus:border-blue-500" placeholder="e.g. Order a FBC for TKFC in Winpath..."></textarea></div>
+                <div><label class="block text-xs font-medium text-slate-600 mb-1">Target systems</label><input id="nlSystems" value="Winpath Enterprise, Surrey ICE" class="w-full bg-slate-50 border border-slate-300 text-sm rounded-lg px-3 py-2 outline-none focus:ring-blue-500 focus:border-blue-500"></div>
+                <div class="flex gap-2"><button class="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium py-2 rounded-lg" onclick="generateScriptNL()">Generate</button><button class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-medium py-2 rounded-lg" onclick="suggestTests()">Suggest</button></div>
+              </div>
+              <div id="nlResult" class="hidden mt-4"></div>
+            </div>
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+              <div class="flex items-center gap-2 mb-4"><i class="ph ph-wrench text-purple-600 text-xl"></i><h3 class="font-semibold">Auto-Remediation</h3><span class="text-[10px] font-medium bg-purple-100 text-purple-800 px-2 py-0.5 rounded-full">AI</span></div>
+              <p class="text-xs text-slate-500 mb-4">AI diagnoses failed steps and retries with alternative approaches.</p>
+              <div class="grid grid-cols-3 gap-3 mb-4"><div class="bg-slate-50 rounded-lg p-3 text-center"><div class="text-lg font-bold text-blue-600" id="remTotal">-</div><div class="text-[10px] text-slate-500 uppercase tracking-wider">Total</div></div><div class="bg-slate-50 rounded-lg p-3 text-center"><div class="text-lg font-bold text-green-600" id="remSuccess">-</div><div class="text-[10px] text-slate-500 uppercase tracking-wider">Fixed</div></div><div class="bg-slate-50 rounded-lg p-3 text-center"><div class="text-lg font-bold text-purple-600" id="remRate">-</div><div class="text-[10px] text-slate-500 uppercase tracking-wider">Rate</div></div></div>
+              <div class="bg-[#0f172a] rounded-lg p-3 font-mono text-[11px] text-slate-300 max-h-[140px] overflow-y-auto" id="remediationLog"><div class="text-slate-500">No events yet.</div></div>
+            </div>
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+              <div class="flex items-center gap-2 mb-4"><i class="ph ph-gauge text-purple-600 text-xl"></i><h3 class="font-semibold">Fine-Tuning</h3><span class="text-[10px] font-medium bg-purple-100 text-purple-800 px-2 py-0.5 rounded-full">AI</span></div>
+              <p class="text-xs text-slate-500 mb-4">Collect training data from runs and submit for model fine-tuning.</p>
+              <div class="grid grid-cols-2 gap-3 mb-4"><div class="bg-slate-50 rounded-lg p-3 text-center"><div class="text-lg font-bold text-blue-600" id="ftFiles">-</div><div class="text-[10px] text-slate-500 uppercase tracking-wider">Files</div></div><div class="bg-slate-50 rounded-lg p-3 text-center"><div class="text-lg font-bold text-purple-600" id="ftExamples">-</div><div class="text-[10px] text-slate-500 uppercase tracking-wider">Examples</div></div></div>
+              <div id="ftFileList" class="text-xs space-y-1 max-h-[100px] overflow-y-auto"></div>
+              <div class="flex gap-2 mt-3"><button class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-medium py-2 rounded-lg" onclick="collectTraining()">Collect</button><button class="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium py-2 rounded-lg" onclick="submitFineTune()">Submit</button></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== FHIR TAB ===== -->
+      <section class="tabc" id="tab-fhir">
+        <div class="max-w-7xl mx-auto space-y-6">
+          <div><h2 class="text-xl font-bold text-slate-800">FHIR Data</h2><p class="text-sm text-slate-500">Generate synthetic patient test data</p></div>
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6"><h3 class="font-semibold mb-4">Generate Patients</h3><div class="grid grid-cols-2 gap-3 mb-4"><div><label class="text-xs font-medium text-slate-600 block mb-1">Count</label><input id="fhirCount" type="number" value="1" min="1" max="50" class="w-full bg-slate-50 border border-slate-300 text-sm rounded-lg px-3 py-2 outline-none"></div><div><label class="text-xs font-medium text-slate-600 block mb-1">Gender</label><select id="fhirGender" class="w-full bg-slate-50 border border-slate-300 text-sm rounded-lg px-3 py-2 outline-none"><option value="">Random</option><option value="male">Male</option><option value="female">Female</option></select></div></div><button class="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium py-2 rounded-lg" onclick="generateFHIR()">Generate</button><div id="fhirResult" class="hidden mt-4"></div></div>
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6"><h3 class="font-semibold mb-4">Observation Codes</h3><div id="fhirCodes" class="space-y-1 text-sm"></div></div>
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6"><h3 class="font-semibold mb-4">FHIR Server</h3><p class="text-xs text-slate-500 mb-4">R4 API at <code class="text-blue-600">/api/fhir/r4/</code></p><button class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-medium py-2 px-4 rounded-lg" onclick="testFHIRServer()">Test Server</button><div id="fhirServerResult" class="hidden mt-4"></div></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== INFRA TAB ===== -->
+      <section class="tabc" id="tab-infra">
+        <div class="max-w-7xl mx-auto space-y-6">
+          <div><h2 class="text-xl font-bold text-slate-800">Infrastructure</h2><p class="text-sm text-slate-500">Metrics, scheduling, audit, load testing</p></div>
+          <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6"><div class="flex items-center justify-between mb-4"><h3 class="font-semibold">Metrics</h3><button class="text-xs text-blue-600 hover:text-blue-700" onclick="refreshMetrics()">Refresh</button></div><div id="metricsDisplay" class="grid grid-cols-3 gap-3"></div><div id="insightsDisplay" class="mt-4"></div></div>
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6"><div class="flex items-center justify-between mb-4"><h3 class="font-semibold">Schedule</h3><button class="text-xs bg-blue-600 text-white px-3 py-1 rounded-lg hover:bg-blue-700" onclick="showAddSchedule()">+ Add</button></div><div id="scheduleList" class="space-y-1 text-sm max-h-[200px] overflow-y-auto"><div class="text-slate-400 text-center py-4">No jobs.</div></div><div id="scheduleForm" class="hidden mt-4 space-y-3"><input id="schedCron" placeholder="Cron" value="0 2 * * *" class="w-full bg-slate-50 border border-slate-300 text-sm rounded-lg px-3 py-2 outline-none"><input id="schedScript" placeholder="Agent ID" class="w-full bg-slate-50 border border-slate-300 text-sm rounded-lg px-3 py-2 outline-none"><div class="flex gap-2"><button class="bg-blue-600 text-white text-sm px-4 py-2 rounded-lg" onclick="addSchedule()">Save</button><button class="text-sm text-slate-500" onclick="hideScheduleForm()">Cancel</button></div></div></div>
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6"><div class="flex items-center justify-between mb-4"><h3 class="font-semibold">Audit Log</h3><input id="auditDate" type="date" class="text-xs bg-slate-50 border border-slate-300 rounded-lg px-2 py-1 outline-none"><button class="text-xs text-blue-600 hover:text-blue-700 ml-2" onclick="loadAudit()">Load</button></div><div class="bg-[#0f172a] rounded-lg p-3 font-mono text-[11px] text-slate-300 max-h-[200px] overflow-y-auto" id="auditLog"><div class="text-slate-500">Select a date.</div></div></div>
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6"><h3 class="font-semibold mb-4">Load Tests</h3><div class="space-y-3"><select id="loadScriptSelect" class="w-full bg-slate-50 border border-slate-300 text-sm rounded-lg px-3 py-2 outline-none"></select><div class="flex gap-2"><button class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm py-2 rounded-lg" onclick="generateK6()">k6</button><button class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm py-2 rounded-lg" onclick="generateArtillery()">Artillery</button></div><pre id="loadResult" class="hidden bg-[#0f172a] rounded-lg p-3 text-[11px] text-slate-300 max-h-[200px] overflow-y-auto"></pre></div></div>
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6"><h3 class="font-semibold mb-4">Mobile Profiles</h3><div id="mobileProfiles" class="space-y-1 text-sm"></div></div>
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6"><h3 class="font-semibold mb-4">OAuth M2M</h3><div id="oauthStatus"></div></div>
+          </div>
+        </div>
+      </section>
+    </div>
   </main>
-</div>
 
-<div class="toasts" id="toastContainer" aria-live="polite"></div>
+  <div class="fixed bottom-6 right-6 z-50 space-y-2" id="toastContainer"></div>
 
-<div class="modal hidden" id="screenshotModal" onclick="closeModal()">
-  <div class="modal-b" onclick="event.stopPropagation()"><button class="modal-x" onclick="closeModal()">&times;</button><img id="modalImage" src="" alt="Screenshot"><div class="modal-c" id="modalCaption"></div></div>
-</div>
+  <div class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50 p-8" id="screenshotModal" onclick="closeModal()">
+    <div class="bg-white rounded-xl max-w-4xl max-h-[90vh] overflow-hidden shadow-2xl" onclick="event.stopPropagation()">
+      <div class="flex justify-end p-2"><button class="text-slate-400 hover:text-slate-600 p-1" onclick="closeModal()"><i class="ph-bold ph-x text-xl"></i></button></div>
+      <img id="modalImage" src="" alt="" class="max-w-full max-h-[70vh] mx-auto">
+      <div class="p-4 text-sm text-slate-600 border-t border-slate-100" id="modalCaption"></div>
+    </div>
+  </div>
 
-<div class="modal hidden" id="kbdModal" onclick="closeKbdModal()">
-  <div class="modal-b" onclick="event.stopPropagation()" style="max-width:460px"><button class="modal-x" onclick="closeKbdModal()">&times;</button><h2 class="modal-t">Keyboard Shortcuts</h2>
-  <div class="kbdg"><div class="kblr"><span class="keys"><kbd>Ctrl</kbd>+<kbd>Enter</kbd></span><span>Run test</span></div><div class="kblr"><span class="keys"><kbd>Esc</kbd></span><span>Cancel / Close</span></div><div class="kblr"><span class="keys"><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>D</kbd></span><span>Dark mode</span></div><div class="kblr"><span class="keys"><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>N</kbd></span><span>AI Authoring</span></div><div class="kblr"><span class="keys"><kbd>?</kbd></span><span>Help</span></div></div></div>
-</div>
-
-<script src="/app.js"></script>
+  <script src="/app.js"></script>
 </body>
 </html>
