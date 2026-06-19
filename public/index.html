@@ -10,237 +10,540 @@
   <script src="https://unpkg.com/@phosphor-icons/web"></script>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
-    tailwind.config={theme:{extend:{fontFamily:{sans:['Inter','sans-serif'],mono:['ui-monospace','SFMono-Regular','Menlo','Monaco','Consolas','Liberation Mono','Courier New','monospace']},colors:{clinical:{50:'#f0fdfa',100:'#ccfbf1',500:'#14b8a6',600:'#0d9488',900:'#134e4a'},aetheris:{blue:'#2563eb',dark:'#0f172a'}}}}}
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'monospace']
+          },
+          colors: {
+            clinical: { 50: '#f0fdfa', 100: '#ccfbf1', 500: '#14b8a6', 600: '#0d9488', 900: '#134e4a' },
+            aetheris: { blue: '#2563eb', dark: '#0f172a' }
+          }
+        }
+      }
+    }
   </script>
   <link rel="stylesheet" href="/style.css">
 </head>
 <body class="bg-slate-50 text-slate-800 h-screen overflow-hidden flex font-sans antialiased">
-  <aside class="w-96 bg-white border-r border-slate-200 flex flex-col h-full flex-shrink-0 shadow-sm z-10">
-    <div class="h-16 flex items-center px-6 border-b border-slate-100 bg-white">
+  
+  <!-- Sidebar Navigation -->
+  <aside class="w-64 bg-white border-r border-slate-200 flex flex-col h-full flex-shrink-0">
+    <div class="h-16 flex items-center px-5 border-b border-slate-100">
       <div class="flex items-center gap-3">
-        <div class="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center shadow-md"><i class="ph-bold ph-flask"></i></div>
-        <div><h1 class="font-semibold text-slate-900 leading-tight">UAT Tester</h1><p class="text-[10px] text-slate-500 font-medium uppercase tracking-wider">Aetheris Pathology</p></div>
-      </div>
-    </div>
-    <div class="flex-1 overflow-y-auto p-6 space-y-6">
-      <div>
-        <h2 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-2"><i class="ph ph-sliders-horizontal"></i>Test Setup</h2>
-        <div class="space-y-4">
-          <div>
-            <label class="block text-sm font-medium text-slate-700 mb-1">Target System & Script</label>
-            <div class="relative">
-              <select id="scriptSelect" class="w-full appearance-none bg-slate-50 border border-slate-300 text-slate-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block px-3 py-2.5 outline-none transition-colors" onchange="onScriptChange()">
-                <option value="">Select a test script...</option>
-              </select>
-              <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-500"><i class="ph-bold ph-caret-down"></i></div>
-            </div>
-          </div>
-          <div id="scriptMeta" class="hidden bg-slate-50 rounded-lg p-3 space-y-1 text-sm">
-            <div class="flex justify-between"><span class="text-slate-500">System</span><span class="font-medium" id="metaSystem"></span></div>
-            <div class="flex justify-between"><span class="text-slate-500">Steps</span><span class="font-medium" id="metaSteps"></span></div>
-            <div class="text-xs text-slate-400" id="metaDescription"></div>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-slate-700 mb-1">Test Patient</label>
-            <div class="relative">
-              <select id="patientSelect" class="w-full appearance-none bg-slate-50 border border-slate-300 text-slate-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block px-3 py-2.5 outline-none transition-colors" onchange="onPatientSelect()">
-                <option value="">Select patient...</option>
-              </select>
-              <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-500"><i class="ph-bold ph-caret-down"></i></div>
-            </div>
-            <div id="patientDetails" class="hidden mt-2 bg-slate-50 rounded-lg p-3 text-xs text-slate-600"></div>
-          </div>
+        <div class="w-9 h-9 rounded-lg bg-blue-600 text-white flex items-center justify-center shadow-md">
+          <i class="ph-bold ph-flask text-lg"></i>
+        </div>
+        <div>
+          <h1 class="font-semibold text-slate-900 text-sm leading-tight">UAT Tester</h1>
+          <p class="text-[10px] text-slate-500 font-medium uppercase tracking-wider">Aetheris Pathology</p>
         </div>
       </div>
-      <div id="variablesPanel" class="hidden pt-4 border-t border-slate-100">
-        <div class="flex items-center justify-between mb-3">
-          <h2 class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Variables</h2>
-        </div>
-        <div class="space-y-3 bg-slate-50 p-3 rounded-lg border border-slate-200" id="variablesForm"></div>
-      </div>
     </div>
-    <div class="p-6 border-t border-slate-200 bg-slate-50 space-y-3">
-      <button id="runBtn" onclick="startRun()" disabled class="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-400 disabled:cursor-not-allowed text-white font-medium py-2.5 px-4 rounded-lg transition-all shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
-        <i class="ph-bold ph-play"></i>Execute Test Script
+    
+    <nav class="flex-1 overflow-y-auto p-4 space-y-1">
+      <button onclick="switchTab('dashboard')" class="nav-btn active" data-tab="dashboard">
+        <i class="ph ph-squares-four text-lg"></i>
+        <span>Dashboard</span>
       </button>
-      <button id="cancelBtn" onclick="cancelRun()" class="w-full hidden items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white font-medium py-2.5 px-4 rounded-lg transition-all shadow-sm">
-        <i class="ph-bold ph-stop"></i>Cancel
+      <button onclick="switchTab('runner')" class="nav-btn" data-tab="runner">
+        <i class="ph ph-play-circle text-lg"></i>
+        <span>Test Runner</span>
       </button>
-      <div class="flex gap-2">
-        <button class="flex-1 flex items-center justify-center gap-1 text-xs font-medium text-slate-600 bg-white border border-slate-300 hover:bg-slate-50 py-2 rounded-lg transition-colors" onclick="switchTab('aitools')">
-          <i class="ph ph-robot"></i>AI Tools
-        </button>
-        <button class="flex-1 flex items-center justify-center gap-1 text-xs font-medium text-slate-600 bg-white border border-slate-300 hover:bg-slate-50 py-2 rounded-lg transition-colors" onclick="switchTab('infra')">
-          <i class="ph ph-chart-bar"></i>Metrics
-        </button>
+      <button onclick="switchTab('agents')" class="nav-btn" data-tab="agents">
+        <i class="ph ph-robot text-lg"></i>
+        <span>AI Agents</span>
+        <span class="ml-auto text-[10px] font-semibold bg-green-100 text-green-700 px-2 py-0.5 rounded-full">9</span>
+      </button>
+      <button onclick="switchTab('aitools')" class="nav-btn" data-tab="aitools">
+        <i class="ph ph-chat-circle-dots text-lg"></i>
+        <span>AI Tools</span>
+      </button>
+      <button onclick="switchTab('fhir')" class="nav-btn" data-tab="fhir">
+        <i class="ph ph-first-aid-kit text-lg"></i>
+        <span>FHIR Data</span>
+      </button>
+      <button onclick="switchTab('infra')" class="nav-btn" data-tab="infra">
+        <i class="ph ph-chart-bar text-lg"></i>
+        <span>Infrastructure</span>
+      </button>
+    </nav>
+    
+    <div class="p-4 border-t border-slate-100">
+      <div class="flex items-center gap-2 text-xs text-slate-500">
+        <div class="w-2 h-2 rounded-full bg-green-500"></div>
+        <span>Engine Connected</span>
       </div>
-      <div class="flex gap-2">
-        <button class="flex-1 flex items-center justify-center gap-1 text-xs font-medium text-slate-600 bg-white border border-slate-300 hover:bg-slate-50 py-2 rounded-lg transition-colors" onclick="switchTab('agents')">
-          <i class="ph ph-user-switch"></i>AI Agents
-        </button>
-        <button class="flex-1 flex items-center justify-center gap-1 text-xs font-medium text-slate-600 bg-white border border-slate-300 hover:bg-slate-50 py-2 rounded-lg transition-colors" onclick="switchTab('fhir')">
-          <i class="ph ph-first-aid-kit"></i>FHIR Data
-        </button>
+      <div class="flex items-center gap-2 text-xs text-slate-500 mt-1">
+        <div class="w-2 h-2 rounded-full bg-purple-500"></div>
+        <span>AI Active</span>
       </div>
     </div>
   </aside>
 
-  <main class="flex-1 flex flex-col h-full bg-slate-50/50 relative overflow-hidden">
-    <header class="h-16 flex items-center justify-between px-8 bg-white border-b border-slate-200 shadow-sm z-10 flex-shrink-0">
-      <div class="flex items-center gap-6 text-sm font-medium text-slate-600" id="headerStatus">
-        <div class="flex items-center gap-2"><div class="w-2.5 h-2.5 rounded-full bg-green-500" id="connectionDot"></div><span id="connectionLabel">Engine Connected</span></div>
-        <div class="flex items-center gap-2"><div class="w-2.5 h-2.5 rounded-full bg-purple-500 pulse-dot" id="aiDot"></div><span id="aiLabel">Agentic AI Active</span></div>
+  <!-- Main Content -->
+  <main class="flex-1 flex flex-col h-full overflow-hidden">
+    
+    <!-- Top Bar -->
+    <header class="h-16 flex items-center justify-between px-8 bg-white border-b border-slate-200 flex-shrink-0">
+      <div>
+        <h2 class="text-lg font-semibold text-slate-900" id="pageTitle">Dashboard</h2>
+        <p class="text-xs text-slate-500" id="pageSubtitle">Overview of all UAT testing activity</p>
       </div>
-      <div class="flex items-center gap-4">
-        <button class="text-slate-400 hover:text-slate-600 transition-colors" onclick="startOnboarding()" title="Tour"><i class="ph ph-question text-xl"></i></button>
-        <button class="text-slate-400 hover:text-slate-600 transition-colors" onclick="toggleTheme()" title="Dark mode"><i class="ph ph-moon text-xl" id="themeIcon"></i></button>
+      <div class="flex items-center gap-3">
+        <button onclick="toggleTheme()" class="p-2 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100 transition-colors" title="Toggle theme">
+          <i class="ph ph-moon text-xl" id="themeIcon"></i>
+        </button>
       </div>
     </header>
 
-    <div class="flex-1 overflow-y-auto p-8" id="mainContent">
-      <!-- ===== DASHBOARD TAB ===== -->
-      <section class="tabc active" id="tab-dashboard">
+    <!-- Content Area -->
+    <div class="flex-1 overflow-y-auto">
+      
+      <!-- DASHBOARD -->
+      <section class="tab-content active p-8" id="tab-dashboard">
         <div class="max-w-7xl mx-auto space-y-6">
-          <div class="grid grid-cols-4 gap-4">
-            <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm"><div class="text-slate-500 text-xs font-semibold uppercase tracking-wider mb-2 flex items-center gap-2"><i class="ph ph-list-numbers text-slate-400"></i>Total Runs</div><div class="text-3xl font-bold text-slate-800" id="statRuns">-</div></div>
-            <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm"><div class="text-slate-500 text-xs font-semibold uppercase tracking-wider mb-2 flex items-center gap-2"><i class="ph ph-check-circle text-green-500"></i>Pass Rate</div><div class="text-3xl font-bold text-green-600" id="statPassRate">-</div></div>
-            <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm"><div class="text-slate-500 text-xs font-semibold uppercase tracking-wider mb-2 flex items-center gap-2"><i class="ph ph-warning-circle text-red-500"></i>Total Failed</div><div class="text-3xl font-bold text-red-600" id="statFailed">-</div></div>
-            <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm relative overflow-hidden"><div class="absolute -right-4 -top-4 text-purple-50 opacity-50"><i class="ph-fill ph-sparkle text-8xl"></i></div><div class="relative z-10 text-purple-600 text-xs font-semibold uppercase tracking-wider mb-2 flex items-center gap-2"><i class="ph-fill ph-sparkle"></i>Screenshots</div><div class="relative z-10 text-3xl font-bold text-purple-700" id="statScreenshots">-</div></div>
+          
+          <!-- Stats Grid -->
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+            <div class="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
+              <div class="flex items-center justify-between mb-3">
+                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Runs</span>
+                <i class="ph ph-list-numbers text-slate-400 text-xl"></i>
+              </div>
+              <div class="text-3xl font-bold text-slate-900" id="statRuns">-</div>
+            </div>
+            <div class="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
+              <div class="flex items-center justify-between mb-3">
+                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Pass Rate</span>
+                <i class="ph ph-check-circle text-green-500 text-xl"></i>
+              </div>
+              <div class="text-3xl font-bold text-green-600" id="statPassRate">-</div>
+            </div>
+            <div class="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
+              <div class="flex items-center justify-between mb-3">
+                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Failed</span>
+                <i class="ph ph-warning-circle text-red-500 text-xl"></i>
+              </div>
+              <div class="text-3xl font-bold text-red-600" id="statFailed">-</div>
+            </div>
+            <div class="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
+              <div class="flex items-center justify-between mb-3">
+                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Screenshots</span>
+                <i class="ph ph-image text-purple-500 text-xl"></i>
+              </div>
+              <div class="text-3xl font-bold text-purple-600" id="statScreenshots">-</div>
+            </div>
           </div>
-          <div class="flex gap-4">
-            <button onclick="switchTab('runner')" class="flex-1 flex items-center justify-center gap-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-4 px-6 rounded-xl transition-all shadow-md"><i class="ph-bold ph-play-circle text-xl"></i>New Test Run</button>
-            <button onclick="switchTab('agents')" class="flex-1 flex items-center justify-center gap-3 bg-purple-600 hover:bg-purple-700 text-white font-semibold py-4 px-6 rounded-xl transition-all shadow-md"><i class="ph-bold ph-robot text-xl"></i>AI Agents</button>
-            <button onclick="switchTab('aitools')" class="flex-1 flex items-center justify-center gap-3 bg-teal-600 hover:bg-teal-700 text-white font-semibold py-4 px-6 rounded-xl transition-all shadow-md"><i class="ph-bold ph-chat-circle-dots text-xl"></i>NL Authoring</button>
-            <button onclick="switchTab('fhir')" class="flex-1 flex items-center justify-center gap-3 bg-amber-600 hover:bg-amber-700 text-white font-semibold py-4 px-6 rounded-xl transition-all shadow-md"><i class="ph-bold ph-first-aid-kit text-xl"></i>FHIR Data</button>
+
+          <!-- Quick Actions -->
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <button onclick="switchTab('runner')" class="bg-blue-600 hover:bg-blue-700 text-white rounded-xl p-5 text-left transition-all shadow-sm hover:shadow-md">
+              <i class="ph-bold ph-play-circle text-2xl mb-2"></i>
+              <div class="font-semibold">New Test Run</div>
+              <div class="text-xs text-blue-100 mt-1">Execute a test script</div>
+            </button>
+            <button onclick="switchTab('agents')" class="bg-purple-600 hover:bg-purple-700 text-white rounded-xl p-5 text-left transition-all shadow-sm hover:shadow-md">
+              <i class="ph-bold ph-robot text-2xl mb-2"></i>
+              <div class="font-semibold">AI Agents</div>
+              <div class="text-xs text-purple-100 mt-1">9 pathology agents</div>
+            </button>
+            <button onclick="switchTab('aitools')" class="bg-teal-600 hover:bg-teal-700 text-white rounded-xl p-5 text-left transition-all shadow-sm hover:shadow-md">
+              <i class="ph-bold ph-chat-circle-dots text-2xl mb-2"></i>
+              <div class="font-semibold">AI Authoring</div>
+              <div class="text-xs text-teal-100 mt-1">Generate tests with AI</div>
+            </button>
+            <button onclick="switchTab('fhir')" class="bg-amber-600 hover:bg-amber-700 text-white rounded-xl p-5 text-left transition-all shadow-sm hover:shadow-md">
+              <i class="ph-bold ph-first-aid-kit text-2xl mb-2"></i>
+              <div class="font-semibold">FHIR Data</div>
+              <div class="text-xs text-amber-100 mt-1">Synthetic patients</div>
+            </button>
           </div>
-          <div class="grid grid-cols-3 gap-6">
-            <div class="col-span-2 bg-white rounded-xl border border-slate-200 shadow-sm p-5"><h3 class="text-sm font-semibold text-slate-800 mb-4 flex items-center gap-2"><i class="ph ph-clock-counter-clockwise"></i>Recent Runs</h3><div id="recentRuns" class="space-y-2"><div class="text-sm text-slate-400 text-center py-8">No runs yet.</div></div></div>
-            <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-5"><h3 class="text-sm font-semibold text-slate-800 mb-4 flex items-center gap-2"><i class="ph ph-heartbeat"></i>System Health</h3><div id="healthList" class="space-y-2"></div></div>
+
+          <!-- Recent Runs & Health -->
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="lg:col-span-2 bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
+              <h3 class="font-semibold text-slate-900 mb-4 flex items-center gap-2">
+                <i class="ph ph-clock-counter-clockwise"></i>
+                Recent Runs
+              </h3>
+              <div id="recentRuns" class="space-y-2">
+                <div class="text-sm text-slate-400 text-center py-8">No runs yet.</div>
+              </div>
+            </div>
+            <div class="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
+              <h3 class="font-semibold text-slate-900 mb-4 flex items-center gap-2">
+                <i class="ph ph-heartbeat"></i>
+                System Health
+              </h3>
+              <div id="healthList" class="space-y-3"></div>
+            </div>
           </div>
+
         </div>
       </section>
 
-      <!-- ===== RUNNER TAB ===== -->
-      <section class="tabc" id="tab-runner">
+      <!-- TEST RUNNER -->
+      <section class="tab-content p-8" id="tab-runner">
         <div class="max-w-7xl mx-auto space-y-6">
-          <div class="grid grid-cols-4 gap-4">
-            <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm"><div class="text-slate-500 text-xs font-semibold uppercase tracking-wider mb-2 flex items-center gap-2"><i class="ph ph-list-numbers text-slate-400"></i>Total Steps</div><div class="text-3xl font-bold text-slate-800" id="cardTotal">0</div></div>
-            <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm"><div class="text-slate-500 text-xs font-semibold uppercase tracking-wider mb-2 flex items-center gap-2"><i class="ph ph-check-circle text-green-500"></i>Passed</div><div class="text-3xl font-bold text-green-600" id="cardPassed">0</div></div>
-            <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm"><div class="text-slate-500 text-xs font-semibold uppercase tracking-wider mb-2 flex items-center gap-2"><i class="ph ph-warning-circle text-red-500"></i>Failed</div><div class="text-3xl font-bold text-red-600" id="cardFailed">0</div></div>
-            <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm relative overflow-hidden"><div class="absolute -right-4 -top-4 text-purple-50 opacity-50"><i class="ph-fill ph-sparkle text-8xl"></i></div><div class="relative z-10 text-purple-600 text-xs font-semibold uppercase tracking-wider mb-2 flex items-center gap-2"><i class="ph-fill ph-sparkle"></i>AI Recoveries</div><div class="relative z-10 text-3xl font-bold text-purple-700" id="cardRate">0%</div></div>
-          </div>
-
-          <div class="bg-white rounded-xl border border-slate-200 p-6 shadow-sm hidden" id="progressContainer">
-            <div class="flex justify-between items-end mb-2">
-              <div><h3 class="text-sm font-semibold text-slate-800" id="currentScriptName">Running Test...</h3><p class="text-xs text-slate-500" id="currentStepDesc">Initializing</p></div>
-              <div class="text-sm font-bold text-blue-600" id="progressText">0%</div>
-            </div>
-            <div class="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden"><div class="bg-blue-600 h-2.5 rounded-full transition-all duration-500 ease-out" style="width:0%" id="progressBar"></div></div>
-          </div>
-
-          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6" id="executionArea">
-            <div class="bg-white rounded-xl border border-slate-200 shadow-sm flex flex-col h-[450px]">
-              <div class="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50 rounded-t-xl"><h3 class="text-sm font-semibold text-slate-800 flex items-center gap-2"><i class="ph ph-git-commit"></i>Execution Timeline</h3></div>
-              <div class="p-5 flex-1 overflow-y-auto" id="timelineContainer"><div class="h-full flex flex-col items-center justify-center text-slate-400 space-y-3"><i class="ph ph-clock text-4xl opacity-50"></i><p class="text-sm">Awaiting script execution...</p></div></div>
-            </div>
-            <div class="bg-[#0f172a] rounded-xl border border-slate-800 shadow-xl flex flex-col h-[450px]">
-              <div class="p-3 border-b border-slate-700 flex items-center justify-between bg-slate-900">
-                <div class="flex items-center gap-2"><i class="ph ph-terminal-window text-slate-400"></i><h3 class="text-xs font-mono text-slate-300">engine.log</h3></div>
-                <div class="flex gap-1.5"><div class="w-2.5 h-2.5 rounded-full bg-slate-700"></div><div class="w-2.5 h-2.5 rounded-full bg-slate-700"></div><div class="w-2.5 h-2.5 rounded-full bg-slate-700"></div></div>
+          
+          <!-- Configuration Card -->
+          <div class="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
+            <h3 class="font-semibold text-slate-900 mb-5 flex items-center gap-2">
+              <i class="ph ph-sliders-horizontal"></i>
+              Test Configuration
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div>
+                <label class="block text-sm font-medium text-slate-700 mb-2">Test Script</label>
+                <select id="scriptSelect" class="w-full bg-slate-50 border border-slate-300 text-slate-900 text-sm rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" onchange="onScriptChange()">
+                  <option value="">Select a test script...</option>
+                </select>
               </div>
-              <div class="p-4 flex-1 overflow-y-auto font-mono text-[11px] leading-relaxed text-slate-300" id="terminalContainer"><div class="text-slate-500 mb-2">Aetheris UAT Runtime v3.2.0 ready.</div></div>
+              <div>
+                <label class="block text-sm font-medium text-slate-700 mb-2">Test Patient</label>
+                <select id="patientSelect" class="w-full bg-slate-50 border border-slate-300 text-slate-900 text-sm rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" onchange="onPatientSelect()">
+                  <option value="">Select patient...</option>
+                </select>
+              </div>
+            </div>
+            <div id="scriptMeta" class="hidden mt-4 bg-slate-50 rounded-lg p-4 text-sm"></div>
+            <div id="variablesPanel" class="hidden mt-4"></div>
+            <div class="mt-6 flex gap-3">
+              <button id="runBtn" onclick="startRun()" disabled class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 disabled:cursor-not-allowed text-white font-medium px-6 py-3 rounded-lg transition-all shadow-sm">
+                <i class="ph-bold ph-play"></i>
+                Execute Test
+              </button>
+              <button id="cancelBtn" onclick="cancelRun()" class="hidden items-center gap-2 bg-red-600 hover:bg-red-700 text-white font-medium px-6 py-3 rounded-lg transition-all">
+                <i class="ph-bold ph-stop"></i>
+                Cancel
+              </button>
             </div>
           </div>
 
+          <!-- Progress & Stats -->
+          <div class="bg-white rounded-xl border border-slate-200 p-6 shadow-sm hidden" id="progressContainer">
+            <div class="flex justify-between items-center mb-4">
+              <div>
+                <h3 class="font-semibold text-slate-900" id="currentScriptName">Running Test...</h3>
+                <p class="text-sm text-slate-500 mt-1" id="currentStepDesc">Initializing</p>
+              </div>
+              <div class="text-2xl font-bold text-blue-600" id="progressText">0%</div>
+            </div>
+            <div class="w-full bg-slate-100 rounded-full h-3 overflow-hidden">
+              <div class="bg-blue-600 h-3 rounded-full transition-all duration-500" style="width:0%" id="progressBar"></div>
+            </div>
+          </div>
+
+          <!-- Stats Cards -->
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm text-center">
+              <div class="text-3xl font-bold text-slate-900" id="cardTotal">0</div>
+              <div class="text-xs text-slate-500 uppercase tracking-wider mt-1">Total Steps</div>
+            </div>
+            <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm text-center">
+              <div class="text-3xl font-bold text-green-600" id="cardPassed">0</div>
+              <div class="text-xs text-slate-500 uppercase tracking-wider mt-1">Passed</div>
+            </div>
+            <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm text-center">
+              <div class="text-3xl font-bold text-red-600" id="cardFailed">0</div>
+              <div class="text-xs text-slate-500 uppercase tracking-wider mt-1">Failed</div>
+            </div>
+            <div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm text-center">
+              <div class="text-3xl font-bold text-purple-600" id="cardRate">0%</div>
+              <div class="text-xs text-slate-500 uppercase tracking-wider mt-1">Pass Rate</div>
+            </div>
+          </div>
+
+          <!-- Timeline & Terminal -->
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm flex flex-col h-[500px]">
+              <div class="p-4 border-b border-slate-100">
+                <h3 class="font-semibold text-slate-900 flex items-center gap-2">
+                  <i class="ph ph-git-commit"></i>
+                  Execution Timeline
+                </h3>
+              </div>
+              <div class="p-5 flex-1 overflow-y-auto" id="timelineContainer">
+                <div class="h-full flex flex-col items-center justify-center text-slate-400">
+                  <i class="ph ph-clock text-5xl opacity-30 mb-3"></i>
+                  <p class="text-sm">Awaiting execution...</p>
+                </div>
+              </div>
+            </div>
+            <div class="bg-slate-900 rounded-xl shadow-xl flex flex-col h-[500px]">
+              <div class="p-4 border-b border-slate-700 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <i class="ph ph-terminal-window text-slate-400"></i>
+                  <h3 class="text-sm font-mono text-slate-300">engine.log</h3>
+                </div>
+                <div class="flex gap-1.5">
+                  <div class="w-3 h-3 rounded-full bg-slate-700"></div>
+                  <div class="w-3 h-3 rounded-full bg-slate-700"></div>
+                  <div class="w-3 h-3 rounded-full bg-slate-700"></div>
+                </div>
+              </div>
+              <div class="p-5 flex-1 overflow-y-auto font-mono text-xs leading-relaxed text-slate-300" id="terminalContainer">
+                <div class="text-slate-500">Aetheris UAT Runtime v3.2.0 ready.</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Evidence Gallery -->
           <div class="bg-white rounded-xl border border-slate-200 shadow-sm hidden" id="evidenceContainer">
-            <div class="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50 rounded-t-xl"><h3 class="text-sm font-semibold text-slate-800 flex items-center gap-2"><i class="ph ph-image"></i>Captured Evidence</h3><button class="text-xs text-blue-600 hover:text-blue-700 font-medium flex items-center gap-1" id="reportBtn" onclick="openReport()" disabled><i class="ph ph-download-simple"></i>Report</button></div>
+            <div class="p-4 border-b border-slate-100 flex justify-between items-center">
+              <h3 class="font-semibold text-slate-900 flex items-center gap-2">
+                <i class="ph ph-image"></i>
+                Captured Evidence
+              </h3>
+              <button class="text-sm text-blue-600 hover:text-blue-700 font-medium flex items-center gap-1" id="reportBtn" onclick="openReport()" disabled>
+                <i class="ph ph-download-simple"></i>
+                Download Report
+              </button>
+            </div>
             <div class="p-5 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4" id="evidenceGrid"></div>
           </div>
+
         </div>
       </section>
 
-      <!-- ===== AGENTS TAB ===== -->
-      <section class="tabc" id="tab-agents">
-        <div class="max-w-7xl mx-auto space-y-6">
-          <div class="flex items-center justify-between"><div><h2 class="text-xl font-bold text-slate-800">AI Agents</h2><p class="text-sm text-slate-500">9 pathology-specific agents</p></div></div>
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4" id="agentGrid"></div>
-          <div class="bg-white rounded-xl border border-slate-200 shadow-sm hidden p-6" id="agentRunPanel">
-            <div class="flex items-center justify-between mb-4"><h3 class="text-sm font-semibold" id="agentRunTitle">Configure Agent</h3><button class="text-xs text-blue-600 hover:text-blue-700" onclick="closeAgentRun()">← Back</button></div>
-            <div id="agentRunForm" class="space-y-3"></div>
-            <button class="mt-4 w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 px-4 rounded-lg" id="agentRunBtn" onclick="executeAgent()">Run Agent</button>
-            <div id="agentResult" class="hidden mt-4"></div>
+      <!-- AI AGENTS -->
+      <section class="tab-content p-8" id="tab-agents">
+        <div class="max-w-7xl mx-auto">
+          <div class="mb-6">
+            <h3 class="text-xl font-bold text-slate-900">AI Pathology Agents</h3>
+            <p class="text-sm text-slate-500 mt-1">9 specialized agents for pathology LIS systems</p>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5" id="agentGrid"></div>
+          <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6 mt-6 hidden" id="agentRunPanel">
+            <div class="flex items-center justify-between mb-5">
+              <h3 class="font-semibold text-slate-900" id="agentRunTitle">Configure Agent</h3>
+              <button class="text-sm text-blue-600 hover:text-blue-700" onclick="closeAgentRun()">← Back to agents</button>
+            </div>
+            <div id="agentRunForm" class="space-y-4"></div>
+            <button class="mt-6 w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg transition-all" id="agentRunBtn" onclick="executeAgent()">
+              Run Agent
+            </button>
+            <div id="agentResult" class="hidden mt-5 bg-slate-50 rounded-lg p-5"></div>
           </div>
         </div>
       </section>
 
-      <!-- ===== AI TOOLS TAB ===== -->
-      <section class="tabc" id="tab-aitools">
-        <div class="max-w-7xl mx-auto space-y-6">
-          <div><h2 class="text-xl font-bold text-slate-800">AI Tools</h2><p class="text-sm text-slate-500">NL authoring, auto-remediation, fine-tuning</p></div>
+      <!-- AI TOOLS -->
+      <section class="tab-content p-8" id="tab-aitools">
+        <div class="max-w-7xl mx-auto">
+          <div class="mb-6">
+            <h3 class="text-xl font-bold text-slate-900">AI Tools</h3>
+            <p class="text-sm text-slate-500 mt-1">Natural language authoring, auto-remediation, and fine-tuning</p>
+          </div>
           <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-            <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
-              <div class="flex items-center gap-2 mb-4"><i class="ph ph-chat-circle-dots text-purple-600 text-xl"></i><h3 class="font-semibold">NL Authoring</h3><span class="text-[10px] font-medium bg-purple-100 text-purple-800 px-2 py-0.5 rounded-full">AI</span></div>
-              <p class="text-xs text-slate-500 mb-4">Describe a test in plain English — AI generates the structured script.</p>
-              <div class="space-y-3">
-                <div><label class="block text-xs font-medium text-slate-600 mb-1">What should the test do?</label><textarea id="nlInput" rows="3" class="w-full bg-slate-50 border border-slate-300 text-sm rounded-lg px-3 py-2 outline-none focus:ring-blue-500 focus:border-blue-500" placeholder="e.g. Order a FBC for TKFC in Winpath..."></textarea></div>
-                <div><label class="block text-xs font-medium text-slate-600 mb-1">Target systems</label><input id="nlSystems" value="Winpath Enterprise, Surrey ICE" class="w-full bg-slate-50 border border-slate-300 text-sm rounded-lg px-3 py-2 outline-none focus:ring-blue-500 focus:border-blue-500"></div>
-                <div class="flex gap-2"><button class="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium py-2 rounded-lg" onclick="generateScriptNL()">Generate</button><button class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-medium py-2 rounded-lg" onclick="suggestTests()">Suggest</button></div>
+            
+            <!-- NL Authoring -->
+            <div class="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
+              <div class="flex items-center gap-2 mb-4">
+                <i class="ph ph-chat-circle-dots text-purple-600 text-2xl"></i>
+                <h3 class="font-semibold text-slate-900">NL Authoring</h3>
+                <span class="text-[10px] font-semibold bg-purple-100 text-purple-800 px-2 py-0.5 rounded-full">AI</span>
               </div>
-              <div id="nlResult" class="hidden mt-4"></div>
+              <p class="text-sm text-slate-500 mb-5">Describe a test in plain English</p>
+              <div class="space-y-4">
+                <div>
+                  <label class="block text-sm font-medium text-slate-700 mb-2">Test Description</label>
+                  <textarea id="nlInput" rows="4" class="w-full bg-slate-50 border border-slate-300 text-sm rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500" placeholder="e.g. Order a FBC for TKFC in Winpath..."></textarea>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-slate-700 mb-2">Target Systems</label>
+                  <input id="nlSystems" value="Winpath Enterprise, Surrey ICE" class="w-full bg-slate-50 border border-slate-300 text-sm rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div class="flex gap-2">
+                  <button onclick="generateScriptNL()" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium py-2.5 rounded-lg">Generate</button>
+                  <button onclick="suggestTests()" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-medium py-2.5 rounded-lg">Suggest</button>
+                </div>
+              </div>
+              <div id="nlResult" class="hidden mt-5"></div>
             </div>
-            <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
-              <div class="flex items-center gap-2 mb-4"><i class="ph ph-wrench text-purple-600 text-xl"></i><h3 class="font-semibold">Auto-Remediation</h3><span class="text-[10px] font-medium bg-purple-100 text-purple-800 px-2 py-0.5 rounded-full">AI</span></div>
-              <p class="text-xs text-slate-500 mb-4">AI diagnoses failed steps and retries with alternative approaches.</p>
-              <div class="grid grid-cols-3 gap-3 mb-4"><div class="bg-slate-50 rounded-lg p-3 text-center"><div class="text-lg font-bold text-blue-600" id="remTotal">-</div><div class="text-[10px] text-slate-500 uppercase tracking-wider">Total</div></div><div class="bg-slate-50 rounded-lg p-3 text-center"><div class="text-lg font-bold text-green-600" id="remSuccess">-</div><div class="text-[10px] text-slate-500 uppercase tracking-wider">Fixed</div></div><div class="bg-slate-50 rounded-lg p-3 text-center"><div class="text-lg font-bold text-purple-600" id="remRate">-</div><div class="text-[10px] text-slate-500 uppercase tracking-wider">Rate</div></div></div>
-              <div class="bg-[#0f172a] rounded-lg p-3 font-mono text-[11px] text-slate-300 max-h-[140px] overflow-y-auto" id="remediationLog"><div class="text-slate-500">No events yet.</div></div>
+
+            <!-- Auto-Remediation -->
+            <div class="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
+              <div class="flex items-center gap-2 mb-4">
+                <i class="ph ph-wrench text-purple-600 text-2xl"></i>
+                <h3 class="font-semibold text-slate-900">Auto-Remediation</h3>
+                <span class="text-[10px] font-semibold bg-purple-100 text-purple-800 px-2 py-0.5 rounded-full">AI</span>
+              </div>
+              <p class="text-sm text-slate-500 mb-5">AI diagnoses and retries failed steps</p>
+              <div class="grid grid-cols-3 gap-3 mb-5">
+                <div class="bg-slate-50 rounded-lg p-4 text-center">
+                  <div class="text-2xl font-bold text-blue-600" id="remTotal">-</div>
+                  <div class="text-xs text-slate-500 uppercase tracking-wider mt-1">Total</div>
+                </div>
+                <div class="bg-slate-50 rounded-lg p-4 text-center">
+                  <div class="text-2xl font-bold text-green-600" id="remSuccess">-</div>
+                  <div class="text-xs text-slate-500 uppercase tracking-wider mt-1">Fixed</div>
+                </div>
+                <div class="bg-slate-50 rounded-lg p-4 text-center">
+                  <div class="text-2xl font-bold text-purple-600" id="remRate">-</div>
+                  <div class="text-xs text-slate-500 uppercase tracking-wider mt-1">Rate</div>
+                </div>
+              </div>
+              <div class="bg-slate-900 rounded-lg p-4 font-mono text-xs text-slate-300 max-h-[180px] overflow-y-auto" id="remediationLog">
+                <div class="text-slate-500">No events yet.</div>
+              </div>
             </div>
-            <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
-              <div class="flex items-center gap-2 mb-4"><i class="ph ph-gauge text-purple-600 text-xl"></i><h3 class="font-semibold">Fine-Tuning</h3><span class="text-[10px] font-medium bg-purple-100 text-purple-800 px-2 py-0.5 rounded-full">AI</span></div>
-              <p class="text-xs text-slate-500 mb-4">Collect training data from runs and submit for model fine-tuning.</p>
-              <div class="grid grid-cols-2 gap-3 mb-4"><div class="bg-slate-50 rounded-lg p-3 text-center"><div class="text-lg font-bold text-blue-600" id="ftFiles">-</div><div class="text-[10px] text-slate-500 uppercase tracking-wider">Files</div></div><div class="bg-slate-50 rounded-lg p-3 text-center"><div class="text-lg font-bold text-purple-600" id="ftExamples">-</div><div class="text-[10px] text-slate-500 uppercase tracking-wider">Examples</div></div></div>
-              <div id="ftFileList" class="text-xs space-y-1 max-h-[100px] overflow-y-auto"></div>
-              <div class="flex gap-2 mt-3"><button class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-medium py-2 rounded-lg" onclick="collectTraining()">Collect</button><button class="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium py-2 rounded-lg" onclick="submitFineTune()">Submit</button></div>
+
+            <!-- Fine-Tuning -->
+            <div class="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
+              <div class="flex items-center gap-2 mb-4">
+                <i class="ph ph-gauge text-purple-600 text-2xl"></i>
+                <h3 class="font-semibold text-slate-900">Fine-Tuning</h3>
+                <span class="text-[10px] font-semibold bg-purple-100 text-purple-800 px-2 py-0.5 rounded-full">AI</span>
+              </div>
+              <p class="text-sm text-slate-500 mb-5">Collect data and fine-tune models</p>
+              <div class="grid grid-cols-2 gap-3 mb-5">
+                <div class="bg-slate-50 rounded-lg p-4 text-center">
+                  <div class="text-2xl font-bold text-blue-600" id="ftFiles">-</div>
+                  <div class="text-xs text-slate-500 uppercase tracking-wider mt-1">Files</div>
+                </div>
+                <div class="bg-slate-50 rounded-lg p-4 text-center">
+                  <div class="text-2xl font-bold text-purple-600" id="ftExamples">-</div>
+                  <div class="text-xs text-slate-500 uppercase tracking-wider mt-1">Examples</div>
+                </div>
+              </div>
+              <div id="ftFileList" class="text-sm space-y-2 max-h-[120px] overflow-y-auto mb-4"></div>
+              <div class="flex gap-2">
+                <button onclick="collectTraining()" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-medium py-2.5 rounded-lg">Collect</button>
+                <button onclick="submitFineTune()" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium py-2.5 rounded-lg">Submit</button>
+              </div>
             </div>
+
           </div>
         </div>
       </section>
 
-      <!-- ===== FHIR TAB ===== -->
-      <section class="tabc" id="tab-fhir">
-        <div class="max-w-7xl mx-auto space-y-6">
-          <div><h2 class="text-xl font-bold text-slate-800">FHIR Data</h2><p class="text-sm text-slate-500">Generate synthetic patient test data</p></div>
+      <!-- FHIR DATA -->
+      <section class="tab-content p-8" id="tab-fhir">
+        <div class="max-w-7xl mx-auto">
+          <div class="mb-6">
+            <h3 class="text-xl font-bold text-slate-900">FHIR Data Generator</h3>
+            <p class="text-sm text-slate-500 mt-1">Generate synthetic patient test data</p>
+          </div>
           <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6"><h3 class="font-semibold mb-4">Generate Patients</h3><div class="grid grid-cols-2 gap-3 mb-4"><div><label class="text-xs font-medium text-slate-600 block mb-1">Count</label><input id="fhirCount" type="number" value="1" min="1" max="50" class="w-full bg-slate-50 border border-slate-300 text-sm rounded-lg px-3 py-2 outline-none"></div><div><label class="text-xs font-medium text-slate-600 block mb-1">Gender</label><select id="fhirGender" class="w-full bg-slate-50 border border-slate-300 text-sm rounded-lg px-3 py-2 outline-none"><option value="">Random</option><option value="male">Male</option><option value="female">Female</option></select></div></div><button class="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium py-2 rounded-lg" onclick="generateFHIR()">Generate</button><div id="fhirResult" class="hidden mt-4"></div></div>
-            <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6"><h3 class="font-semibold mb-4">Observation Codes</h3><div id="fhirCodes" class="space-y-1 text-sm"></div></div>
-            <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6"><h3 class="font-semibold mb-4">FHIR Server</h3><p class="text-xs text-slate-500 mb-4">R4 API at <code class="text-blue-600">/api/fhir/r4/</code></p><button class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-medium py-2 px-4 rounded-lg" onclick="testFHIRServer()">Test Server</button><div id="fhirServerResult" class="hidden mt-4"></div></div>
+            <div class="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
+              <h3 class="font-semibold text-slate-900 mb-5">Generate Patients</h3>
+              <div class="grid grid-cols-2 gap-4 mb-5">
+                <div>
+                  <label class="block text-sm font-medium text-slate-700 mb-2">Count</label>
+                  <input id="fhirCount" type="number" value="1" min="1" max="50" class="w-full bg-slate-50 border border-slate-300 text-sm rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-slate-700 mb-2">Gender</label>
+                  <select id="fhirGender" class="w-full bg-slate-50 border border-slate-300 text-sm rounded-lg px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="">Random</option>
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                  </select>
+                </div>
+              </div>
+              <button onclick="generateFHIR()" class="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium py-3 rounded-lg">Generate</button>
+              <div id="fhirResult" class="hidden mt-5"></div>
+            </div>
+            <div class="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
+              <h3 class="font-semibold text-slate-900 mb-5">Observation Codes</h3>
+              <div id="fhirCodes" class="space-y-2 text-sm"></div>
+            </div>
+            <div class="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
+              <h3 class="font-semibold text-slate-900 mb-5">FHIR Server</h3>
+              <p class="text-sm text-slate-500 mb-5">R4 API at <code class="text-blue-600 bg-slate-100 px-2 py-1 rounded">/api/fhir/r4/</code></p>
+              <button onclick="testFHIRServer()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-medium py-2.5 px-5 rounded-lg">Test Server</button>
+              <div id="fhirServerResult" class="hidden mt-5"></div>
+            </div>
           </div>
         </div>
       </section>
 
-      <!-- ===== INFRA TAB ===== -->
-      <section class="tabc" id="tab-infra">
-        <div class="max-w-7xl mx-auto space-y-6">
-          <div><h2 class="text-xl font-bold text-slate-800">Infrastructure</h2><p class="text-sm text-slate-500">Metrics, scheduling, audit, load testing</p></div>
+      <!-- INFRASTRUCTURE -->
+      <section class="tab-content p-8" id="tab-infra">
+        <div class="max-w-7xl mx-auto">
+          <div class="mb-6">
+            <h3 class="text-xl font-bold text-slate-900">Infrastructure</h3>
+            <p class="text-sm text-slate-500 mt-1">Metrics, scheduling, audit logs, and load testing</p>
+          </div>
           <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-            <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6"><div class="flex items-center justify-between mb-4"><h3 class="font-semibold">Metrics</h3><button class="text-xs text-blue-600 hover:text-blue-700" onclick="refreshMetrics()">Refresh</button></div><div id="metricsDisplay" class="grid grid-cols-3 gap-3"></div><div id="insightsDisplay" class="mt-4"></div></div>
-            <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6"><div class="flex items-center justify-between mb-4"><h3 class="font-semibold">Schedule</h3><button class="text-xs bg-blue-600 text-white px-3 py-1 rounded-lg hover:bg-blue-700" onclick="showAddSchedule()">+ Add</button></div><div id="scheduleList" class="space-y-1 text-sm max-h-[200px] overflow-y-auto"><div class="text-slate-400 text-center py-4">No jobs.</div></div><div id="scheduleForm" class="hidden mt-4 space-y-3"><input id="schedCron" placeholder="Cron" value="0 2 * * *" class="w-full bg-slate-50 border border-slate-300 text-sm rounded-lg px-3 py-2 outline-none"><input id="schedScript" placeholder="Agent ID" class="w-full bg-slate-50 border border-slate-300 text-sm rounded-lg px-3 py-2 outline-none"><div class="flex gap-2"><button class="bg-blue-600 text-white text-sm px-4 py-2 rounded-lg" onclick="addSchedule()">Save</button><button class="text-sm text-slate-500" onclick="hideScheduleForm()">Cancel</button></div></div></div>
-            <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6"><div class="flex items-center justify-between mb-4"><h3 class="font-semibold">Audit Log</h3><input id="auditDate" type="date" class="text-xs bg-slate-50 border border-slate-300 rounded-lg px-2 py-1 outline-none"><button class="text-xs text-blue-600 hover:text-blue-700 ml-2" onclick="loadAudit()">Load</button></div><div class="bg-[#0f172a] rounded-lg p-3 font-mono text-[11px] text-slate-300 max-h-[200px] overflow-y-auto" id="auditLog"><div class="text-slate-500">Select a date.</div></div></div>
-            <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6"><h3 class="font-semibold mb-4">Load Tests</h3><div class="space-y-3"><select id="loadScriptSelect" class="w-full bg-slate-50 border border-slate-300 text-sm rounded-lg px-3 py-2 outline-none"></select><div class="flex gap-2"><button class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm py-2 rounded-lg" onclick="generateK6()">k6</button><button class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm py-2 rounded-lg" onclick="generateArtillery()">Artillery</button></div><pre id="loadResult" class="hidden bg-[#0f172a] rounded-lg p-3 text-[11px] text-slate-300 max-h-[200px] overflow-y-auto"></pre></div></div>
-            <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6"><h3 class="font-semibold mb-4">Mobile Profiles</h3><div id="mobileProfiles" class="space-y-1 text-sm"></div></div>
-            <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-6"><h3 class="font-semibold mb-4">OAuth M2M</h3><div id="oauthStatus"></div></div>
+            <div class="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
+              <div class="flex items-center justify-between mb-5">
+                <h3 class="font-semibold text-slate-900">Metrics</h3>
+                <button onclick="refreshMetrics()" class="text-sm text-blue-600 hover:text-blue-700">Refresh</button>
+              </div>
+              <div id="metricsDisplay" class="grid grid-cols-3 gap-3"></div>
+              <div id="insightsDisplay" class="mt-5"></div>
+            </div>
+            <div class="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
+              <div class="flex items-center justify-between mb-5">
+                <h3 class="font-semibold text-slate-900">Scheduled Jobs</h3>
+                <button onclick="showAddSchedule()" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium px-3 py-1.5 rounded-lg">+ Add</button>
+              </div>
+              <div id="scheduleList" class="space-y-2 text-sm max-h-[240px] overflow-y-auto">
+                <div class="text-slate-400 text-center py-6">No jobs.</div>
+              </div>
+              <div id="scheduleForm" class="hidden mt-5 space-y-3">
+                <input id="schedCron" placeholder="Cron (e.g. 0 2 * * *)" value="0 2 * * *" class="w-full bg-slate-50 border border-slate-300 text-sm rounded-lg px-4 py-2.5 outline-none">
+                <input id="schedScript" placeholder="Agent ID" class="w-full bg-slate-50 border border-slate-300 text-sm rounded-lg px-4 py-2.5 outline-none">
+                <div class="flex gap-2">
+                  <button onclick="addSchedule()" class="bg-blue-600 text-white text-sm px-4 py-2.5 rounded-lg">Save</button>
+                  <button onclick="hideScheduleForm()" class="text-sm text-slate-500">Cancel</button>
+                </div>
+              </div>
+            </div>
+            <div class="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
+              <div class="flex items-center justify-between mb-5">
+                <h3 class="font-semibold text-slate-900">Audit Log</h3>
+                <div class="flex items-center gap-2">
+                  <input id="auditDate" type="date" class="text-xs bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 outline-none">
+                  <button onclick="loadAudit()" class="text-sm text-blue-600 hover:text-blue-700">Load</button>
+                </div>
+              </div>
+              <div class="bg-slate-900 rounded-lg p-4 font-mono text-xs text-slate-300 max-h-[240px] overflow-y-auto" id="auditLog">
+                <div class="text-slate-500">Select a date.</div>
+              </div>
+            </div>
+            <div class="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
+              <h3 class="font-semibold text-slate-900 mb-5">Load Tests</h3>
+              <select id="loadScriptSelect" class="w-full bg-slate-50 border border-slate-300 text-sm rounded-lg px-4 py-3 outline-none mb-4"></select>
+              <div class="flex gap-2">
+                <button onclick="generateK6()" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm py-2.5 rounded-lg">k6</button>
+                <button onclick="generateArtillery()" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm py-2.5 rounded-lg">Artillery</button>
+              </div>
+              <pre id="loadResult" class="hidden bg-slate-900 rounded-lg p-4 text-xs text-slate-300 max-h-[240px] overflow-y-auto mt-4"></pre>
+            </div>
+            <div class="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
+              <h3 class="font-semibold text-slate-900 mb-5">Mobile Profiles</h3>
+              <div id="mobileProfiles" class="space-y-2 text-sm"></div>
+            </div>
+            <div class="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
+              <h3 class="font-semibold text-slate-900 mb-5">OAuth M2M</h3>
+              <div id="oauthStatus"></div>
+            </div>
           </div>
         </div>
       </section>
+
     </div>
   </main>
 
+  <!-- Toast Container -->
   <div class="fixed bottom-6 right-6 z-50 space-y-2" id="toastContainer"></div>
 
-  <div class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50 p-8" id="screenshotModal" onclick="closeModal()">
+  <!-- Screenshot Modal -->
+  <div class="fixed inset-0 bg-black/60 hidden items-center justify-center z-50 p-8" id="screenshotModal" onclick="closeModal()">
     <div class="bg-white rounded-xl max-w-4xl max-h-[90vh] overflow-hidden shadow-2xl" onclick="event.stopPropagation()">
-      <div class="flex justify-end p-2"><button class="text-slate-400 hover:text-slate-600 p-1" onclick="closeModal()"><i class="ph-bold ph-x text-xl"></i></button></div>
+      <div class="flex justify-end p-3">
+        <button class="text-slate-400 hover:text-slate-600 p-1" onclick="closeModal()">
+          <i class="ph-bold ph-x text-xl"></i>
+        </button>
+      </div>
       <img id="modalImage" src="" alt="" class="max-w-full max-h-[70vh] mx-auto">
-      <div class="p-4 text-sm text-slate-600 border-t border-slate-100" id="modalCaption"></div>
+      <div class="p-5 text-sm text-slate-600 border-t border-slate-100" id="modalCaption"></div>
     </div>
   </div>
 

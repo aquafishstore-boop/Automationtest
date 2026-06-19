@@ -1,29 +1,150 @@
-/* Minimal overrides — Tailwind handles most styling */
-.tabc{display:none}
-.tabc.active{display:block}
+/* Navigation Buttons */
+.nav-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #64748b;
+  transition: all 0.15s;
+  text-align: left;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
 
-.pulse-dot{animation:pulse 2s cubic-bezier(0.4,0,0.6,1) infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+.nav-btn:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+}
 
-/* Timeline line connecting dots */
-.timeline-item{position:relative}
-.timeline-item:not(:last-child)::after{content:'';position:absolute;left:15px;top:28px;bottom:-12px;width:2px;background:#e2e8f0}
+.nav-btn.active {
+  background: #eff6ff;
+  color: #2563eb;
+  font-weight: 600;
+}
 
-/* Toast */
-.toast{opacity:0;transform:translateY(12px);transition:all .25s;max-width:400px}
-.toast.show{opacity:1;transform:translateY(0)}
+/* Tab Content */
+.tab-content {
+  display: none;
+}
 
-/* Evidence hover */
-.evidence-img{transition:transform .2s}
-.evidence-img:hover{transform:scale(1.05)}
+.tab-content.active {
+  display: block;
+  animation: fadeIn 0.2s ease-in;
+}
 
-/* Agent card hover */
-.agent-card{transition:all .15s}
-.agent-card:hover{border-color:#93c5fd;box-shadow:0 4px 12px rgba(0,0,0,.08);transform:translateY(-1px)}
-.agent-card.selected{border-color:#2563eb;background:#eff6ff}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Pulse Animation */
+.pulse-dot {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* Timeline */
+.timeline-item {
+  position: relative;
+}
+
+.timeline-item:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  left: 15px;
+  top: 28px;
+  bottom: -12px;
+  width: 2px;
+  background: #e2e8f0;
+}
+
+/* Toast Notifications */
+.toast {
+  opacity: 0;
+  transform: translateY(12px);
+  transition: all 0.25s;
+  max-width: 400px;
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Evidence Images */
+.evidence-img {
+  transition: transform 0.2s;
+}
+
+.evidence-img:hover {
+  transform: scale(1.05);
+}
+
+/* Agent Cards */
+.agent-card {
+  transition: all 0.15s;
+}
+
+.agent-card:hover {
+  border-color: #93c5fd;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transform: translateY(-1px);
+}
+
+.agent-card.selected {
+  border-color: #2563eb;
+  background: #eff6ff;
+}
 
 /* Scrollbar */
-::-webkit-scrollbar{width:5px;height:5px}
-::-webkit-scrollbar-track{background:transparent}
-::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:10px}
-::-webkit-scrollbar-thumb:hover{background:#94a3b8}
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Focus States */
+button:focus-visible,
+select:focus-visible,
+input:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+}
+
+/* Smooth Transitions */
+* {
+  transition-property: background-color, border-color, color, fill, stroke;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
+/* Respect Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
