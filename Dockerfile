@@ -5,7 +5,7 @@ FROM mcr.microsoft.com/playwright:v1.61.0-noble AS base
 
 LABEL org.opencontainers.image.title="Pathology UAT Tester"
 LABEL org.opencontainers.image.description="Hardened UAT test runner for pathology systems"
-LABEL org.opencontainers.image.version="3.1.0"
+LABEL org.opencontainers.image.version="3.2.0"
 LABEL org.opencontainers.image.vendor="Aetheris Pathology Cloud"
 
 WORKDIR /app
@@ -59,7 +59,7 @@ EXPOSE 3001
 ENV NODE_ENV=production
 ENV PORT=3001
 ENV HEADLESS=true
-ENV BROWSER=msedge
+ENV BROWSER=chromium
 ENV SCREENSHOTS_DIR=/app/data/screenshots
 ENV REPORTS_DIR=/app/data/reports
 ENV RUNS_DIR=/app/data/runs

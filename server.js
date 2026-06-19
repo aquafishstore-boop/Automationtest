@@ -47,6 +47,11 @@ import { createFHIRRouter } from "./lib/fhir-server.js";
 import { generateK6Script, generateArtilleryScript, getLoadTestConfigs } from "./lib/load-test-gen.js";
 import { getAgentEndpoints, formatAgentResponse } from "./lib/agent-api.js";
 import { tokenEndpoint, introspectToken, m2mMiddleware, requireScopes, getM2MStatus, registerClient } from "./lib/oauth-m2m.js";
+import { getTestInstances, getTests, createRun as ptCreateRun, updateStepStatus, attachEvidence, isConfigured as ptConfiguredV2 } from "./lib/practitest-client.js";
+import { uploadToSharePoint, readExcelTestData, postTeamsCard, buildRunCard, isConfigured as o365Configured, getO365Status } from "./lib/o365-client.js";
+import { getAccessibilityTree, getBestSnapshot } from "./lib/aom-parser.js";
+import { captureAndCompare, captureBaseline } from "./lib/visual-regression.js";
+import { getAllFramesInfo } from "./lib/frame-manager.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const SCRIPTS_DIR = process.env.SCRIPTS_DIR || path.join(__dirname, "scripts");
@@ -56,6 +61,9 @@ const PATIENTS_FILE = path.join(SCRIPTS_DIR, "patients.json");
 const IS_PROD = process.env.NODE_ENV === "production";
 
 const app = express();
+
+// Trust proxy: Cloudflare tunnel sets X-Forwarded-For. Required for express-rate-limit v8
+app.set("trust proxy", 1);
 
 // --- Security Middleware ---
 
@@ -433,7 +441,7 @@ app.get("/api/runs/:runId/report", async (req, res) => {
   } catch { res.status(500).json({ error: "Report generation failed" }); }
 });
 
-// PractiTest
+// PractiTest v1 (legacy)
 app.post("/api/practitest/upload", async (req, res) => {
   const { runId, testCaseId } = req.body;
   if (!isValidRunId(runId)) return res.status(400).json({ error: "Invalid run ID" });
@@ -784,7 +792,7 @@ app.get("/api/metrics", (req, res) => {
   METRICS.screenshotsCaptured = METRICS.stepsPassed + METRICS.stepsFailed;
 
   res.json({
-    version: "3.1.0",
+    version: "3.2.0",
     upSince: new Date(METRICS.upSince).toISOString(),
     uptimeSeconds: Math.round((Date.now() - METRICS.upSince) / 1000),
     ...METRICS,
@@ -990,6 +998,95 @@ app.post("/api/oauth/token", tokenEndpoint);
 app.post("/api/oauth/introspect", introspectToken);
 app.get("/api/oauth/status", (req, res) => res.json(getM2MStatus()));
 
+// --- PractiTest v2 Native API ---
+
+app.get("/api/practitest/instances", async (req, res) => {
+  try { res.json(await getTestInstances({ filters: req.query, limit: parseInt(req.query.limit) || 100 })); }
+  catch (err) { handleError(err, res); }
+});
+
+app.get("/api/practitest/tests", async (req, res) => {
+  try { res.json(await getTests({ limit: parseInt(req.query.limit) || 100 })); }
+  catch (err) { handleError(err, res); }
+});
+
+app.post("/api/practitest/runs", async (req, res) => {
+  try { res.json(await ptCreateRun(req.body.instanceId, req.body)); }
+  catch (err) { handleError(err, res); }
+});
+
+app.post("/api/practitest/step-status", async (req, res) => {
+  const { runId, stepIndex, status, error } = req.body;
+  if (!runId || stepIndex === undefined) return res.status(400).json({ error: "runId and stepIndex required" });
+  try { await updateStepStatus(runId, stepIndex, status, error); res.json({ updated: true }); }
+  catch (err) { handleError(err, res); }
+});
+
+app.post("/api/practitest/attach", async (req, res) => {
+  const { runId, stepId, filename } = req.body;
+  if (!runId || !stepId) return res.status(400).json({ error: "runId and stepId required" });
+  try {
+    const screenshotPath = getScreenshotPath(runId, filename);
+    if (!screenshotPath || !fs.existsSync(screenshotPath)) return res.status(404).json({ error: "Screenshot not found" });
+    const buffer = fs.readFileSync(screenshotPath);
+    res.json(await attachEvidence(runId, stepId, buffer, filename));
+  } catch (err) { handleError(err, res); }
+});
+
+// --- O365 Graph API ---
+
+app.get("/api/o365/status", (req, res) => res.json(getO365Status()));
+
+app.post("/api/o365/sharepoint/upload", async (req, res) => {
+  const { filename, runId } = req.body;
+  if (!filename || !runId) return res.status(400).json({ error: "filename and runId required" });
+  try {
+    const shot = getScreenshotPath(runId, filename);
+    if (!shot || !fs.existsSync(shot)) return res.status(404).json({ error: "File not found" });
+    const buffer = fs.readFileSync(shot);
+    res.json(await uploadToSharePoint(filename, buffer));
+  } catch (err) { handleError(err, res); }
+});
+
+app.get("/api/o365/excel/patients", async (req, res) => {
+  try {
+    const patients = await readExcelTestData();
+    res.json(patients);
+  } catch (err) {
+    if (err.message.includes("not configured")) res.json({ error: err.message, hint: "Set O365_TENANT_ID, O365_CLIENT_ID, O365_CLIENT_SECRET" });
+    else handleError(err, res);
+  }
+});
+
+app.post("/api/o365/teams/card", async (req, res) => {
+  try {
+    const card = req.body.card || (req.body.runResult ? buildRunCard(req.body.runResult) : null);
+    if (!card) return res.status(400).json({ error: "card or runResult required" });
+    res.json(await postTeamsCard(card));
+  } catch (err) { handleError(err, res); }
+});
+
+// --- AOM / Frame / Visual Regression tools ---
+
+app.post("/api/aom/snapshot", async (req, res) => {
+  const { runId } = req.body;
+  if (!runId) return res.status(400).json({ error: "runId required" });
+  try {
+    const run = getRun(runId);
+    if (!run) return res.status(404).json({ error: "Run not found" });
+    // AOM snapshot will be captured during next agentic run
+    res.json({ status: "AOM snapshot available on next agentic run", note: "AOM parsing is integrated into agentic-brain.js _think()" });
+  } catch (err) { handleError(err, res); }
+});
+
+app.get("/api/frames/info", (req, res) => {
+  res.json({ note: "Frame info available during active agentic runs. Frame piercing is integrated into agentic-brain.js _act()", tool: "frame-manager" });
+});
+
+app.get("/api/visual-regression/status", (req, res) => {
+  res.json({ enabled: true, baselines: process.env.BASELINE_DIR || "/app/data/screenshots/baselines", note: "Visual regression + AI hybrid mode active in agentic-brain.js" });
+});
+
 // 404 handler
 app.use((req, res) => {
   if (req.path.startsWith("/api/")) {
@@ -1007,6 +1104,11 @@ app.use((err, req, res, next) => {
   });
 });
 
+// --- SSE step sync for PractiTest live updates ---
+function attachPractiTestSync(runId, stepIndex, status, error) {
+  updateStepStatus(runId, stepIndex, status, error).catch(() => {});
+}
+
 app.listen(PORT, () => {
   registerNode(NODE_ID);
   registerNode(NODE_ID);
@@ -1020,13 +1122,14 @@ app.listen(PORT, () => {
   });
 
   const nodeVer = process.version;
-  console.log(`UAT Tester v3.1.0 running on port ${PORT}`);
-  console.log(`Security: Helmet+RateLimit+CORS+ReadOnly+Seccomp | Production mode: ${IS_PROD}`);
+  console.log(`UAT Tester v3.2.0 running on port ${PORT}`);
+  console.log(`Security: Helmet+RateLimit+CORS+ReadOnly+ZeroTrust | Production mode: ${IS_PROD}`);
   console.log(`Node: ${nodeVer} | Browser: ${process.env.BROWSER || "chromium"} | Headless: ${process.env.HEADLESS !== "false"}`);
-  console.log(`AI: ${process.env.LM_HOST ? "enabled" : "disabled"}`);
+  console.log(`AI: ${process.env.LM_HOST ? "enabled" : "disabled"} | AOM: hybrid`);
   console.log(`Auth: ${process.env.LDAP_URL ? "LDAP" : "local"}${process.env.SAML_ENTRYPOINT ? "+SAML" : ""} | Trusts: ${Object.keys(getTrusts()).length}`);
   console.log(`Node: ${NODE_ID} | Memory: ${getMemoryStats().totalMappings} mappings`);
   console.log(`Scheduler: ${schedInterval ? "running" : "off"} | Audit: ${process.env.AUDIT_CONSOLE ? "console" : "file"}${process.env.SYSLOG_HOST ? "+syslog" : ""}`);
-  console.log(`Practitest: ${ptConfigured() ? "configured" : "not configured"}`);
+  console.log(`Practitest: ${ptConfigured() ? "configured" : "not configured"} | Live Sync: ${ptConfiguredV2() ? "v2 active" : "v1 legacy"}`);
+  console.log(`O365: ${o365Configured() ? "configured" : "not configured"} | Visual Regression: active | Frames: piercing active`);
   console.log(`CVE Status: Node.js ${nodeVer} (patched for CVE-2026-48933 and 11 others, disclosed 2026-06-18)`);
 });

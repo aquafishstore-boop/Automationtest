@@ -380,7 +380,7 @@ async function checkAIStatus() {
     badges.appendChild(aiBadge);
     const verBadge = document.createElement("span");
     verBadge.style.cssText = "background:#f1f5f9;color:#475569;padding:0.1rem 0.4rem;border-radius:4px;font-size:0.68rem;";
-    verBadge.textContent = "v3.1.0";
+    verBadge.textContent = "v3.2.0";
     badges.appendChild(verBadge);
     header.appendChild(badges);
   } catch {}

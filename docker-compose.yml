@@ -5,6 +5,9 @@ services:
     restart: unless-stopped
     ports:
       - "127.0.0.1:3002:3001"
+    networks:
+      - net-internal
+      - net-public
     volumes:
       - uat-screenshots:/app/data/screenshots
       - uat-reports:/app/data/reports
@@ -29,6 +32,7 @@ services:
       - AI_FALLBACK_MODEL=${AI_FALLBACK_MODEL:-pathology-eqa:latest}
       - TRAINING_DATA_DIR=/app/data/runs/training
       - PERF_DATA_FILE=/app/data/runs/perf-baseline.json
+      - BASELINE_DIR=/app/data/screenshots/baselines
     security_opt:
       - no-new-privileges:true
     cap_drop:
@@ -40,6 +44,7 @@ services:
       - /tmp
       - /var/tmp
       - /home/pwuser/.cache
+    cpuset: "0-3"
     logging:
       driver: "json-file"
       options:
@@ -52,6 +57,36 @@ services:
       retries: 3
       start_period: 15s
 
+  uat-playwright:
+    image: uat-tester-uat-tester
+    container_name: uat-playwright
+    restart: unless-stopped
+    networks:
+      - net-internal
+      - net-ai
+    volumes:
+      - uat-screenshots:/app/data/screenshots
+      - uat-runs:/app/data/runs
+    environment:
+      - NODE_ENV=production
+      - HEADLESS=true
+      - BROWSER=chromium
+      - SCREENSHOTS_DIR=/app/data/screenshots
+      - RUNS_DIR=/app/data/runs
+      - LM_HOST=${LM_HOST:-}
+      - AI_MODEL=${AI_MODEL:-}
+      - LM_API_TOKEN=${LM_API_TOKEN:-}
+    cap_drop:
+      - ALL
+    cap_add:
+      - NET_BIND_SERVICE
+    read_only: true
+    tmpfs:
+      - /tmp
+      - /home/pwuser/.cache
+    cpuset: "4-5"
+    command: ["node", "-e", "setInterval(()=>{},86400000)"]
+
   cloudflare-tunnel:
     image: cloudflare/cloudflared:latest
     container_name: uat-cloudflared
@@ -59,6 +94,8 @@ services:
     command: tunnel --config /etc/cloudflared/config.yml run
     volumes:
       - ./cloudflared:/etc/cloudflared:ro
+    networks:
+      - net-public
     depends_on:
       - uat-tester
     cap_drop:
@@ -66,6 +103,16 @@ services:
     cap_add:
       - NET_BIND_SERVICE
       - NET_ADMIN
+
+networks:
+  net-internal:
+    driver: bridge
+    internal: true
+  net-ai:
+    driver: bridge
+    internal: true
+  net-public:
+    driver: bridge
 
 volumes:
   uat-screenshots:
