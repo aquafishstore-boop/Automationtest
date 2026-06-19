@@ -1,6 +1,38 @@
-/* Navigation Buttons */
+/* ========================================
+   Cross-Browser Compatibility Styles
+   Ensures consistent rendering across Chrome, Edge, Firefox, Safari
+   ======================================== */
+
+/* CSS Reset for Cross-Browser Consistency */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* Base Styles */
+html {
+  -webkit-text-size-adjust: 100%;
+  -moz-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* ========================================
+   Navigation Buttons - Cross-Browser Fix
+   ======================================== */
 .nav-btn {
+  display: -webkit-box;
+  display: -ms-flexbox;
   display: flex;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
   align-items: center;
   gap: 0.75rem;
   width: 100%;
@@ -9,11 +41,16 @@
   font-size: 0.875rem;
   font-weight: 500;
   color: #64748b;
-  transition: all 0.15s;
+  -webkit-transition: all 0.15s ease;
+  -o-transition: all 0.15s ease;
+  transition: all 0.15s ease;
   text-align: left;
   background: transparent;
   border: none;
   cursor: pointer;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
 }
 
 .nav-btn:hover {
@@ -27,14 +64,31 @@
   font-weight: 600;
 }
 
-/* Tab Content */
+/* Edge-specific: Ensure proper button rendering */
+@supports (-ms-ime-align: auto) {
+  .nav-btn {
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+  }
+}
+
+/* ========================================
+   Tab Content - Cross-Browser Animation
+   ======================================== */
 .tab-content {
   display: none;
 }
 
 .tab-content.active {
   display: block;
+  -webkit-animation: fadeIn 0.2s ease-in;
   animation: fadeIn 0.2s ease-in;
+}
+
+@-webkit-keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 @keyframes fadeIn {
@@ -42,9 +96,17 @@
   to { opacity: 1; }
 }
 
-/* Pulse Animation */
+/* ========================================
+   Pulse Animation - Cross-Browser
+   ======================================== */
 .pulse-dot {
+  -webkit-animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@-webkit-keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
 }
 
 @keyframes pulse {
@@ -52,7 +114,9 @@
   50% { opacity: 0.5; }
 }
 
-/* Timeline */
+/* ========================================
+   Timeline - Cross-Browser Pseudo Elements
+   ======================================== */
 .timeline-item {
   position: relative;
 }
@@ -67,36 +131,66 @@
   background: #e2e8f0;
 }
 
-/* Toast Notifications */
+/* Edge/Firefox fallback for ::after */
+@supports not (selector(::after)) {
+  .timeline-item:not(:last-child) {
+    border-left: 2px solid #e2e8f0;
+    margin-left: 15px;
+    padding-left: 10px;
+  }
+}
+
+/* ========================================
+   Toast Notifications - Cross-Browser
+   ======================================== */
 .toast {
   opacity: 0;
+  -webkit-transform: translateY(12px);
+  -ms-transform: translateY(12px);
   transform: translateY(12px);
-  transition: all 0.25s;
+  -webkit-transition: all 0.25s ease;
+  -o-transition: all 0.25s ease;
+  transition: all 0.25s ease;
   max-width: 400px;
 }
 
 .toast.show {
   opacity: 1;
+  -webkit-transform: translateY(0);
+  -ms-transform: translateY(0);
   transform: translateY(0);
 }
 
-/* Evidence Images */
+/* ========================================
+   Evidence Images - Cross-Browser Transform
+   ======================================== */
 .evidence-img {
-  transition: transform 0.2s;
+  -webkit-transition: -webkit-transform 0.2s ease;
+  -o-transition: transform 0.2s ease;
+  transition: transform 0.2s ease;
 }
 
 .evidence-img:hover {
+  -webkit-transform: scale(1.05);
+  -ms-transform: scale(1.05);
   transform: scale(1.05);
 }
 
-/* Agent Cards */
+/* ========================================
+   Agent Cards - Cross-Browser Hover Effects
+   ======================================== */
 .agent-card {
-  transition: all 0.15s;
+  -webkit-transition: all 0.15s ease;
+  -o-transition: all 0.15s ease;
+  transition: all 0.15s ease;
 }
 
 .agent-card:hover {
   border-color: #93c5fd;
+  -webkit-box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  -webkit-transform: translateY(-1px);
+  -ms-transform: translateY(-1px);
   transform: translateY(-1px);
 }
 
@@ -105,7 +199,11 @@
   background: #eff6ff;
 }
 
-/* Scrollbar */
+/* ========================================
+   Scrollbar - Cross-Browser
+   ======================================== */
+
+/* WebKit browsers (Chrome, Safari, Edge) */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -124,7 +222,15 @@
   background: #94a3b8;
 }
 
-/* Focus States */
+/* Firefox scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+}
+
+/* ========================================
+   Focus States - Cross-Browser
+   ======================================== */
 button:focus-visible,
 select:focus-visible,
 input:focus-visible,
@@ -133,18 +239,625 @@ textarea:focus-visible {
   outline-offset: 2px;
 }
 
-/* Smooth Transitions */
+/* Fallback for browsers without :focus-visible */
+button:focus,
+select:focus,
+input:focus,
+textarea:focus {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+}
+
+/* ========================================
+   Smooth Transitions - Cross-Browser
+   ======================================== */
 * {
+  -webkit-transition-property: background-color, border-color, color, fill, stroke;
+  -o-transition-property: background-color, border-color, color, fill, stroke;
   transition-property: background-color, border-color, color, fill, stroke;
+  -webkit-transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  -o-transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  -webkit-transition-duration: 150ms;
+  -o-transition-duration: 150ms;
   transition-duration: 150ms;
 }
 
-/* Respect Reduced Motion */
+/* ========================================
+   Reduced Motion - Accessibility
+   ======================================== */
 @media (prefers-reduced-motion: reduce) {
   * {
+    -webkit-animation-duration: 0.01ms !important;
     animation-duration: 0.01ms !important;
+    -webkit-animation-iteration-count: 1 !important;
     animation-iteration-count: 1 !important;
+    -webkit-transition-duration: 0.01ms !important;
+    -o-transition-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
   }
 }
+
+/* ========================================
+   Edge-Specific Fixes
+   ======================================== */
+
+/* Fix for Edge form element rendering */
+@supports (-ms-ime-align: auto) {
+  select,
+  input,
+  textarea,
+  button {
+    font-family: inherit;
+    font-size: inherit;
+  }
+  
+  /* Fix Edge button padding */
+  button {
+    padding: 0;
+    border: none;
+    background: none;
+  }
+}
+
+/* Fix for Edge grid layout issues */
+@supports (-ms-ime-align: auto) {
+  .grid {
+    display: -ms-grid;
+    display: grid;
+  }
+}
+
+/* ========================================
+   Firefox-Specific Fixes
+   ======================================== */
+@-moz-document url-prefix() {
+  /* Fix Firefox button rendering */
+  button {
+    font-family: inherit;
+  }
+  
+  /* Fix Firefox select arrow */
+  select {
+    -moz-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2364748b' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 12px;
+    padding-right: 2.5rem;
+  }
+}
+
+/* ========================================
+   Safari-Specific Fixes
+   ======================================== */
+@media not all and (min-resolution: 0.001dpcm) {
+  /* Safari-specific fixes */
+  @supports (-webkit-appearance: none) {
+    /* Fix Safari input height */
+    input[type="text"],
+    input[type="number"],
+    input[type="password"],
+    select,
+    textarea {
+      -webkit-appearance: none;
+      appearance: none;
+    }
+  }
+}
+
+/* ========================================
+   Flexbox Fallbacks
+   ======================================== */
+.flex {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+}
+
+.flex-col {
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -ms-flex-direction: column;
+  flex-direction: column;
+}
+
+.items-center {
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+}
+
+.justify-center {
+  -webkit-box-pack: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+}
+
+.justify-between {
+  -webkit-box-pack: justify;
+  -ms-flex-pack: justify;
+  justify-content: space-between;
+}
+
+/* ========================================
+   Grid Fallbacks
+   ======================================== */
+.grid {
+  display: -ms-grid;
+  display: grid;
+}
+
+/* ========================================
+   Border Radius Consistency
+   ======================================== */
+.rounded-lg {
+  -webkit-border-radius: 0.5rem;
+  -moz-border-radius: 0.5rem;
+  border-radius: 0.5rem;
+}
+
+.rounded-xl {
+  -webkit-border-radius: 0.75rem;
+  -moz-border-radius: 0.75rem;
+  border-radius: 0.75rem;
+}
+
+.rounded-full {
+  -webkit-border-radius: 9999px;
+  -moz-border-radius: 9999px;
+  border-radius: 9999px;
+}
+
+/* ========================================
+   Box Shadow Consistency
+   ======================================== */
+.shadow-sm {
+  -webkit-box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  -moz-box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+.shadow-md {
+  -webkit-box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  -moz-box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.shadow-xl {
+  -webkit-box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  -moz-box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* ========================================
+   Transform Consistency
+   ======================================== */
+.translate-y-0 {
+  -webkit-transform: translateY(0);
+  -ms-transform: translateY(0);
+  transform: translateY(0);
+}
+
+/* ========================================
+   Opacity Consistency
+   ======================================== */
+.opacity-0 {
+  opacity: 0;
+  filter: alpha(opacity=0);
+}
+
+.opacity-100 {
+  opacity: 1;
+  filter: alpha(opacity=100);
+}
+
+/* ========================================
+   Print Styles
+   ======================================== */
+@media print {
+  * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  
+  .no-print {
+    display: none !important;
+  }
+}
+
+/* ========================================
+   Edge Browser Specific Fixes
+   ======================================== */
+
+/* Edge doesn't handle some grid properties the same way */
+.edge-browser .grid {
+  display: -ms-grid;
+  display: grid;
+}
+
+/* Edge scrollbar styling */
+.edge-browser ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.edge-browser ::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+.edge-browser ::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+.edge-browser ::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Edge button focus states */
+.edge-browser button:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* Edge form element consistency */
+.edge-browser select,
+.edge-browser input,
+.edge-browser textarea {
+  font-family: inherit;
+  font-size: inherit;
+}
+
+/* Edge animation performance */
+.edge-browser .transition-all {
+  will-change: transform, opacity;
+}
+
+/* Edge flexbox gap fix */
+@supports not (gap: 1rem) {
+  .edge-browser .flex {
+    margin: -0.5rem;
+  }
+  .edge-browser .flex > * {
+    margin: 0.5rem;
+  }
+}
+
+/* Edge input placeholder styling */
+.edge-browser input::placeholder {
+  color: #94a3b8;
+  opacity: 1;
+}
+
+/* Edge select dropdown arrow */
+.edge-browser select {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2364748b' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 12px;
+  padding-right: 2.5rem;
+}
+
+/* Edge button hover transition */
+.edge-browser button {
+  -webkit-transition: all 0.15s ease;
+  transition: all 0.15s ease;
+}
+
+/* Edge card hover effects */
+.edge-browser .agent-card:hover {
+  -webkit-transform: translateY(-2px);
+  transform: translateY(-2px);
+}
+
+/* Edge modal backdrop */
+.edge-browser .modal-backdrop {
+  background: rgba(0, 0, 0, 0.5);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+}
+
+/* Edge toast notification animation */
+.edge-browser .toast {
+  -webkit-animation: slideInRight 0.3s ease;
+  animation: slideInRight 0.3s ease;
+}
+
+@-webkit-keyframes slideInRight {
+  from {
+    -webkit-transform: translateX(100%);
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    -webkit-transform: translateX(0);
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    -webkit-transform: translateX(100%);
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    -webkit-transform: translateX(0);
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Edge progress bar animation */
+.edge-browser .progress-bar {
+  -webkit-transition: width 0.3s ease;
+  transition: width 0.3s ease;
+}
+
+/* Edge timeline connector */
+.edge-browser .timeline-item::before {
+  -webkit-box-shadow: 0 0 0 2px #fff;
+  box-shadow: 0 0 0 2px #fff;
+}
+
+/* Edge terminal text rendering */
+.edge-browser .terminal-text {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Edge evidence image hover */
+.edge-browser .evidence-img:hover {
+  -webkit-transform: scale(1.05);
+  transform: scale(1.05);
+  -webkit-box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* Edge navigation button active state */
+.edge-browser .nav-btn.active {
+  -webkit-box-shadow: inset 3px 0 0 #3b82f6;
+  box-shadow: inset 3px 0 0 #3b82f6;
+}
+
+/* Edge KPI card hover */
+.edge-browser .kpi-card:hover {
+  -webkit-transform: translateY(-2px);
+  transform: translateY(-2px);
+  -webkit-box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Edge stat number animation */
+.edge-browser .stat-number {
+  -webkit-transition: all 0.3s ease;
+  transition: all 0.3s ease;
+}
+
+/* Edge breadcrumb separator */
+.edge-browser .breadcrumb-separator {
+  color: #cbd5e1;
+  margin: 0 0.5rem;
+}
+
+/* Edge tab content fade in */
+.edge-browser .tab-content.active {
+  -webkit-animation: fadeIn 0.2s ease-in;
+  animation: fadeIn 0.2s ease-in;
+}
+
+@-webkit-keyframes fadeIn {
+  from {
+    opacity: 0;
+    -webkit-transform: translateY(10px);
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    -webkit-transform: translateY(0);
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    -webkit-transform: translateY(10px);
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    -webkit-transform: translateY(0);
+    transform: translateY(0);
+  }
+}
+
+/* Edge pulse animation for status indicators */
+.edge-browser .pulse-dot {
+  -webkit-animation: pulse 2s infinite;
+  animation: pulse 2s infinite;
+}
+
+@-webkit-keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* Edge sidebar transition */
+.edge-browser .sidebar {
+  -webkit-transition: transform 0.3s ease;
+  transition: transform 0.3s ease;
+}
+
+/* Edge main content transition */
+.edge-browser .main-content {
+  -webkit-transition: margin-left 0.3s ease;
+  transition: margin-left 0.3s ease;
+}
+
+/* Edge dropdown menu */
+.edge-browser .dropdown-menu {
+  -webkit-box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  -webkit-animation: dropdownFadeIn 0.2s ease;
+  animation: dropdownFadeIn 0.2s ease;
+}
+
+@-webkit-keyframes dropdownFadeIn {
+  from {
+    opacity: 0;
+    -webkit-transform: translateY(-10px);
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    -webkit-transform: translateY(0);
+    transform: translateY(0);
+  }
+}
+
+@keyframes dropdownFadeIn {
+  from {
+    opacity: 0;
+    -webkit-transform: translateY(-10px);
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    -webkit-transform: translateY(0);
+    transform: translateY(0);
+  }
+}
+
+/* Edge tooltip */
+.edge-browser .tooltip {
+  -webkit-box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  -webkit-animation: tooltipFadeIn 0.15s ease;
+  animation: tooltipFadeIn 0.15s ease;
+}
+
+@-webkit-keyframes tooltipFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes tooltipFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Edge loading spinner */
+.edge-browser .loading-spinner {
+  -webkit-animation: spin 1s linear infinite;
+  animation: spin 1s linear infinite;
+}
+
+@-webkit-keyframes spin {
+  from {
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+  to {
+    -webkit-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes spin {
+  from {
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+  to {
+    -webkit-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
+}
+
+/* Edge skeleton loading animation */
+.edge-browser .skeleton {
+  background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+  background-size: 200% 100%;
+  -webkit-animation: skeleton-loading 1.5s infinite;
+  animation: skeleton-loading 1.5s infinite;
+}
+
+@-webkit-keyframes skeleton-loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+@keyframes skeleton-loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Edge smooth scroll behavior */
+.edge-browser {
+  scroll-behavior: smooth;
+}
+
+/* Edge focus visible for accessibility */
+.edge-browser *:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* Edge high contrast mode support */
+@media (prefers-contrast: high) {
+  .edge-browser button,
+  .edge-browser input,
+  .edge-browser select,
+  .edge-browser textarea {
+    border: 2px solid currentColor;
+  }
+}
+
+/* Edge reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .edge-browser * {
+    -webkit-animation-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    -webkit-animation-iteration-count: 1 !important;
+    animation-iteration-count: 1 !important;
+    -webkit-transition-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+

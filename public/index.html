@@ -2,20 +2,33 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="description" content="Pathology UAT Test Runner - Automated testing for pathology LIS systems">
   <title>Pathology UAT Tester | Aetheris</title>
+  
+  <!-- Preconnect for performance -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://cdn.tailwindcss.com">
+  <link rel="preconnect" href="https://unpkg.com">
+  
+  <!-- Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Icons -->
   <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  
+  <!-- Tailwind CSS with browser compatibility -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
+    // Tailwind configuration with cross-browser support
     tailwind.config = {
       theme: {
         extend: {
           fontFamily: {
-            sans: ['Inter', 'sans-serif'],
-            mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'monospace']
+            sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'sans-serif'],
+            mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'Liberation Mono', 'Courier New', 'monospace']
           },
           colors: {
             clinical: { 50: '#f0fdfa', 100: '#ccfbf1', 500: '#14b8a6', 600: '#0d9488', 900: '#134e4a' },
@@ -25,7 +38,46 @@
       }
     }
   </script>
+  
+  <!-- Custom styles with cross-browser compatibility -->
   <link rel="stylesheet" href="/style.css">
+  
+  <!-- Browser compatibility polyfills -->
+  <script>
+    // Polyfill for older browsers
+    if (!Array.prototype.flat) {
+      Array.prototype.flat = function(depth) {
+        depth = depth || 1;
+        return depth > 0 ? this.reduce((acc, val) => 
+          acc.concat(Array.isArray(val) ? val.flat(depth - 1) : val), []) : this.slice();
+      };
+    }
+    
+    // Polyfill for Object.entries
+    if (!Object.entries) {
+      Object.entries = function(obj) {
+        return Object.keys(obj).map(key => [key, obj[key]]);
+      };
+    }
+    
+    // Browser detection for Edge-specific fixes
+    (function() {
+      const ua = navigator.userAgent;
+      const isEdge = ua.indexOf('Edge') > -1 || ua.indexOf('Edg/') > -1;
+      const isFirefox = ua.indexOf('Firefox') > -1;
+      const isSafari = ua.indexOf('Safari') > -1 && ua.indexOf('Chrome') === -1;
+      
+      if (isEdge) {
+        document.documentElement.classList.add('edge-browser');
+      }
+      if (isFirefox) {
+        document.documentElement.classList.add('firefox-browser');
+      }
+      if (isSafari) {
+        document.documentElement.classList.add('safari-browser');
+      }
+    })();
+  </script>
 </head>
 <body class="bg-slate-50 text-slate-800 h-screen overflow-hidden flex font-sans antialiased">
   

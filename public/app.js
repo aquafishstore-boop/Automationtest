@@ -7,6 +7,172 @@ let lastRunResult = null;
 let selectedAgent = null;
 let stepStartTimes = {};
 
+// Browser detection and compatibility
+const BrowserCompat = {
+  isEdge: /Edge\/|Edg\//.test(navigator.userAgent),
+  isFirefox: /Firefox\//.test(navigator.userAgent),
+  isSafari: /Safari\//.test(navigator.userAgent) && !/Chrome\//.test(navigator.userAgent),
+  isChrome: /Chrome\//.test(navigator.userAgent) && !/Edge\/|Edg\//.test(navigator.userAgent),
+  
+  // Apply browser-specific fixes
+  applyFixes: function() {
+    if (this.isEdge) {
+      this.applyEdgeFixes();
+    } else if (this.isFirefox) {
+      this.applyFirefoxFixes();
+    } else if (this.isSafari) {
+      this.applySafariFixes();
+    }
+  },
+  
+  // Edge-specific fixes
+  applyEdgeFixes: function() {
+    // Fix for Edge grid layout issues
+    document.querySelectorAll('.grid').forEach(el => {
+      el.style.display = 'grid';
+    });
+    
+    // Fix for Edge flexbox gap issues
+    document.querySelectorAll('.flex').forEach(el => {
+      if (getComputedStyle(el).gap === 'normal') {
+        el.style.gap = '0.5rem';
+      }
+    });
+    
+    // Fix for Edge scrollbar styling
+    document.documentElement.classList.add('edge-browser');
+    
+    // Fix for Edge input placeholder issues
+    document.querySelectorAll('input').forEach(input => {
+      if (!input.placeholder) {
+        input.placeholder = '';
+      }
+    });
+    
+    // Fix for Edge select dropdown issues
+    document.querySelectorAll('select').forEach(select => {
+      select.style.backgroundImage = 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'12\' height=\'12\' viewBox=\'0 0 12 12\'%3E%3Cpath fill=\'%2364748b\' d=\'M6 9L1 4h10z\'/%3E%3C/svg%3E")';
+      select.style.backgroundRepeat = 'no-repeat';
+      select.style.backgroundPosition = 'right 0.75rem center';
+      select.style.backgroundSize = '12px';
+      select.style.paddingRight = '2.5rem';
+    });
+    
+    // Fix for Edge button hover states
+    document.querySelectorAll('button').forEach(button => {
+      button.style.transition = 'all 0.15s ease';
+    });
+    
+    // Fix for Edge animation performance
+    document.querySelectorAll('.transition-all').forEach(el => {
+      el.style.willChange = 'transform, opacity';
+    });
+    
+    console.log('Edge browser fixes applied');
+  },
+  
+  // Firefox-specific fixes
+  applyFirefoxFixes: function() {
+    document.documentElement.classList.add('firefox-browser');
+    
+    // Fix for Firefox scrollbar styling
+    document.documentElement.style.scrollbarWidth = 'thin';
+    document.documentElement.style.scrollbarColor = '#cbd5e1 #f1f5f9';
+    
+    // Fix for Firefox button rendering
+    document.querySelectorAll('button').forEach(button => {
+      button.style.fontFamily = 'inherit';
+    });
+    
+    // Fix for Firefox select arrow
+    document.querySelectorAll('select').forEach(select => {
+      select.style.MozAppearance = 'none';
+      select.style.appearance = 'none';
+      select.style.backgroundImage = 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'12\' height=\'12\' viewBox=\'0 0 12 12\'%3E%3Cpath fill=\'%2364748b\' d=\'M6 9L1 4h10z\'/%3E%3C/svg%3E")';
+      select.style.backgroundRepeat = 'no-repeat';
+      select.style.backgroundPosition = 'right 0.75rem center';
+      select.style.backgroundSize = '12px';
+      select.style.paddingRight = '2.5rem';
+    });
+    
+    console.log('Firefox browser fixes applied');
+  },
+  
+  // Safari-specific fixes
+  applySafariFixes: function() {
+    document.documentElement.classList.add('safari-browser');
+    
+    // Fix for Safari input height issues
+    document.querySelectorAll('input[type="text"], input[type="number"], input[type="password"], input[type="email"], input[type="search"]').forEach(input => {
+      input.style.webkitAppearance = 'none';
+      input.style.appearance = 'none';
+      input.style.lineHeight = 'normal';
+    });
+    
+    // Fix for Safari select rendering
+    document.querySelectorAll('select').forEach(select => {
+      select.style.webkitAppearance = 'none';
+      select.style.appearance = 'none';
+      select.style.backgroundImage = 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'12\' height=\'12\' viewBox=\'0 0 12 12\'%3E%3Cpath fill=\'%2364748b\' d=\'M6 9L1 4h10z\'/%3E%3C/svg%3E")';
+      select.style.backgroundRepeat = 'no-repeat';
+      select.style.backgroundPosition = 'right 0.75rem center';
+      select.style.backgroundSize = '12px';
+      select.style.paddingRight = '2.5rem';
+    });
+    
+    // Fix for Safari flexbox gap issues
+    document.querySelectorAll('.flex').forEach(el => {
+      if (!CSS.supports('gap', '1rem')) {
+        el.style.margin = '-0.5rem';
+        Array.from(el.children).forEach(child => {
+          child.style.margin = '0.5rem';
+        });
+      }
+    });
+    
+    console.log('Safari browser fixes applied');
+  },
+  
+  // Polyfills for older browsers
+  applyPolyfills: function() {
+    // Array.prototype.flat polyfill
+    if (!Array.prototype.flat) {
+      Array.prototype.flat = function(depth) {
+        depth = depth || 1;
+        return depth > 0 ? this.reduce((acc, val) => 
+          acc.concat(Array.isArray(val) ? val.flat(depth - 1) : val), []) : this.slice();
+      };
+    }
+    
+    // Object.entries polyfill
+    if (!Object.entries) {
+      Object.entries = function(obj) {
+        return Object.keys(obj).map(key => [key, obj[key]]);
+      };
+    }
+    
+    // Promise.finally polyfill
+    if (!Promise.prototype.finally) {
+      Promise.prototype.finally = function(callback) {
+        return this.then(
+          value => Promise.resolve(callback()).then(() => value),
+          reason => Promise.resolve(callback()).then(() => Promise.reject(reason))
+        );
+      };
+    }
+    
+    // String.prototype.replaceAll polyfill
+    if (!String.prototype.replaceAll) {
+      String.prototype.replaceAll = function(str, newStr) {
+        if (Object.prototype.toString.call(str).toLowerCase() === '[object regexp]') {
+          return this.replace(str, newStr);
+        }
+        return this.replace(new RegExp(str.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&'), 'g'), newStr);
+      };
+    }
+  }
+};
+
 const PAGE_INFO = {
   dashboard: { title: "Dashboard", subtitle: "Overview of all UAT testing activity" },
   runner: { title: "Test Runner", subtitle: "Execute UAT scripts with real-time progress" },
@@ -18,6 +184,10 @@ const PAGE_INFO = {
 
 // Initialize on page load
 document.addEventListener("DOMContentLoaded", () => {
+  // Apply browser compatibility fixes
+  BrowserCompat.applyPolyfills();
+  BrowserCompat.applyFixes();
+  
   restoreSession();
   init();
   document.addEventListener("keydown", handleKeyboard);
@@ -886,3 +1056,298 @@ async function checkPractitestStatus() {
     (await fetch("/api/practitest/status")).json();
   } catch {}
 }
+
+// ===== EDGE BROWSER SPECIFIC FIXES =====
+
+// Fix for Edge animation performance issues
+function optimizeEdgeAnimations() {
+  if (!BrowserCompat.isEdge) return;
+  
+  // Use requestAnimationFrame for smoother animations
+  const animateElements = document.querySelectorAll('.transition-all, .animate-pulse, .animate-spin');
+  animateElements.forEach(el => {
+    el.style.willChange = 'transform, opacity';
+  });
+  
+  // Optimize scroll performance
+  const scrollContainers = document.querySelectorAll('.overflow-y-auto, .overflow-x-auto');
+  scrollContainers.forEach(container => {
+    container.style.webkitOverflowScrolling = 'touch';
+    container.style.overscrollBehavior = 'contain';
+  });
+}
+
+// Fix for Edge grid layout issues
+function fixEdgeGridLayout() {
+  if (!BrowserCompat.isEdge) return;
+  
+  const grids = document.querySelectorAll('.grid');
+  grids.forEach(grid => {
+    // Force grid display
+    grid.style.display = 'grid';
+    
+    // Ensure proper gap handling
+    const computedGap = getComputedStyle(grid).gap;
+    if (computedGap === 'normal' || computedGap === '') {
+      grid.style.gap = '1rem';
+    }
+  });
+}
+
+// Fix for Edge flexbox issues
+function fixEdgeFlexboxLayout() {
+  if (!BrowserCompat.isEdge) return;
+  
+  const flexContainers = document.querySelectorAll('.flex');
+  flexContainers.forEach(flex => {
+    // Ensure proper gap handling
+    const computedGap = getComputedStyle(flex).gap;
+    if (computedGap === 'normal' || computedGap === '') {
+      // Fallback to margin-based spacing
+      const children = Array.from(flex.children);
+      children.forEach((child, index) => {
+        if (index > 0) {
+          child.style.marginLeft = '0.5rem';
+        }
+      });
+    }
+  });
+}
+
+// Fix for Edge form element rendering
+function fixEdgeFormElements() {
+  if (!BrowserCompat.isEdge) return;
+  
+  // Fix select dropdown arrows
+  const selects = document.querySelectorAll('select');
+  selects.forEach(select => {
+    select.style.backgroundImage = 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'12\' height=\'12\' viewBox=\'0 0 12 12\'%3E%3Cpath fill=\'%2364748b\' d=\'M6 9L1 4h10z\'/%3E%3C/svg%3E")';
+    select.style.backgroundRepeat = 'no-repeat';
+    select.style.backgroundPosition = 'right 0.75rem center';
+    select.style.backgroundSize = '12px';
+    select.style.paddingRight = '2.5rem';
+  });
+  
+  // Fix input placeholder styling
+  const inputs = document.querySelectorAll('input');
+  inputs.forEach(input => {
+    if (!input.placeholder) {
+      input.placeholder = '';
+    }
+  });
+  
+  // Fix textarea rendering
+  const textareas = document.querySelectorAll('textarea');
+  textareas.forEach(textarea => {
+    textarea.style.resize = 'vertical';
+    textarea.style.minHeight = '80px';
+  });
+}
+
+// Fix for Edge button hover states
+function fixEdgeButtonStates() {
+  if (!BrowserCompat.isEdge) return;
+  
+  const buttons = document.querySelectorAll('button');
+  buttons.forEach(button => {
+    // Ensure smooth transitions
+    button.style.transition = 'all 0.15s ease';
+    
+    // Fix focus states
+    button.addEventListener('focus', () => {
+      button.style.outline = '2px solid #3b82f6';
+      button.style.outlineOffset = '2px';
+    });
+    
+    button.addEventListener('blur', () => {
+      button.style.outline = 'none';
+    });
+  });
+}
+
+// Fix for Edge scrollbar styling
+function fixEdgeScrollbars() {
+  if (!BrowserCompat.isEdge) return;
+  
+  // Add custom scrollbar styles
+  const style = document.createElement('style');
+  style.textContent = `
+    .edge-browser ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    .edge-browser ::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    .edge-browser ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 4px;
+    }
+    .edge-browser ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+  `;
+  document.head.appendChild(style);
+}
+
+// Fix for Edge modal backdrop
+function fixEdgeModalBackdrop() {
+  if (!BrowserCompat.isEdge) return;
+  
+  const modals = document.querySelectorAll('[id$="Modal"]');
+  modals.forEach(modal => {
+    modal.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+    modal.style.backdropFilter = 'blur(4px)';
+    modal.style.webkitBackdropFilter = 'blur(4px)';
+  });
+}
+
+// Fix for Edge toast notifications
+function fixEdgeToastNotifications() {
+  if (!BrowserCompat.isEdge) return;
+  
+  const toastContainer = document.getElementById('toastContainer');
+  if (toastContainer) {
+    toastContainer.style.zIndex = '9999';
+    toastContainer.style.position = 'fixed';
+    toastContainer.style.bottom = '1.5rem';
+    toastContainer.style.right = '1.5rem';
+  }
+}
+
+// Fix for Edge timeline rendering
+function fixEdgeTimeline() {
+  if (!BrowserCompat.isEdge) return;
+  
+  const timelineItems = document.querySelectorAll('.timeline-item');
+  timelineItems.forEach(item => {
+    // Ensure proper positioning
+    item.style.position = 'relative';
+    
+    // Fix connector line
+    const connector = item.querySelector('::before');
+    if (connector) {
+      connector.style.boxShadow = '0 0 0 2px #fff';
+    }
+  });
+}
+
+// Fix for Edge card hover effects
+function fixEdgeCardHoverEffects() {
+  if (!BrowserCompat.isEdge) return;
+  
+  const cards = document.querySelectorAll('.agent-card, .kpi-card');
+  cards.forEach(card => {
+    card.style.transition = 'all 0.15s ease';
+    
+    card.addEventListener('mouseenter', () => {
+      card.style.transform = 'translateY(-2px)';
+      card.style.boxShadow = '0 8px 20px rgba(0, 0, 0, 0.1)';
+    });
+    
+    card.addEventListener('mouseleave', () => {
+      card.style.transform = 'translateY(0)';
+      card.style.boxShadow = '';
+    });
+  });
+}
+
+// Initialize all Edge fixes
+function initializeEdgeFixes() {
+  if (!BrowserCompat.isEdge) return;
+  
+  // Apply all fixes
+  optimizeEdgeAnimations();
+  fixEdgeGridLayout();
+  fixEdgeFlexboxLayout();
+  fixEdgeFormElements();
+  fixEdgeButtonStates();
+  fixEdgeScrollbars();
+  fixEdgeModalBackdrop();
+  fixEdgeToastNotifications();
+  fixEdgeTimeline();
+  fixEdgeCardHoverEffects();
+  
+  console.log('Edge browser fixes initialized');
+}
+
+// Run Edge fixes after DOM is fully loaded
+if (BrowserCompat.isEdge) {
+  window.addEventListener('load', () => {
+    setTimeout(initializeEdgeFixes, 100);
+  });
+}
+
+// ===== CROSS-BROWSER COMPATIBILITY =====
+
+// Ensure consistent behavior across all browsers
+function ensureCrossBrowserCompatibility() {
+  // Fix for browsers that don't support CSS gap in flexbox
+  if (!CSS.supports('gap', '1rem')) {
+    document.querySelectorAll('.flex').forEach(flex => {
+      const children = Array.from(flex.children);
+      children.forEach((child, index) => {
+        if (index > 0) {
+          child.style.marginLeft = '0.5rem';
+        }
+      });
+    });
+  }
+  
+  // Fix for browsers that don't support :focus-visible
+  if (!CSS.supports('selector(:focus-visible)')) {
+    document.querySelectorAll('button, input, select, textarea').forEach(el => {
+      el.addEventListener('focus', () => {
+        el.style.outline = '2px solid #3b82f6';
+        el.style.outlineOffset = '2px';
+      });
+      el.addEventListener('blur', () => {
+        el.style.outline = '';
+        el.style.outlineOffset = '';
+      });
+    });
+  }
+  
+  // Fix for browsers that don't support smooth scrolling
+  if (!CSS.supports('scroll-behavior', 'smooth')) {
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function(e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+          target.scrollIntoView({ behavior: 'smooth' });
+        }
+      });
+    });
+  }
+}
+
+// Initialize cross-browser compatibility
+document.addEventListener('DOMContentLoaded', () => {
+  ensureCrossBrowserCompatibility();
+});
+
+// Handle window resize for responsive fixes
+window.addEventListener('resize', () => {
+  if (BrowserCompat.isEdge) {
+    // Re-apply Edge fixes on resize
+    fixEdgeGridLayout();
+    fixEdgeFlexboxLayout();
+  }
+});
+
+// Handle visibility change for performance
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) {
+    // Pause animations when tab is not visible
+    document.querySelectorAll('.animate-pulse, .animate-spin').forEach(el => {
+      el.style.animationPlayState = 'paused';
+    });
+  } else {
+    // Resume animations when tab is visible
+    document.querySelectorAll('.animate-pulse, .animate-spin').forEach(el => {
+      el.style.animationPlayState = 'running';
+    });
+  }
+});
+
