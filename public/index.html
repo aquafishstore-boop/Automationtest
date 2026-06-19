@@ -1,327 +1,212 @@
 <!DOCTYPE html>
-<html lang="en" class="">
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pathology UAT Test Runner</title>
-  <link rel="stylesheet" href="/style.css">
-  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Fira+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Pathology UAT Test Runner</title>
+<link rel="stylesheet" href="/style.css">
+<link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Fira+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-  <div class="onboarding-overlay hidden" id="onboardingOverlay" onclick="skipOnboarding()"></div>
-
-  <header class="app-header" role="banner">
-    <div class="header-inner">
-      <div class="header-left">
-        <button class="sidebar-toggle" onclick="toggleSidebar()" aria-label="Toggle navigation menu">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-        </button>
-        <a href="#" class="logo" onclick="switchTab('dashboard');return false" aria-label="Dashboard home">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-          <span>UAT Test Runner</span>
-        </a>
-      </div>
-      <nav class="breadcrumb" id="breadcrumb" aria-label="Breadcrumb">
-        <span class="breadcrumb-item active">Dashboard</span>
-      </nav>
-      <div class="header-right" role="toolbar" aria-label="Header actions">
-        <button class="header-btn" id="helpBtn" onclick="startOnboarding()" aria-label="Take a tour">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-          <span class="header-btn-label">Tour</span>
-        </button>
-        <button class="header-btn" id="kbdBtn" onclick="toggleKbdModal()" aria-label="Keyboard shortcuts">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M6 8h.01M10 8h.01M14 8h.01M18 8h.01M8 12h.01M12 12h.01M16 12h.01M6 16h12"/></svg>
-          <span class="header-btn-label">Keys</span>
-        </button>
-        <button class="header-btn theme-btn" id="themeToggle" onclick="toggleTheme()" aria-label="Toggle dark mode">
-          <svg id="themeIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-        </button>
+<header class="header">
+  <div class="header-inner">
+    <div class="header-left">
+      <button class="hamburger" onclick="toggleSidebar()" aria-label="Menu"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+      <div class="logo" onclick="switchTab('dashboard')" style="cursor:pointer">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+        <span>UAT Tester</span>
       </div>
     </div>
-  </header>
-
-  <div class="app-body">
-    <aside class="sidebar" id="sidebar" role="navigation" aria-label="Main navigation">
-      <div class="sidebar-section">
-        <div class="sidebar-section-title">Activity</div>
-        <nav class="sidebar-nav">
-          <button class="sidebar-tab active" data-tab="dashboard" onclick="switchTab('dashboard')" aria-current="page">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
-            <span>Dashboard</span>
-            <span class="sidebar-badge" id="runCountBadge" style="display:none;">0</span>
-          </button>
-          <button class="sidebar-tab" data-tab="runner" onclick="switchTab('runner')">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-            <span>Test Runner</span>
-          </button>
-        </nav>
-      </div>
-      <div class="sidebar-section">
-        <div class="sidebar-section-title">Automation</div>
-        <nav class="sidebar-nav">
-          <button class="sidebar-tab" data-tab="agents" onclick="switchTab('agents')">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a4 4 0 0 0-4 4v1H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-2V6a4 4 0 0 0-4-4z"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="8" y1="15" x2="16" y2="15"/></svg>
-            <span>AI Agents</span>
-            <span class="sidebar-badge badge-success" id="agentCountBadge">9</span>
-          </button>
-          <button class="sidebar-tab" data-tab="aitools" onclick="switchTab('aitools')">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
-            <span>AI Tools</span>
-          </button>
-        </nav>
-      </div>
-      <div class="sidebar-section">
-        <div class="sidebar-section-title">Data</div>
-        <nav class="sidebar-nav">
-          <button class="sidebar-tab" data-tab="fhir" onclick="switchTab('fhir')">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="12" y1="9" x2="12" y2="17"/></svg>
-            <span>FHIR Data</span>
-          </button>
-        </nav>
-      </div>
-      <div class="sidebar-section">
-        <div class="sidebar-section-title">System</div>
-        <nav class="sidebar-nav">
-          <button class="sidebar-tab" data-tab="infra" onclick="switchTab('infra')">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"/><rect x="2" y="14" width="20" height="8" rx="2" ry="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>
-            <span>Infrastructure</span>
-          </button>
-        </nav>
-      </div>
-      <div class="sidebar-footer">
-        <div class="sidebar-footer-row">
-          <span class="sidebar-version">v3.2.0</span>
-          <span class="sidebar-dot" id="sidebarStatus" aria-label="Connection status"></span>
-        </div>
-      </div>
-    </aside>
-
-    <main class="main-content" id="mainContent" role="main">
-
-      <!-- DASHBOARD -->
-      <section class="tab-content active" id="tab-dashboard" aria-label="Dashboard">
-        <div class="page-header">
-          <div class="page-header-text">
-            <h1 class="page-title">Dashboard</h1>
-            <p class="page-subtitle">Overview of UAT testing activity across all pathology systems</p>
-          </div>
-          <div class="page-header-actions">
-            <button class="btn btn-primary" onclick="switchTab('runner')">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-              New Run
-            </button>
-          </div>
-        </div>
-        <div class="kpi-grid" id="statsGrid">
-          <div class="kpi-card"><div class="kpi-icon kpi-blue"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg></div><div class="kpi-body"><span class="kpi-value" id="statRuns">-</span><span class="kpi-label">Total Runs</span></div></div>
-          <div class="kpi-card"><div class="kpi-icon kpi-green"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div><div class="kpi-body"><span class="kpi-value" id="statPassRate">-</span><span class="kpi-label">Pass Rate</span></div></div>
-          <div class="kpi-card"><div class="kpi-icon kpi-purple"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a4 4 0 0 0-4 4v1H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-2V6a4 4 0 0 0-4-4z"/></svg></div><div class="kpi-body"><span class="kpi-value" id="statAgents">-</span><span class="kpi-label">AI Agents</span></div></div>
-          <div class="kpi-card"><div class="kpi-icon kpi-amber"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></div><div class="kpi-body"><span class="kpi-value" id="statScreenshots">-</span><span class="kpi-label">Screenshots</span></div></div>
-        </div>
-        <div class="dash-grid">
-          <div class="card-widget widget-actions">
-            <div class="widget-header"><h2>Quick Actions</h2></div>
-            <div class="actions-grid">
-              <button class="action-item" onclick="switchTab('runner')"><span class="action-icon" style="background:#dbeafe;color:#1e40af;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg></span><span class="action-label">Run Test</span><span class="action-hint">Execute a script</span></button>
-              <button class="action-item" onclick="switchTab('agents')"><span class="action-icon" style="background:#dcfce7;color:#166534;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a4 4 0 0 0-4 4v1H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-2V6a4 4 0 0 0-4-4z"/></svg></span><span class="action-label">AI Agents</span><span class="action-hint">9 agents available</span></button>
-              <button class="action-item" onclick="switchTab('aitools')"><span class="action-icon" style="background:#ede9fe;color:#6d28d9;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></span><span class="action-label">NL Authoring</span><span class="action-hint">Describe → generate</span></button>
-              <button class="action-item" onclick="switchTab('fhir')"><span class="action-icon" style="background:#fef3c7;color:#92400e;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="12" y1="9" x2="12" y2="17"/></svg></span><span class="action-label">FHIR Data</span><span class="action-hint">Synthetic patients</span></button>
-              <button class="action-item" onclick="switchTab('infra')"><span class="action-icon" style="background:#e0e7ff;color:#3730a3;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"/><rect x="2" y="14" width="20" height="8" rx="2" ry="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg></span><span class="action-label">Infrastructure</span><span class="action-hint">Metrics & config</span></button>
-            </div>
-          </div>
-          <div class="card-widget">
-            <div class="widget-header"><h2>Recent Runs</h2></div>
-            <div class="widget-body compact-scroll" id="recentRuns" style="max-height:260px;"><div class="empty-state">No runs yet. <button class="btn btn-link" onclick="switchTab('runner')">Run your first test →</button></div></div>
-          </div>
-          <div class="card-widget">
-            <div class="widget-header"><h2>System Health</h2></div>
-            <div class="widget-body" id="healthList"></div>
-          </div>
-          <div class="card-widget">
-            <div class="widget-header"><h2>Import Tests</h2></div>
-            <div class="widget-body"><p class="help-text">Import from a PractiTest CSV export.</p><input type="file" id="dashCsvInput" accept=".csv" class="file-input"><div class="btn-row"><button class="btn btn-secondary btn-sm" onclick="dashPreviewCSV()">Preview</button><button class="btn btn-primary btn-sm" onclick="dashImportCSV()">Import</button></div><div id="dashCsvResult"></div></div>
-          </div>
-        </div>
-      </section>
-
-      <!-- RUNNER -->
-      <section class="tab-content" id="tab-runner" aria-label="Test Runner">
-        <div class="page-header"><div class="page-header-text"><h1 class="page-title">Test Runner</h1><p class="page-subtitle">Execute UAT scripts with step-by-step progress, screenshots, and reports</p></div></div>
-        <div class="runner-grid">
-          <div class="card-widget config-widget">
-            <div class="widget-header"><h2>Configuration</h2></div>
-            <div class="widget-body">
-              <div class="field"><label for="scriptSelect">Test Script</label><select id="scriptSelect" onchange="onScriptChange()"><option value="">-- Select a test script --</option></select></div>
-              <div id="scriptMeta" class="meta-box hidden"><div class="meta-row"><span class="meta-label">System:</span><span id="metaSystem"></span></div><div class="meta-row"><span class="meta-label">Steps:</span><span id="metaSteps"></span></div><div class="meta-row"><span class="meta-label">Description:</span><span id="metaDescription" style="font-size:0.72rem;"></span></div></div>
-              <div id="variablesPanel" class="hidden">
-                <div class="section-heading">Test Patient</div>
-                <div class="patient-card"><label for="patientSelect">Select NHS Digital test patient</label><select id="patientSelect" onchange="onPatientSelect()"><option value="">-- No patient selected --</option></select><div id="patientDetails" class="meta-box hidden"></div></div>
-                <div class="section-heading">Variables</div>
-                <div id="variablesForm" class="vars-form"></div>
-              </div>
-              <div class="btn-row">
-                <button class="btn btn-primary" id="runBtn" onclick="startRun()" disabled><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>Run Test</button>
-                <button class="btn btn-secondary" id="cancelBtn" onclick="cancelRun()" style="display:none;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Cancel</button>
-              </div>
-            </div>
-          </div>
-          <div class="card-widget progress-widget">
-            <div class="widget-header"><h2>Progress</h2><div class="run-meta hidden" id="runMeta"><span>Run: <strong id="runIdLabel">-</strong></span><span><strong id="startedLabel">-</strong></span></div></div>
-            <div class="widget-body">
-              <div class="kpi-row hidden" id="summaryCards">
-                <div class="kpi-mini"><span class="kpi-mini-value" id="cardTotal">0</span><span class="kpi-mini-label">Total</span></div>
-                <div class="kpi-mini"><span class="kpi-mini-value green" id="cardPassed">0</span><span class="kpi-mini-label">Passed</span></div>
-                <div class="kpi-mini"><span class="kpi-mini-value red" id="cardFailed">0</span><span class="kpi-mini-label">Failed</span></div>
-                <div class="kpi-mini"><span class="kpi-mini-value blue" id="cardRate">0%</span><span class="kpi-mini-label">Rate</span></div>
-              </div>
-              <div class="progress-track hidden" id="progressBarContainer"><div class="progress-fill" id="progressBar"></div></div>
-              <div class="step-timeline" id="stepList"><div class="empty-state">Select a script and press <strong>Run Test</strong> to start.</div></div>
-            </div>
-          </div>
-          <div class="card-widget">
-            <div class="widget-header"><h2>Screenshots</h2><div class="btn-row"><button class="btn btn-secondary btn-sm" id="reportBtn" onclick="openReport()" disabled>Report</button><button class="btn btn-secondary btn-sm" id="practitestBtn" onclick="uploadToPractitest()" disabled>Upload</button></div></div>
-            <div class="screenshot-grid" id="screenshotGrid"><div class="empty-state">Screenshots appear here as each step runs.</div></div>
-          </div>
-          <div class="card-widget">
-            <div class="widget-header"><h2>Event Log</h2><button class="btn btn-text btn-sm" onclick="clearLog()">Clear</button></div>
-            <div class="log-box" id="logContainer"><div class="empty-state">Waiting for test run...</div></div>
-          </div>
-        </div>
-      </section>
-
-      <!-- AGENTS -->
-      <section class="tab-content" id="tab-agents" aria-label="AI Agents">
-        <div class="page-header"><div class="page-header-text"><h1 class="page-title">AI Agents</h1><p class="page-subtitle">9 specialized pathology test agents — click an agent to configure and run</p></div></div>
-        <div class="agent-grid" id="agentGrid"></div>
-        <div class="card-widget hidden" id="agentRunPanel">
-          <div class="widget-header"><h2 id="agentRunTitle">Configure Agent</h2><button class="btn btn-text btn-sm" onclick="closeAgentRun()">← Back</button></div>
-          <div class="widget-body"><div id="agentRunForm"></div><div class="btn-row"><button class="btn btn-primary" id="agentRunBtn" onclick="executeAgent()">Run Agent</button></div><div id="agentResult" class="hidden" style="margin-top:0.75rem;"></div></div>
-        </div>
-      </section>
-
-      <!-- AI TOOLS -->
-      <section class="tab-content" id="tab-aitools" aria-label="AI Tools">
-        <div class="page-header"><div class="page-header-text"><h1 class="page-title">AI Tools</h1><p class="page-subtitle">Natural language authoring, auto-remediation, and model fine-tuning</p></div></div>
-        <div class="tools-grid">
-          <div class="card-widget">
-            <div class="widget-header"><h2>NL Authoring</h2><span class="badge badge-ai">AI</span></div>
-            <div class="widget-body">
-              <p class="help-text">Describe a test in plain English — AI generates the structured script.</p>
-              <div class="field"><label for="nlInput">What should the test do?</label><textarea id="nlInput" rows="3" placeholder="e.g. Order a FBC for TKFC in Winpath, enter a normal result, authorise, and verify in ICE" class="input-textarea"></textarea></div>
-              <div class="field"><label for="nlSystems">Target systems</label><input id="nlSystems" value="Winpath Enterprise, Surrey ICE"></div>
-              <div class="btn-row"><button class="btn btn-primary" onclick="generateScriptNL()">Generate</button><button class="btn btn-secondary" onclick="suggestTests()">Suggest</button><button class="btn btn-text" onclick="clearNL()">Clear</button></div>
-              <div id="nlResult" class="hidden result-box"></div>
-            </div>
-          </div>
-          <div class="card-widget">
-            <div class="widget-header"><h2>Auto-Remediation</h2><span class="badge badge-ai">AI</span></div>
-            <div class="widget-body">
-              <p class="help-text">When a step fails, AI diagnoses and retries with an alternative approach.</p>
-              <div class="mini-kpis"><div class="mini-kpi"><span class="mini-kpi-value" id="remTotal">-</span><span class="mini-kpi-label">Total</span></div><div class="mini-kpi"><span class="mini-kpi-value" id="remSuccess">-</span><span class="mini-kpi-label">Fixed</span></div><div class="mini-kpi"><span class="mini-kpi-value" id="remRate">-</span><span class="mini-kpi-label">Rate</span></div></div>
-              <div class="log-box" id="remediationLog" style="max-height:180px;"><div class="empty-state">No events yet.</div></div>
-            </div>
-          </div>
-          <div class="card-widget">
-            <div class="widget-header"><h2>Fine-Tuning</h2><span class="badge badge-ai">AI</span></div>
-            <div class="widget-body">
-              <p class="help-text">Collect training data from completed runs and submit for model fine-tuning.</p>
-              <div class="mini-kpis"><div class="mini-kpi"><span class="mini-kpi-value" id="ftFiles">-</span><span class="mini-kpi-label">Files</span></div><div class="mini-kpi"><span class="mini-kpi-value" id="ftExamples">-</span><span class="mini-kpi-label">Examples</span></div></div>
-              <div id="ftFileList" class="file-list"></div>
-              <div class="btn-row"><button class="btn btn-secondary btn-sm" onclick="collectTraining()">Collect Data</button><button class="btn btn-primary btn-sm" onclick="submitFineTune()">Submit Tuning</button></div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- FHIR -->
-      <section class="tab-content" id="tab-fhir" aria-label="FHIR Data">
-        <div class="page-header"><div class="page-header-text"><h1 class="page-title">FHIR Data</h1><p class="page-subtitle">Generate synthetic patient test data conforming to FHIR R4</p></div></div>
-        <div class="tools-grid">
-          <div class="card-widget">
-            <div class="widget-header"><h2>Generate Patients</h2></div>
-            <div class="widget-body">
-              <div class="row-2"><div class="field"><label>Count</label><input id="fhirCount" type="number" value="1" min="1" max="50"></div><div class="field"><label>Gender</label><select id="fhirGender"><option value="">Random</option><option value="male">Male</option><option value="female">Female</option></select></div></div>
-              <button class="btn btn-primary" onclick="generateFHIR()">Generate</button>
-              <div id="fhirResult" class="hidden result-box"></div>
-            </div>
-          </div>
-          <div class="card-widget">
-            <div class="widget-header"><h2>Observation Codes</h2></div>
-            <div class="codes-list" id="fhirCodes"></div>
-          </div>
-          <div class="card-widget">
-            <div class="widget-header"><h2>FHIR Server</h2></div>
-            <div class="widget-body">
-              <p class="help-text">API at <code>/api/fhir/r4/</code> — Patient, Observation, DiagnosticReport, Specimen, ServiceRequest</p>
-              <div class="mini-kpis" style="grid-template-columns:repeat(3,1fr);"><div class="mini-kpi"><span class="mini-kpi-value">Patient</span><span class="mini-kpi-label">GET/POST</span></div><div class="mini-kpi"><span class="mini-kpi-value">Observation</span><span class="mini-kpi-label">GET/POST</span></div><div class="mini-kpi"><span class="mini-kpi-value">Report</span><span class="mini-kpi-label">GET</span></div></div>
-              <button class="btn btn-secondary btn-sm" onclick="testFHIRServer()">Test Server</button>
-              <div id="fhirServerResult" class="hidden result-box"></div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- INFRA -->
-      <section class="tab-content" id="tab-infra" aria-label="Infrastructure">
-        <div class="page-header"><div class="page-header-text"><h1 class="page-title">Infrastructure</h1><p class="page-subtitle">Metrics, scheduled jobs, audit logs, load testing, and integrations</p></div></div>
-        <div class="infra-grid">
-          <div class="card-widget">
-            <div class="widget-header"><h2>Metrics</h2><button class="btn btn-text btn-sm" onclick="refreshMetrics()">Refresh</button></div>
-            <div id="metricsDisplay" class="mini-kpis"></div>
-            <div id="insightsDisplay" class="insight-section"></div>
-          </div>
-          <div class="card-widget">
-            <div class="widget-header"><h2>Scheduled Jobs</h2><button class="btn btn-secondary btn-sm" onclick="showAddSchedule()">+ Add</button></div>
-            <div id="scheduleList" style="max-height:240px;overflow-y:auto;"><div class="empty-state">No scheduled jobs. <button class="btn btn-link" onclick="showAddSchedule()">Add one →</button></div></div>
-            <div id="scheduleForm" class="hidden" style="margin-top:0.65rem;"><div class="field"><input id="schedCron" placeholder="Cron (e.g. 0 2 * * *)" value="0 2 * * *"></div><div class="field"><input id="schedScript" placeholder="Agent ID or filename"></div><div class="btn-row"><button class="btn btn-primary btn-sm" onclick="addSchedule()">Save</button><button class="btn btn-text btn-sm" onclick="hideScheduleForm()">Cancel</button></div></div>
-          </div>
-          <div class="card-widget">
-            <div class="widget-header"><h2>Audit Log</h2><div style="display:flex;gap:0.3rem;"><input id="auditDate" type="date" class="input-sm"><button class="btn btn-text btn-sm" onclick="loadAudit()">Load</button></div></div>
-            <div class="log-box" id="auditLog" style="max-height:280px;"><div class="empty-state">Select a date and load entries.</div></div>
-          </div>
-          <div class="card-widget">
-            <div class="widget-header"><h2>Load Tests</h2></div>
-            <div class="widget-body"><div class="field"><label>Convert a script</label><select id="loadScriptSelect"><option value="">-- Select --</option></select></div><div class="btn-row"><button class="btn btn-secondary btn-sm" onclick="generateK6()">k6</button><button class="btn btn-secondary btn-sm" onclick="generateArtillery()">Artillery</button></div><pre id="loadResult" class="hidden code-block"></pre></div>
-          </div>
-          <div class="card-widget"><div class="widget-header"><h2>Mobile Profiles</h2></div><div id="mobileProfiles"></div></div>
-          <div class="card-widget"><div class="widget-header"><h2>OAuth M2M</h2></div><div id="oauthStatus"></div></div>
-        </div>
-      </section>
-    </main>
-  </div>
-
-  <div class="toast-container" id="toastContainer" aria-live="polite"></div>
-
-  <div class="modal-overlay hidden" id="screenshotModal" onclick="closeModal()" role="dialog" aria-modal="true">
-    <div class="modal-box" onclick="event.stopPropagation()">
-      <button class="modal-close" onclick="closeModal()" aria-label="Close">&times;</button>
-      <img id="modalImage" src="" alt="Screenshot">
-      <div class="modal-caption" id="modalCaption"></div>
+    <div class="breadcrumb" id="breadcrumb"><span>Dashboard</span></div>
+    <div class="header-right">
+      <button class="hbtn" onclick="startOnboarding()" title="Tour"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg><span>Tour</span></button>
+      <button class="hbtn" onclick="toggleKbdModal()" title="Shortcuts"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M6 8h.01M10 8h.01M14 8h.01M18 8h.01M8 12h.01M12 12h.01M16 12h.01M6 16h12"/></svg><span>Keys</span></button>
+      <button class="hbtn" onclick="toggleTheme()" title="Dark mode"><svg id="themeIcon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>
     </div>
   </div>
+</header>
 
-  <div class="modal-overlay hidden" id="kbdModal" onclick="closeKbdModal()" role="dialog" aria-modal="true">
-    <div class="modal-box" onclick="event.stopPropagation()" style="max-width:480px;">
-      <button class="modal-close" onclick="closeKbdModal()" aria-label="Close">&times;</button>
-      <h2 class="modal-title">Keyboard Shortcuts</h2>
-      <div class="shortcuts-grid">
-        <div class="shortcut-row"><span class="keys"><kbd>Ctrl</kbd>+<kbd>Enter</kbd></span><span>Run test</span></div>
-        <div class="shortcut-row"><span class="keys"><kbd>Esc</kbd></span><span>Cancel / Close</span></div>
-        <div class="shortcut-row"><span class="keys"><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>1-5</kbd></span><span>Switch tabs</span></div>
-        <div class="shortcut-row"><span class="keys"><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>D</kbd></span><span>Toggle dark mode</span></div>
-        <div class="shortcut-row"><span class="keys"><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>N</kbd></span><span>AI Authoring</span></div>
-        <div class="shortcut-row"><span class="keys"><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>A</kbd></span><span>Agents tab</span></div>
-        <div class="shortcut-row"><span class="keys"><kbd>?</kbd></span><span>Show this help</span></div>
-      </div>
+<div class="app">
+  <aside class="sidebar" id="sidebar">
+    <div class="sgroup"><div class="sgt">Activity</div>
+      <button class="stab active" data-tab="dashboard" onclick="switchTab('dashboard')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg><span>Dashboard</span></button>
+      <button class="stab" data-tab="runner" onclick="switchTab('runner')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg><span>Test Runner</span></button>
     </div>
-  </div>
+    <div class="sgroup"><div class="sgt">Automation</div>
+      <button class="stab" data-tab="agents" onclick="switchTab('agents')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a4 4 0 0 0-4 4v1H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-2V6a4 4 0 0 0-4-4z"/></svg><span>AI Agents</span><span class="sbadge grn">9</span></button>
+      <button class="stab" data-tab="aitools" onclick="switchTab('aitools')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg><span>AI Tools</span></button>
+    </div>
+    <div class="sgroup"><div class="sgt">Data</div>
+      <button class="stab" data-tab="fhir" onclick="switchTab('fhir')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="12" y1="9" x2="12" y2="17"/></svg><span>FHIR Data</span></button>
+    </div>
+    <div class="sgroup"><div class="sgt">System</div>
+      <button class="stab" data-tab="infra" onclick="switchTab('infra')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"/><rect x="2" y="14" width="20" height="8" rx="2" ry="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg><span>Infrastructure</span></button>
+    </div>
+    <div class="sfooter"><span>v3.2.0</span><span class="sdot" id="sidebarStatus"></span></div>
+  </aside>
 
-  <div class="tooltip hidden" id="onboardingTooltip" role="tooltip">
-    <div class="tooltip-arrow"></div>
-    <div class="tooltip-body"><div class="tooltip-step" id="tooltipStep">1/5</div><div class="tooltip-title" id="tooltipTitle">Welcome!</div><div class="tooltip-text" id="tooltipText">This is your UAT testing dashboard.</div></div>
-    <div class="tooltip-footer"><button class="btn btn-text btn-sm" onclick="skipOnboarding()">Skip</button><button class="btn btn-primary btn-sm" id="tooltipNext" onclick="nextOnboarding()">Next</button></div>
-  </div>
+  <main class="main">
+    <!-- DASHBOARD -->
+    <section class="tabc active" id="tab-dashboard">
+      <div class="phead"><div><h1>Dashboard</h1><p class="sub">Overview of all UAT testing activity across pathology systems</p></div><button class="btn btn-p" onclick="switchTab('runner')"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>New Run</button></div>
+      <div class="kpis">
+        <div class="kpi"><div class="kpi-icon blu"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg></div><div><span class="kpiv" id="statRuns">-</span><span class="kpil">Total Runs</span></div></div>
+        <div class="kpi"><div class="kpi-icon grn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div><div><span class="kpiv" id="statPassRate">-</span><span class="kpil">Pass Rate</span></div></div>
+        <div class="kpi"><div class="kpi-icon pur"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a4 4 0 0 0-4 4v1H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-2V6a4 4 0 0 0-4-4z"/></svg></div><div><span class="kpiv" id="statAgents">-</span><span class="kpil">AI Agents</span></div></div>
+        <div class="kpi"><div class="kpi-icon amb"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></div><div><span class="kpiv" id="statScreenshots">-</span><span class="kpil">Screenshots</span></div></div>
+      </div>
+      <div class="dgrid">
+        <div class="card gfull">
+          <div class="ch"><h2>Quick Actions</h2></div>
+          <div class="actions">
+            <button class="acard" onclick="switchTab('runner')"><span class="aci" style="background:#dbeafe;color:#1e40af"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg></span><span class="act">Run Test</span><span class="acd">Execute a script with step-by-step progress</span></button>
+            <button class="acard" onclick="switchTab('agents')"><span class="aci" style="background:#dcfce7;color:#166534"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a4 4 0 0 0-4 4v1H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-2V6a4 4 0 0 0-4-4z"/></svg></span><span class="act">AI Agents</span><span class="acd">9 specialized pathology agents</span></button>
+            <button class="acard" onclick="switchTab('aitools')"><span class="aci" style="background:#ede9fe;color:#6d28d9"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></span><span class="act">NL Authoring</span><span class="acd">Describe → AI generates script</span></button>
+            <button class="acard" onclick="switchTab('fhir')"><span class="aci" style="background:#fef3c7;color:#92400e"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="12" y1="9" x2="12" y2="17"/></svg></span><span class="act">FHIR Data</span><span class="acd">Synthetic patient records</span></button>
+            <button class="acard" onclick="switchTab('infra')"><span class="aci" style="background:#e0e7ff;color:#3730a3"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"/><rect x="2" y="14" width="20" height="8" rx="2" ry="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg></span><span class="act">Infrastructure</span><span class="acd">Metrics, logs, scheduling</span></button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="ch"><h2>Recent Runs</h2></div>
+          <div id="recentRuns" style="max-height:280px;overflow-y:auto"><div class="empty">No runs yet.</div></div>
+        </div>
+        <div class="card">
+          <div class="ch"><h2>System Health</h2></div>
+          <div id="healthList"></div>
+        </div>
+        <div class="card">
+          <div class="ch"><h2>Import Tests</h2></div>
+          <p class="help">Import test scripts from a PractiTest CSV export.</p>
+          <input type="file" id="dashCsvInput" accept=".csv" class="file-inp">
+          <div class="btn-row"><button class="btn btn-s" onclick="dashPreviewCSV()">Preview</button><button class="btn btn-p btn-sm" onclick="dashImportCSV()">Import</button></div>
+          <div id="dashCsvResult"></div>
+        </div>
+      </div>
+    </section>
 
-  <script src="/app.js"></script>
+    <!-- RUNNER -->
+    <section class="tabc" id="tab-runner">
+      <div class="phead"><div><h1>Test Runner</h1><p class="sub">Execute UAT scripts with real-time progress and screenshots</p></div></div>
+      <div class="rgrid">
+        <div class="card">
+          <div class="ch"><h2>Configuration</h2></div>
+          <div class="field"><label>Test Script</label><select id="scriptSelect" onchange="onScriptChange()"><option value="">-- Select a test script --</option></select></div>
+          <div id="scriptMeta" class="meta hidden"><div class="mr"><span class="ml">System:</span><span id="metaSystem"></span></div><div class="mr"><span class="ml">Steps:</span><span id="metaSteps"></span></div></div>
+          <div id="variablesPanel" class="hidden">
+            <div class="sh">Test Patient</div>
+            <div class="pc"><label for="patientSelect">NHS Digital test patient</label><select id="patientSelect" onchange="onPatientSelect()"><option value="">-- Select --</option></select><div id="patientDetails" class="meta hidden"></div></div>
+            <div class="sh">Variables</div>
+            <div id="variablesForm"></div>
+          </div>
+          <div class="btn-row"><button class="btn btn-p" id="runBtn" onclick="startRun()" disabled><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>Run Test</button><button class="btn btn-s" id="cancelBtn" onclick="cancelRun()" style="display:none">Cancel</button></div>
+        </div>
+        <div class="card">
+          <div class="ch"><h2>Progress</h2><span class="rmeta hidden" id="runMeta">Run: <strong id="runIdLabel">-</strong> &middot; <strong id="startedLabel">-</strong></span></div>
+          <div class="stats hidden" id="summaryCards"><div class="st"><span class="stv" id="cardTotal">0</span><span class="stl">Total</span></div><div class="st"><span class="stv grn" id="cardPassed">0</span><span class="stl">Passed</span></div><div class="st"><span class="stv red" id="cardFailed">0</span><span class="stl">Failed</span></div><div class="st"><span class="stv blu" id="cardRate">0%</span><span class="stl">Rate</span></div></div>
+          <div class="pbar hidden" id="progressBarContainer"><div class="pfill" id="progressBar"></div></div>
+          <div class="timeline" id="stepList"><div class="empty">Select a script and run.</div></div>
+        </div>
+        <div class="card">
+          <div class="ch"><h2>Screenshots</h2><div><button class="btn btn-s btn-sm" id="reportBtn" onclick="openReport()" disabled>Report</button><button class="btn btn-s btn-sm" id="practitestBtn" onclick="uploadToPractitest()" disabled>Upload</button></div></div>
+          <div class="sg" id="screenshotGrid"><div class="empty">Screenshots appear here.</div></div>
+        </div>
+        <div class="card">
+          <div class="ch"><h2>Event Log</h2><button class="btn btn-text btn-sm" onclick="clearLog()">Clear</button></div>
+          <div class="log" id="logContainer"><div class="empty">Waiting for test...</div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- AGENTS -->
+    <section class="tabc" id="tab-agents">
+      <div class="phead"><div><h1>AI Agents</h1><p class="sub">9 pathology-specific agents — click to configure and run</p></div></div>
+      <div class="ag" id="agentGrid"></div>
+      <div class="card hidden" id="agentRunPanel">
+        <div class="ch"><h2 id="agentRunTitle">Agent</h2><button class="btn btn-text btn-sm" onclick="closeAgentRun()">&larr; Back</button></div>
+        <div id="agentRunForm"></div>
+        <div class="btn-row"><button class="btn btn-p" id="agentRunBtn" onclick="executeAgent()">Run Agent</button></div>
+        <div id="agentResult" class="hidden" style="margin-top:12px"></div>
+      </div>
+    </section>
+
+    <!-- AI TOOLS -->
+    <section class="tabc" id="tab-aitools">
+      <div class="phead"><div><h1>AI Tools</h1><p class="sub">Natural language authoring, auto-remediation, and model fine-tuning</p></div></div>
+      <div class="tgrid">
+        <div class="card">
+          <div class="ch"><h2>NL Authoring</h2><span class="badge ai">AI</span></div>
+          <p class="help">Describe a test in plain English — AI generates a structured script.</p>
+          <div class="field"><label>What should the test do?</label><textarea id="nlInput" rows="3" placeholder="e.g. Order a FBC for TKFC in Winpath, enter results, authorise, and verify in ICE" class="tarea"></textarea></div>
+          <div class="field"><label>Target systems</label><input id="nlSystems" value="Winpath Enterprise, Surrey ICE"></div>
+          <div class="btn-row"><button class="btn btn-p" onclick="generateScriptNL()">Generate</button><button class="btn btn-s" onclick="suggestTests()">Suggest</button><button class="btn btn-text" onclick="clearNL()">Clear</button></div>
+          <div id="nlResult" class="hidden rbox"></div>
+        </div>
+        <div class="card">
+          <div class="ch"><h2>Auto-Remediation</h2><span class="badge ai">AI</span></div>
+          <p class="help">AI diagnoses failed steps and retries with alternative approaches.</p>
+          <div class="mkpis"><div class="mkpi"><span class="mkpiv" id="remTotal">-</span><span class="mkpil">Total</span></div><div class="mkpi"><span class="mkpiv" id="remSuccess">-</span><span class="mkpil">Fixed</span></div><div class="mkpi"><span class="mkpiv" id="remRate">-</span><span class="mkpil">Rate</span></div></div>
+          <div class="log" id="remediationLog" style="max-height:180px"><div class="empty">No events.</div></div>
+        </div>
+        <div class="card">
+          <div class="ch"><h2>Fine-Tuning</h2><span class="badge ai">AI</span></div>
+          <p class="help">Collect training data from runs and submit for model fine-tuning.</p>
+          <div class="mkpis"><div class="mkpi"><span class="mkpiv" id="ftFiles">-</span><span class="mkpil">Files</span></div><div class="mkpi"><span class="mkpiv" id="ftExamples">-</span><span class="mkpil">Examples</span></div></div>
+          <div id="ftFileList" class="flist"></div>
+          <div class="btn-row"><button class="btn btn-s btn-sm" onclick="collectTraining()">Collect</button><button class="btn btn-p btn-sm" onclick="submitFineTune()">Submit Tuning</button></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FHIR -->
+    <section class="tabc" id="tab-fhir">
+      <div class="phead"><div><h1>FHIR Data</h1><p class="sub">Generate synthetic patient test data conforming to FHIR R4</p></div></div>
+      <div class="tgrid">
+        <div class="card">
+          <div class="ch"><h2>Generate Patients</h2></div>
+          <div class="row2"><div class="field"><label>Count</label><input id="fhirCount" type="number" value="1" min="1" max="50"></div><div class="field"><label>Gender</label><select id="fhirGender"><option value="">Random</option><option value="male">Male</option><option value="female">Female</option></select></div></div>
+          <button class="btn btn-p" onclick="generateFHIR()">Generate</button>
+          <div id="fhirResult" class="hidden rbox"></div>
+        </div>
+        <div class="card">
+          <div class="ch"><h2>Observation Codes</h2></div>
+          <div id="fhirCodes" style="font-size:13px"></div>
+        </div>
+        <div class="card">
+          <div class="ch"><h2>FHIR Server</h2></div>
+          <p class="help">R4 API at <code>/api/fhir/r4/</code> — Patient, Observation, DiagnosticReport</p>
+          <div class="mkpis" style="grid-template-columns:repeat(3,1fr)"><div class="mkpi"><span class="mkpiv">Patient</span><span class="mkpil">GET/POST</span></div><div class="mkpi"><span class="mkpiv">Observation</span><span class="mkpil">GET/POST</span></div><div class="mkpi"><span class="mkpiv">Report</span><span class="mkpil">GET</span></div></div>
+          <button class="btn btn-s btn-sm" onclick="testFHIRServer()">Test Server</button>
+          <div id="fhirServerResult" class="hidden rbox"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- INFRA -->
+    <section class="tabc" id="tab-infra">
+      <div class="phead"><div><h1>Infrastructure</h1><p class="sub">Metrics, scheduling, audit logs, load testing, and integrations</p></div></div>
+      <div class="tgrid">
+        <div class="card"><div class="ch"><h2>Metrics</h2><button class="btn btn-text btn-sm" onclick="refreshMetrics()">Refresh</button></div><div id="metricsDisplay" class="mkpis"></div><div id="insightsDisplay"></div></div>
+        <div class="card"><div class="ch"><h2>Scheduled Jobs</h2><button class="btn btn-s btn-sm" onclick="showAddSchedule()">+ Add</button></div><div id="scheduleList" class="compact-scroll"><div class="empty">No jobs.</div></div><div id="scheduleForm" class="hidden" style="margin-top:8px"><div class="field"><input id="schedCron" placeholder="Cron (e.g. 0 2 * * *)" value="0 2 * * *"></div><div class="field"><input id="schedScript" placeholder="Agent ID or filename"></div><div class="btn-row"><button class="btn btn-p btn-sm" onclick="addSchedule()">Save</button><button class="btn btn-text btn-sm" onclick="hideScheduleForm()">Cancel</button></div></div></div>
+        <div class="card"><div class="ch"><h2>Audit Log</h2><div><input id="auditDate" type="date" class="date-inp"><button class="btn btn-text btn-sm" onclick="loadAudit()">Load</button></div></div><div class="log" id="auditLog" style="max-height:280px"><div class="empty">Select a date.</div></div></div>
+        <div class="card"><div class="ch"><h2>Load Tests</h2></div><div class="field"><label>Convert a script</label><select id="loadScriptSelect"><option value="">-- Select --</option></select></div><div class="btn-row"><button class="btn btn-s btn-sm" onclick="generateK6()">k6</button><button class="btn btn-s btn-sm" onclick="generateArtillery()">Artillery</button></div><pre id="loadResult" class="hidden codeb"></pre></div>
+        <div class="card"><div class="ch"><h2>Mobile Profiles</h2></div><div id="mobileProfiles"></div></div>
+        <div class="card"><div class="ch"><h2>OAuth M2M</h2></div><div id="oauthStatus"></div></div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<div class="toasts" id="toastContainer" aria-live="polite"></div>
+
+<div class="modal hidden" id="screenshotModal" onclick="closeModal()">
+  <div class="modal-b" onclick="event.stopPropagation()"><button class="modal-x" onclick="closeModal()">&times;</button><img id="modalImage" src="" alt="Screenshot"><div class="modal-c" id="modalCaption"></div></div>
+</div>
+
+<div class="modal hidden" id="kbdModal" onclick="closeKbdModal()">
+  <div class="modal-b" onclick="event.stopPropagation()" style="max-width:460px"><button class="modal-x" onclick="closeKbdModal()">&times;</button><h2 class="modal-t">Keyboard Shortcuts</h2>
+  <div class="kbdg"><div class="kblr"><span class="keys"><kbd>Ctrl</kbd>+<kbd>Enter</kbd></span><span>Run test</span></div><div class="kblr"><span class="keys"><kbd>Esc</kbd></span><span>Cancel / Close</span></div><div class="kblr"><span class="keys"><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>D</kbd></span><span>Dark mode</span></div><div class="kblr"><span class="keys"><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>N</kbd></span><span>AI Authoring</span></div><div class="kblr"><span class="keys"><kbd>?</kbd></span><span>Help</span></div></div></div>
+</div>
+
+<script src="/app.js"></script>
 </body>
 </html>
