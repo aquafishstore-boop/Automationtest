@@ -187,6 +187,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Apply browser compatibility fixes
   BrowserCompat.applyPolyfills();
   BrowserCompat.applyFixes();
+  ensureCrossBrowserCompatibility();
   
   restoreSession();
   init();
@@ -1321,11 +1322,6 @@ function ensureCrossBrowserCompatibility() {
     });
   }
 }
-
-// Initialize cross-browser compatibility
-document.addEventListener('DOMContentLoaded', () => {
-  ensureCrossBrowserCompatibility();
-});
 
 // Handle window resize for responsive fixes
 window.addEventListener('resize', () => {
