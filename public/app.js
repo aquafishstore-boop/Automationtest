@@ -247,10 +247,10 @@ function disableDarkMode() {
 
 function switchTab(name, silent) {
   // Update tab content
-  document.querySelectorAll(".tab-content").forEach(t => t.classList.toggle("active", t.id === `tab-${name}`));
+  document.querySelectorAll(".tabc").forEach(t => t.classList.toggle("active", t.id === `tab-${name}`));
   
   // Update nav buttons
-  document.querySelectorAll(".nav-btn").forEach(btn => {
+  document.querySelectorAll(".stab").forEach(btn => {
     btn.classList.toggle("active", btn.dataset.tab === name);
   });
   
@@ -610,8 +610,7 @@ function onRunComplete(data) {
   resetButtons();
   document.getElementById("reportBtn").disabled = false;
   document.getElementById("currentStepDesc").textContent = "Execution completed.";
-  document.getElementById("progressBar").classList.add("bg-green-500");
-  document.getElementById("progressBar").classList.remove("bg-blue-600");
+  document.getElementById("progressBar").style.background = "#16A34A";
   if (eventSource) {
     eventSource.close();
     eventSource = null;
